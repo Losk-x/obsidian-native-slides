@@ -1,7 +1,4 @@
 ---
-tags:
-  - demo
-  - tutorial
 deck: ["[[overview]]", "[[slide-2]]"]
 ---
 
