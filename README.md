@@ -12,7 +12,7 @@
 
 ## English
 
-**Design principles** — zero intrusion into note content, minimal properties footprint (a single `deck` key), and efficient code with no unnecessary persistence. See [docs/design.md](docs/design.md).
+**Design principles** — zero intrusion into note content, minimal properties footprint (a single `deck` key), no persistence beyond configuration, and efficient, idiomatic code. See [docs/design.md](docs/design.md).
 
 ### Features
 
@@ -104,7 +104,7 @@ Then reload the plugin in Obsidian (or install the **Hot Reload** community plug
 
 ## 中文说明
 
-**设计原则** —— 对笔记内容零侵入、对 properties 最小侵入（仅 `deck` 一个属性）、实现高效且不持久化多余数据。详见 [docs/design.md](docs/design.md)。
+**设计原则** —— 对笔记内容零侵入、对 properties 最小侵入（仅 `deck` 一个属性）、不持久化配置以外的不必要内容、实现高效且代码规范优美。详见 [docs/design.md](docs/design.md)。
 
 ### 功能特性
 
