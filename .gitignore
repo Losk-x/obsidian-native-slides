@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+.npm-cache/
+
+# Obsidian per-machine workspace state (personal, not part of the plugin)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspace-state.json
+.obsidian/plugins/read-props-bar/node_modules/
+.obsidian/plugins/read-props-bar/.npm-cache/

@@ -1,0 +1,9 @@
+{
+  "id": "read-props-bar",
+  "name": "Read-View Properties Bar",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Hides the status bar; in reading view, shows the note's properties in a bottom bar with PPT-style deck navigation — one `deck` property (overview + next links) drives prev/next and auto-computed page numbers.",
+  "author": "research-skills",
+  "isDesktopOnly": false
+}

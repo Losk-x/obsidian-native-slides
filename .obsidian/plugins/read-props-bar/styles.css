@@ -1,0 +1,111 @@
+/* ============================================================
+   read-props-bar styles
+   ============================================================ */
+
+/* ── 1. Hide the native status bar ─────────────────────────── */
+.status-bar {
+  display: none !important;
+}
+
+/* ── 2. Hide the in-note properties panel in reading view ────
+   Properties already live in the bottom bar, so the panel would
+   be redundant; it stays visible in edit view for editing */
+.markdown-reading-view .metadata-container {
+  display: none !important;
+}
+
+/* ── 3. Fullscreen reading mode (entered automatically) ──────
+   Hides the ribbon, sidebars, tab bar and the pane header bar
+   (the one with the back/forward buttons) so the reading area
+   fills the window; the bottom properties bar stays visible */
+body.rv-props-fullscreen .workspace-ribbon,
+body.rv-props-fullscreen .workspace-split.mod-left-split,
+body.rv-props-fullscreen .workspace-split.mod-right-split,
+body.rv-props-fullscreen .workspace-tabs.mod-top .workspace-tab-header-container,
+body.rv-props-fullscreen .workspace-split.mod-root .view-header {
+  display: none !important;
+}
+
+/* ── 4. The properties bar: takes over the status bar spot ── */
+.rv-props-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px; /* roughly the native status bar height */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  font-size: var(--font-ui-small, 13px);
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border-top: 1px solid var(--background-modifier-border);
+  z-index: var(--layer-status-bar, 100);
+  white-space: nowrap;
+  overflow-x: auto;
+  user-select: text;
+  box-sizing: border-box;
+}
+
+/* A single property chip */
+.rv-props-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: var(--radius-s, 4px);
+  background: var(--background-secondary-alt);
+  color: var(--text-normal);
+  font-size: var(--font-ui-smaller, 12px);
+  flex-shrink: 0;
+}
+
+/* Property names use the accent color */
+.rv-props-item strong {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+/* "No properties" placeholder */
+.rv-props-empty {
+  opacity: 0.55;
+  font-style: italic;
+}
+
+/* ── 5. Navigation buttons (left of the bar) ───────────────── */
+.rv-props-nav {
+  display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.rv-props-nav-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  min-width: 26px;
+  padding: 0 6px;
+  border-radius: var(--radius-s, 4px);
+  background: var(--background-secondary-alt);
+  color: var(--text-normal);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+.rv-props-nav-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-accent);
+}
+
+/* ── 6. Page number (bottom-right, pushed right) ───────────── */
+.rv-props-page {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding-left: 14px;
+  font-size: var(--font-ui-smaller, 12px);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
