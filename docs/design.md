@@ -1,0 +1,81 @@
+# Design Principles 设计原则
+
+Four core principles guide every change to this project. If a change conflicts
+with one of them, the change needs a strong justification.
+
+本项目的一切改动都遵循四条核心设计原则。任何改动若与其中一条冲突，都需要强有力的理由。
+
+---
+
+## 1. Zero intrusion into note content 对笔记内容零侵入
+
+Notes stay perfectly readable in **source mode** and **live preview**. The plugin
+never rewrites, reorders, or injects markers into note content — it only *reads*
+(via `metadataCache`) and *renders UI* (the bottom bar, CSS overrides). The only
+in-note footprint is the `deck` frontmatter property, which is plain, readable YAML.
+
+笔记在**源码模式**与**实时预览**下保持完全可读。插件从不改写、重排或在笔记内容中
+注入任何标记——它只**读取**（通过 `metadataCache`）并**渲染 UI**（底部栏、CSS 覆盖）。
+笔记内唯一的痕迹是 `deck` 这个 frontmatter 属性，它本身就是普通、可读的 YAML。
+
+## 2. Minimal intrusion into properties 对 properties 最小侵入
+
+The plugin adds exactly **one** reserved frontmatter key — `deck` — and nothing
+else. All other keys are left untouched and merely *displayed* if the user already
+has them. Demo notes keep this footprint to the bare minimum (no decorative
+`tags`), so adopting the plugin costs exactly one property per note.
+
+插件只新增**一个**保留属性 `deck`，别无其他。其余属性一律原样保留、仅作展示。
+示例笔记也保持这一最小足迹（不带装饰性的 `tags`），因此使用本插件的成本就是
+每篇笔记一个属性。
+
+## 3. No unnecessary persistence beyond configuration 不持久化配置以外的不必要内容
+
+- Everything derived from the notes (deck chains, page numbers) is computed
+  **on the fly** from `metadataCache`; nothing derived is ever cached to disk.
+- The only persisted data is **configuration**: two UI booleans (show ◀ ▶
+  buttons, show page number), via `loadData/saveData`.
+- Required data belongs to the **note structure itself** — the deck *is* the
+  overview note plus each slide's `deck` links. There is no separate "deck
+  index" file or database to create, keep in sync, or corrupt.
+- No background scans, no indexes, no writes to the vault.
+
+- 从笔记推导的一切（套件链、页号）都**即时计算**自 `metadataCache`，推导结果
+  绝不落盘缓存。
+- 唯一持久化的是**配置**：两个 UI 开关（◀ ▶ 按钮、页号显示），经
+  `loadData/saveData` 保存。
+- 所需数据本身就是**笔记结构的一部分**——套件就是概览笔记加上每页的 `deck`
+  链接，不存在需要创建、同步或可能损坏的独立"套件索引"文件或数据库。
+- 不做后台扫描、不建索引、不向 vault 写入任何数据。
+
+## 4. Efficient implementation, no premature optimization 实现高效，但不提前优化
+
+- Efficiency is a goal, not an obsession: on-the-fly in-memory computation,
+  event-driven refreshes, and a guarded 500 ms fallback timer are enough for
+  real use — no more.
+- No premature optimization: no memoization, caching layers, or indexes until
+  profiling shows they are actually needed.
+- Code follows open-source conventions and best practices: strongly typed,
+  documented, readable, elegant; conventional commits; CI-friendly.
+
+- 追求"够用的高效"而非过度优化：即时内存计算、事件驱动刷新、带守卫的
+  500 ms 兜底定时器——满足真实使用即可，不做更多。
+- 不提前优化：除非性能分析证明确有必要，否则不引入记忆化、缓存层或索引。
+- 编码必须正规、符合开源规范与最佳实践：强类型、有文档、可读、优美；
+  约定式提交；对 CI 友好。
+
+---
+
+## Trade-offs 权衡
+
+- Reading view hides the in-note properties panel (CSS only) to avoid duplicating
+  what the bottom bar shows — the note file itself is never touched.
+- The `deck` chain walk reads the frontmatter of every note in the chain on each
+  refresh; acceptable because `metadataCache` is in-memory and decks are small.
+  Per principle 4, a memoized chain cache is deliberately deferred until profiling
+  shows a real need.
+
+- 阅读模式下隐藏笔记内属性面板（纯 CSS），避免与底部栏重复——笔记文件本身从不改动。
+- `deck` 链式解析每次刷新会读取链上所有笔记的 frontmatter；由于 `metadataCache`
+  在内存中、且套件通常很小，这是可接受的。按原则 4，链缓存的记忆化方案被刻意
+  推迟到性能分析证明确有必要之时。

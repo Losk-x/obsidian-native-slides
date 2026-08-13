@@ -1,6 +1,4 @@
 ---
-tags:
-  - demo
 deck: ["[[overview]]"]
 ---
 
