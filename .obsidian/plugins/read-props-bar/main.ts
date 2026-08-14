@@ -96,7 +96,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     this.registerEvent(
       this.app.metadataCache.on("changed", (file: TFile) => {
         if (file === this.app.workspace.getActiveFile()) this.refresh();
-      })
+      }),
     );
 
     // ── 2. Fallback timer: edit↔reading toggles may fire no standard event ──
@@ -108,7 +108,7 @@ export default class ReadPropsBarPlugin extends Plugin {
           this.lastKey = key;
           this.refresh();
         }
-      }, 500)
+      }, 500),
     );
 
     // ── 3. Commands ─────────────────────────────────────────────────────
@@ -322,7 +322,8 @@ export default class ReadPropsBarPlugin extends Plugin {
       if (hasPrev || hasNext) {
         const nav = document.createElement("div");
         nav.className = "rv-props-nav";
-        if (hasPrev) nav.appendChild(this.navButton("◀", "Previous page", () => this.navigate("prev")));
+        if (hasPrev)
+          nav.appendChild(this.navButton("◀", "Previous page", () => this.navigate("prev")));
         if (hasNext) nav.appendChild(this.navButton("▶", "Next page", () => this.navigate("next")));
         this.bar.appendChild(nav);
       }
@@ -404,35 +405,42 @@ class ReadPropsBarSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Show Previous/Next buttons")
-      .setDesc("Show ◀ ▶ buttons on the left of the bar when the note belongs to a deck (has a `deck` property)")
+      .setDesc(
+        "Show ◀ ▶ buttons on the left of the bar when the note belongs to a deck (has a `deck` property)",
+      )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showNavButtons).onChange(async (value) => {
           this.plugin.settings.showNavButtons = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
-        })
+        }),
       );
 
     new Setting(containerEl)
       .setName("Show page number")
-      .setDesc("Auto-computed from the deck chain (overview page shows “Overview”); shown at the bottom-right")
+      .setDesc(
+        "Auto-computed from the deck chain (overview page shows “Overview”); shown at the bottom-right",
+      )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showPageNumber).onChange(async (value) => {
           this.plugin.settings.showPageNumber = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
-        })
+        }),
       );
 
     new Setting(containerEl)
       .setName("Navigation hotkeys")
-      .setDesc("Default: Previous Page Mod+Shift+←, Next Page Mod+Shift+→. Rebind under Settings → Hotkeys.")
+      .setDesc(
+        "Default: Previous Page Mod+Shift+←, Next Page Mod+Shift+→. Rebind under Settings → Hotkeys.",
+      )
       .addButton((button) =>
         button.setButtonText("Open Hotkeys Settings").onClick(() => {
           // Open Obsidian's hotkeys settings page (internal API; ignore failures)
-          (this.app as unknown as { setting?: { openTabById?: (id: string) => void } })
-            .setting?.openTabById?.("hotkeys");
-        })
+          (
+            this.app as unknown as { setting?: { openTabById?: (id: string) => void } }
+          ).setting?.openTabById?.("hotkeys");
+        }),
       );
   }
 }
@@ -476,12 +484,7 @@ function extractLinkText(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  return trimmed
-    .replace(/^\[\[/, "")
-    .replace(/\]\]$/, "")
-    .split("|")[0]
-    .split("#")[0]
-    .trim();
+  return trimmed.replace(/^\[\[/, "").replace(/\]\]$/, "").split("|")[0].split("#")[0].trim();
 }
 
 /** Render a property value as readable text: arrays/objects → JSON, else String */
