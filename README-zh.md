@@ -111,7 +111,7 @@ npm run format:check  # 可选：Prettier
 npm run dev        # 监听 main.ts，变更时自动重建 main.js
 ```
 
-编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+R`（重载窗口），或在 _设置 → 第三方插件_ 里关闭再开启 **Read-View Properties Bar**。
+编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+P` 打开命令面板，搜索 **Reload app without saving** 并执行（该命令默认没有绑定快捷键）。或者，在 _设置 → 第三方插件_ 里关闭再开启 **Read-View Properties Bar**。
 
 ## 已知限制
 
