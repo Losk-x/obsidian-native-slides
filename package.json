@@ -1,6 +1,6 @@
 {
   "name": "read-props-bar",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Reading-view properties bar with PPT-style deck navigation for Obsidian: one `deck` property drives prev/next and auto-computed page numbers.",
   "main": "main.js",
   "scripts": {
