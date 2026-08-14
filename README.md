@@ -26,7 +26,7 @@
   ```
 
   - **Page numbers are auto-computed** by scanning the vault and walking the link chain (overview → slide 1 → slide 2 → …), so no `page-number` property is needed. The overview page shows "Overview", slides show "Page N".
-  - Flip pages with the ◀ ▶ buttons on the left of the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Slide 1's ◀ goes back to the overview; the last slide has no ▶.
+  - Flip pages with the ◀ ▶ buttons on the left of the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Both arrows are always shown; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
   - Navigation keeps you in reading view, so the immersive fullscreen experience is uninterrupted.
 
 - A **settings tab** toggles the ◀ ▶ buttons and the page number.

@@ -93,6 +93,12 @@ body.rv-props-fullscreen .workspace-split.mod-root .view-header {
   background: var(--background-modifier-hover);
   color: var(--text-accent);
 }
+.rv-props-nav-btn:disabled {
+  color: var(--text-faint);
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
 
 /* ── 6. Page number (bottom-right, pushed right) ───────────── */
 .rv-props-page {

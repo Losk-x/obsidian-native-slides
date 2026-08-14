@@ -253,18 +253,16 @@ export default class ReadPropsBarPlugin extends Plugin {
     const deck = this.computeDeck(file);
     clearChildren(this.bar);
 
-    // ── Left: previous / next buttons (only inside a deck) ──
+    // ── Left: previous / next buttons (both always shown inside a deck;
+    //        the one that cannot move is disabled / light gray) ──
     if (this.settings.showNavButtons && deck) {
       const hasPrev = deck.index > 0;
       const hasNext = deck.index < deck.chain.length - 1;
-      if (hasPrev || hasNext) {
-        const nav = document.createElement("div");
-        nav.className = "rv-props-nav";
-        if (hasPrev)
-          nav.appendChild(this.navButton("◀", "Previous page", () => this.navigate("prev")));
-        if (hasNext) nav.appendChild(this.navButton("▶", "Next page", () => this.navigate("next")));
-        this.bar.appendChild(nav);
-      }
+      const nav = document.createElement("div");
+      nav.className = "rv-props-nav";
+      nav.appendChild(this.navButton("◀", "Previous page", () => this.navigate("prev"), !hasPrev));
+      nav.appendChild(this.navButton("▶", "Next page", () => this.navigate("next"), !hasNext));
+      this.bar.appendChild(nav);
     }
 
     // ── Middle: chips for the remaining properties (no placeholder) ──
@@ -296,13 +294,19 @@ export default class ReadPropsBarPlugin extends Plugin {
     this.bar.style.display = this.bar.childElementCount === 0 ? "none" : "";
   }
 
-  /** Build a ◀ / ▶ navigation button */
-  private navButton(label: string, tip: string, onClick: () => void): HTMLButtonElement {
+  /** Build a ◀ / ▶ navigation button; `disabled` renders it light gray/inactive */
+  private navButton(
+    label: string,
+    tip: string,
+    onClick: () => void,
+    disabled = false,
+  ): HTMLButtonElement {
     const btn = document.createElement("button");
     btn.className = "rv-props-nav-btn";
     btn.textContent = label;
     btn.title = tip;
-    btn.addEventListener("click", onClick);
+    btn.disabled = disabled;
+    if (!disabled) btn.addEventListener("click", onClick);
     return btn;
   }
 
