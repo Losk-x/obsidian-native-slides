@@ -93,7 +93,18 @@ npm run lint       # optional: ESLint
 npm run format:check  # optional: Prettier
 ```
 
-Then reload the plugin in Obsidian (or install the **Hot Reload** community plugin).
+### Hot reload (dev loop)
+
+The example vault ships the **Hot Reload** plugin (vendored from [pjeby/hot-reload](https://github.com/pjeby/hot-reload) v0.3.1) plus a `.hotreload` marker in the plugin folder, giving an edit → rebuild → reload → preview loop in seconds:
+
+```sh
+npm run dev        # watch main.ts, rebuild main.js on change
+```
+
+1. Open `example-vault/` in Obsidian and enable **Hot Reload** under _Settings → Community plugins_ (dev-only; the marker never ships to users).
+2. Run `npm run dev`, then edit `main.ts` — `main.js` is rebuilt and the plugin reloads automatically (~0.75 s after you stop typing). No manual reload needed.
+
+> Hot Reload requires Obsidian ≥ 1.6.7 (its `minAppVersion`). For how the vendored copy is kept in sync, see [the provenance note](example-vault/.obsidian/plugins/hot-reload/README.md).
 
 ## Known limitations
 
