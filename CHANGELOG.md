@@ -1,13 +1,14 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable user-visible changes to read-props-bar are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any category with no entries. On release, rename [Unreleased] to the version with its date and start a fresh empty [Unreleased] above it.
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-08-14
+## [0.1.0] - 2026-08-14
 
 ### Added
 
@@ -18,5 +19,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings tab toggling the ◀ ▶ buttons and the page number.
 - Example vault (`example-vault/`) with a demo deck and an overview page embedding an Obsidian Base view.
 
-[Unreleased]: https://github.com/Losk-x/obsidian-native-slides/compare/1.0.0...HEAD
-[1.0.0]: https://github.com/Losk-x/obsidian-native-slides/releases/tag/1.0.0
+[Unreleased]: https://github.com/Losk-x/obsidian-native-slides/compare/0.1.0...HEAD
+[0.1.0]: https://github.com/Losk-x/obsidian-native-slides/releases/tag/0.1.0
