@@ -38,7 +38,7 @@
 
 ## 概览页与内置 Base 视图
 
-仓库自带 `overview.md`，其中嵌入了 Obsidian **Base**（核心插件 **Bases**，
+示例库自带 `overview.md`，其中嵌入了 Obsidian **Base**（核心插件 **Bases**，
 Obsidian 1.10 引入）视图，筛选所有**指向本概览页**的笔记——即全部放映页：
 
 ````markdown
@@ -54,9 +54,15 @@ views:
 
 如果 Base 视图没有渲染：启用核心插件 *设置 → 核心插件 → Bases*，然后重载该笔记。
 
+## 示例库
+
+演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、一份最小化的 `.obsidian/` 配置，以及一个**符号链接** `example-vault/.obsidian/plugins/read-props-bar` → 指向插件的开发目录——示例库始终运行当前构建。
+
+> 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把插件目录复制到 `example-vault/.obsidian/plugins/` 即可。
+
 ## 快速开始
 
-1. 把这个文件夹作为笔记库打开：Obsidian → 打开其他仓库 → 选择本 `obsidian/` 目录；
+1. 打开示例库：Obsidian → 打开其他仓库 → 选择本仓库内的 `example-vault/` 目录；
 2. 允许第三方插件：设置 → 第三方插件 → 关闭"安全模式"（一次性手动操作）；
 3. 在第三方插件列表启用 **Read-View Properties Bar**；
 4. （使用概览页时）启用核心插件 *设置 → 核心插件 → Bases*。
@@ -89,6 +95,9 @@ cd obsidian/.obsidian/plugins/read-props-bar
 npm install        # 仅首次需要（下载 esbuild 等）
 npm run build      # 编译 main.ts → main.js
 npm run check      # 可选：TypeScript 类型检查（tsc --noEmit）
+npm run test       # 可选：vitest 单元测试
+npm run lint       # 可选：ESLint
+npm run format:check  # 可选：Prettier
 ```
 
 然后在 Obsidian 里重载插件（或装 Hot Reload 社区插件）。

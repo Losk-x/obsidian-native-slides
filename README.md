@@ -32,7 +32,7 @@
 
 ## Overview page with an embedded Base view
 
-The repo ships an `overview.md` that embeds an Obsidian **Base** view (core **Bases** plugin, introduced in Obsidian 1.10) filtering every note that **links to the overview page** — i.e. all slides:
+The example vault ships an `overview.md` that embeds an Obsidian **Base** view (core **Bases** plugin, introduced in Obsidian 1.10) filtering every note that **links to the overview page** — i.e. all slides:
 
 ````markdown
 ```base
@@ -47,9 +47,15 @@ views:
 
 Enable the core plugin if the view does not render: *Settings → Core plugins → Bases*.
 
+## Example vault
+
+The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, a minimal `.obsidian/` configuration, and a **symlink** at `example-vault/.obsidian/plugins/read-props-bar` pointing back to the plugin's development folder — so the example vault always runs the current build.
+
+> Symlinks require filesystem support (macOS/Linux work out of the box; on Windows enable Developer Mode). If symlinks are unavailable, copy the plugin folder into `example-vault/.obsidian/plugins/`.
+
 ## Getting started
 
-1. Open this folder as a vault: Obsidian → *Open another vault* → select this `obsidian/` directory.
+1. Open the example vault: Obsidian → *Open another vault* → select the `example-vault/` directory inside this repo.
 2. Allow community plugins: *Settings → Community plugins → Turn off Safe mode* (one-time, manual).
 3. Enable **Read-View Properties Bar** under *Settings → Community plugins*.
 4. (For the overview page) Enable the core **Bases** plugin: *Settings → Core plugins → Bases*.
@@ -80,6 +86,9 @@ cd obsidian/.obsidian/plugins/read-props-bar
 npm install        # first time only (downloads esbuild etc.)
 npm run build      # compiles main.ts → main.js
 npm run check      # optional: TypeScript type-check (tsc --noEmit)
+npm run test       # optional: vitest unit tests
+npm run lint       # optional: ESLint
+npm run format:check  # optional: Prettier
 ```
 
 Then reload the plugin in Obsidian (or install the **Hot Reload** community plugin).
