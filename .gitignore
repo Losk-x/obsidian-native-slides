@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 .obsidian/workspace-mobile.json
 .obsidian/workspace-state.json
 .npm-cache/
+
+# macOS
+.DS_Store
