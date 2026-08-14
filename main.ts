@@ -267,28 +267,18 @@ export default class ReadPropsBarPlugin extends Plugin {
       }
     }
 
-    // ── Middle: chips for the remaining properties ──
+    // ── Middle: chips for the remaining properties (no placeholder) ──
     const visible = fm
       ? Object.entries(fm).filter(([key]) => key !== DECK_KEY && key !== "position")
       : [];
 
-    if (visible.length > 0) {
-      for (const [key, value] of visible) {
-        const span = document.createElement("span");
-        span.className = "rv-props-item";
-        const k = document.createElement("strong");
-        k.textContent = key;
-        span.appendChild(k);
-        span.appendChild(document.createTextNode(": " + formatValue(value)));
-        this.bar.appendChild(span);
-      }
-    } else if (fm) {
-      // Has frontmatter (e.g. only the reserved deck key) but nothing
-      // displayable -> placeholder. A note with NO frontmatter at all skips
-      // this, so the bar hides entirely (see below).
+    for (const [key, value] of visible) {
       const span = document.createElement("span");
-      span.className = "rv-props-empty";
-      span.textContent = "No properties";
+      span.className = "rv-props-item";
+      const k = document.createElement("strong");
+      k.textContent = key;
+      span.appendChild(k);
+      span.appendChild(document.createTextNode(": " + formatValue(value)));
       this.bar.appendChild(span);
     }
 
