@@ -147,6 +147,7 @@ vite.config.ts.timestamp-*
 **/.obsidian/workspace-mobile.json
 **/.obsidian/workspace-state.json
 **/.obsidian/appearance.json
+**/.obsidian/app.json
 .npm-cache/
 
 # macOS
