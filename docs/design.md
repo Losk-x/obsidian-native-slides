@@ -8,14 +8,14 @@ with one of them, the change needs a strong justification.
 ## 1. Zero intrusion into note content
 
 Notes stay perfectly readable in **source mode** and **live preview**. The plugin
-never rewrites, reorders, or injects markers into note content — it only *reads*
-(via `metadataCache`) and *renders UI* (the bottom bar, CSS overrides). The only
+never rewrites, reorders, or injects markers into note content — it only _reads_
+(via `metadataCache`) and _renders UI_ (the bottom bar, CSS overrides). The only
 in-note footprint is the `deck` frontmatter property, which is plain, readable YAML.
 
 ## 2. Minimal intrusion into properties
 
 The plugin adds exactly **one** reserved frontmatter key — `deck` — and nothing
-else. All other keys are left untouched and merely *displayed* if the user already
+else. All other keys are left untouched and merely _displayed_ if the user already
 has them. Demo notes keep this footprint to the bare minimum (no decorative
 `tags`), so adopting the plugin costs exactly one property per note.
 
@@ -25,7 +25,7 @@ has them. Demo notes keep this footprint to the bare minimum (no decorative
   **on the fly** from `metadataCache`; nothing derived is ever cached to disk.
 - The only persisted data is **configuration**: two UI booleans (show ◀ ▶
   buttons, show page number), via `loadData/saveData`.
-- Required data belongs to the **note structure itself** — the deck *is* the
+- Required data belongs to the **note structure itself** — the deck _is_ the
   overview note plus each slide's `deck` links. There is no separate "deck
   index" file or database to create, keep in sync, or corrupt.
 - No background scans, no indexes, no writes to the vault.

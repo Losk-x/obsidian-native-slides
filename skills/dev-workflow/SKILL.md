@@ -36,13 +36,15 @@ git merge origin/main
 ```
 
 - Resolve any merge conflicts, then verify locally.
-- **Rebuild and test locally** before submitting:
+- **Rebuild and test locally** before submitting (run from the repository root):
 
   ```sh
-  cd .obsidian/plugins/read-props-bar
-  npm ci          # first time only
-  npm run check   # TypeScript type-check (tsc --noEmit)
-  npm run build   # compile main.ts → main.js
+  npm ci               # first time only
+  npm run check        # TypeScript type-check (tsc --noEmit)
+  npm run test         # vitest unit tests
+  npm run lint         # ESLint
+  npm run format:check # Prettier
+  npm run build        # compile main.ts → main.js
   ```
 
 - Never open a PR that is behind or in conflict with `origin/main`.

@@ -34,6 +34,7 @@
     （默认快捷键 `Cmd/Ctrl+Shift+←/→`，可在 **设置 → 快捷键** 重新绑定）；
     第 1 页的 ◀ 回到概览页，最后一页没有 ▶。
   - 翻页后仍停留在阅读模式，沉浸式全屏体验不中断。
+
 - **设置页**：可开关 ◀ ▶ 按钮与页号显示。
 
 ## 概览页与内置 Base 视图
@@ -52,20 +53,20 @@ views:
 ```
 ````
 
-如果 Base 视图没有渲染：启用核心插件 *设置 → 核心插件 → Bases*，然后重载该笔记。
+如果 Base 视图没有渲染：启用核心插件 _设置 → 核心插件 → Bases_，然后重载该笔记。
 
 ## 示例库
 
-演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、一份最小化的 `.obsidian/` 配置，以及一个**符号链接** `example-vault/.obsidian/plugins/read-props-bar` → 指向插件的开发目录——示例库始终运行当前构建。
+演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/read-props-bar/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
 
-> 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把插件目录复制到 `example-vault/.obsidian/plugins/` 即可。
+> 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把 `main.js`、`manifest.json`、`styles.css` 复制到 `example-vault/.obsidian/plugins/read-props-bar/` 即可。
 
 ## 快速开始
 
 1. 打开示例库：Obsidian → 打开其他仓库 → 选择本仓库内的 `example-vault/` 目录；
 2. 允许第三方插件：设置 → 第三方插件 → 关闭"安全模式"（一次性手动操作）；
 3. 在第三方插件列表启用 **Read-View Properties Bar**；
-4. （使用概览页时）启用核心插件 *设置 → 核心插件 → Bases*。
+4. （使用概览页时）启用核心插件 _设置 → 核心插件 → Bases_。
 
 打开 `welcome.md`，按 `Cmd/Ctrl+E` 切到阅读模式——底部即显示属性、◀ ▶ 按钮和
 "Page 1"；按 `Cmd/Ctrl+Shift+→` 进入第 2 页。
@@ -74,24 +75,25 @@ views:
 
 ## 工作原理
 
-| 部分 | 原理 |
-|---|---|
-| 隐藏状态栏 | `styles.css`：`.status-bar { display: none !important; }` |
-| 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }` |
-| 全屏阅读模式 | `refresh()` 检测到阅读模式即给 `body` 加 `rv-props-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏 |
-| Esc 退出全屏 + 阅读模式 | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发） |
-| 套件解析 | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引 |
-| 页号 | 链中的位置：索引 0 = "Overview"，放映页 = "Page N"；不需要存储 `page-number` |
-| PPT 翻页 | `navigate()` 沿链步进，用 `workspace.openLinkText` 打开，保持阅读模式 |
-| 设置 | `PluginSettingTab` + `loadData/saveData` 持久化开关；快捷键走 Obsidian 原生命令系统 |
+| 部分                         | 原理                                                                                                                                                      |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 隐藏状态栏                   | `styles.css`：`.status-bar { display: none !important; }`                                                                                                 |
+| 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }`                                                                                           |
+| 全屏阅读模式                 | `refresh()` 检测到阅读模式即给 `body` 加 `rv-props-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏 |
+| Esc 退出全屏 + 阅读模式      | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发）              |
+| 套件解析                     | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                 |
+| 页号                         | 链中的位置：索引 0 = "Overview"，放映页 = "Page N"；不需要存储 `page-number`                                                                              |
+| PPT 翻页                     | `navigate()` 沿链步进，用 `workspace.openLinkText` 打开，保持阅读模式                                                                                     |
+| 设置                         | `PluginSettingTab` + `loadData/saveData` 持久化开关；快捷键走 Obsidian 原生命令系统                                                                       |
 
 ## 开发
 
 插件用 TypeScript 编写。你不需要会 TS——用自然语言描述想改的功能即可，代码会更新并重新编译。
 手动构建：
 
+在仓库根目录执行：
+
 ```sh
-cd obsidian/.obsidian/plugins/read-props-bar
 npm install        # 仅首次需要（下载 esbuild 等）
 npm run build      # 编译 main.ts → main.js
 npm run check      # 可选：TypeScript 类型检查（tsc --noEmit）

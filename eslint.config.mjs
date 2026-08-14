@@ -6,7 +6,7 @@ import prettier from "eslint-config-prettier";
 export default tseslint.config(
   {
     ignores: [
-      "main.js", // generated build artifact
+      "**/main.js", // generated build artifact (incl. example-vault symlink)
       "node_modules/**",
       ".npm-cache/**",
       "package-lock.json",
