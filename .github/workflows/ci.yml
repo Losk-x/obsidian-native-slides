@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: .obsidian/plugins/read-props-bar/package-lock.json
+
+      - name: Install dependencies
+        working-directory: .obsidian/plugins/read-props-bar
+        run: npm ci
+
+      - name: Type-check
+        working-directory: .obsidian/plugins/read-props-bar
+        run: npm run check
+
+      - name: Build
+        working-directory: .obsidian/plugins/read-props-bar
+        run: npm run build
+
+      - name: Fail if main.js is stale
+        working-directory: .obsidian/plugins/read-props-bar
+        run: git diff --exit-code -- main.js
