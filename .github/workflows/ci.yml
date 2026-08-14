@@ -28,6 +28,14 @@ jobs:
         working-directory: .obsidian/plugins/read-props-bar
         run: npm run test
 
+      - name: Lint
+        working-directory: .obsidian/plugins/read-props-bar
+        run: npm run lint
+
+      - name: Format check
+        working-directory: .obsidian/plugins/read-props-bar
+        run: npm run format:check
+
       - name: Build
         working-directory: .obsidian/plugins/read-props-bar
         run: npm run build
