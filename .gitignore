@@ -142,11 +142,12 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
-# Obsidian per-machine workspace state (personal)
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/workspace-state.json
-.obsidian/appearance.json
+# Obsidian per-machine workspace state (personal; matches nested vaults)
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
+**/.obsidian/workspace-state.json
+**/.obsidian/appearance.json
+**/.obsidian/app.json
 .npm-cache/
 
 # macOS

@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "build": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline",
+    "dev": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline --watch=forever",
     "check": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint .",
