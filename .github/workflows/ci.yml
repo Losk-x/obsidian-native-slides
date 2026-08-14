@@ -24,6 +24,10 @@ jobs:
         working-directory: .obsidian/plugins/read-props-bar
         run: npm run check
 
+      - name: Unit tests
+        working-directory: .obsidian/plugins/read-props-bar
+        run: npm run test
+
       - name: Build
         working-directory: .obsidian/plugins/read-props-bar
         run: npm run build
