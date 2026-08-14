@@ -51,6 +51,8 @@ git merge origin/main
 
 ### 3. Commit, push, open a PR
 
+**Docs check (before committing):** if the change is user-visible, update the affected documentation **in the same commit** — `README.md` / `README-zh.md` (both languages), `docs/*.md`, and `CHANGELOG.md` ([Unreleased] section). Never commit code without its docs.
+
 ```sh
 git add -A
 git commit -m "type: short summary"   # conventional commits
