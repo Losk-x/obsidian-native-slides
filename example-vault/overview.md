@@ -4,7 +4,7 @@ deck: ["[[welcome]]"]
 
 # Overview · Deck index
 
-This is the **overview page** of the deck. Its `deck` property has **one link** — that link *is* the first page (`welcome`).
+This is the **overview page** of the deck. Its `deck` property has **one link** — that link _is_ the first page (`welcome`).
 
 Below is an embedded Obsidian **Base** view (core plugin) that filters every note **linking to this page** — i.e. all the slides:
 
@@ -18,7 +18,7 @@ views:
 ```
 
 > If the Base view does not render: enable the core **Bases** plugin
-> (*Settings → Core plugins → Bases*), then reload this note.
+> (_Settings → Core plugins → Bases_), then reload this note.
 
 **Convention for the `deck` property** (one property, up to two links):
 

@@ -28,6 +28,7 @@
   - **Page numbers are auto-computed** by scanning the vault and walking the link chain (overview → slide 1 → slide 2 → …), so no `page-number` property is needed. The overview page shows "Overview", slides show "Page N".
   - Flip pages with the ◀ ▶ buttons on the left of the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Slide 1's ◀ goes back to the overview; the last slide has no ▶.
   - Navigation keeps you in reading view, so the immersive fullscreen experience is uninterrupted.
+
 - A **settings tab** toggles the ◀ ▶ buttons and the page number.
 
 ## Overview page with an embedded Base view
@@ -45,20 +46,20 @@ views:
 ```
 ````
 
-Enable the core plugin if the view does not render: *Settings → Core plugins → Bases*.
+Enable the core plugin if the view does not render: _Settings → Core plugins → Bases_.
 
 ## Example vault
 
-The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, a minimal `.obsidian/` configuration, and a **symlink** at `example-vault/.obsidian/plugins/read-props-bar` pointing back to the plugin's development folder — so the example vault always runs the current build.
+The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, a minimal `.obsidian/` configuration, and a plugin folder `example-vault/.obsidian/plugins/read-props-bar/` whose files (`manifest.json`, `main.js`, `styles.css`) are **symlinks to the repository root** — so the example vault always runs the current build.
 
-> Symlinks require filesystem support (macOS/Linux work out of the box; on Windows enable Developer Mode). If symlinks are unavailable, copy the plugin folder into `example-vault/.obsidian/plugins/`.
+> Symlinks require filesystem support (macOS/Linux work out of the box; on Windows enable Developer Mode). If symlinks are unavailable, copy `main.js`, `manifest.json`, `styles.css` into `example-vault/.obsidian/plugins/read-props-bar/`.
 
 ## Getting started
 
-1. Open the example vault: Obsidian → *Open another vault* → select the `example-vault/` directory inside this repo.
-2. Allow community plugins: *Settings → Community plugins → Turn off Safe mode* (one-time, manual).
-3. Enable **Read-View Properties Bar** under *Settings → Community plugins*.
-4. (For the overview page) Enable the core **Bases** plugin: *Settings → Core plugins → Bases*.
+1. Open the example vault: Obsidian → _Open another vault_ → select the `example-vault/` directory inside this repo.
+2. Allow community plugins: _Settings → Community plugins → Turn off Safe mode_ (one-time, manual).
+3. Enable **Read-View Properties Bar** under _Settings → Community plugins_.
+4. (For the overview page) Enable the core **Bases** plugin: _Settings → Core plugins → Bases_.
 
 Open `welcome.md` and press `Cmd/Ctrl+E` to switch to reading view — the bottom bar shows the properties, ◀ ▶ buttons and "Page 1". Press `Cmd/Ctrl+Shift+→` to go to slide 2.
 
@@ -66,23 +67,24 @@ Demo deck: `overview.md` → `welcome.md` → `slide-2.md` → `slide-3.md`.
 
 ## How it works
 
-| Piece | Mechanism |
-|---|---|
-| Hide the status bar | `styles.css`: `.status-bar { display: none !important; }` |
-| Hide the in-note properties panel (reading view) | `.markdown-reading-view .metadata-container { display: none; }` |
-| Fullscreen reading mode | `refresh()` adds `rv-props-fullscreen` to `body` when in reading view; CSS hides ribbon / sidebars / tab bar / `.view-header`; `requestFullscreen()` tries OS fullscreen |
-| Esc exits fullscreen + reading view | `fullscreenchange` handler: when the OS leaves fullscreen while we were fullscreen, call `view.setMode("source")` (guarded so our own `exitFullscreen()` never re-triggers it) |
-| Deck resolution | `computeDeck()` reads `deck` (≤ 2 links) → resolves the overview and the first page → walks the chain via each slide's second link (cycle-guarded) → returns the chain + current index |
-| Page number | position in the chain: index 0 = "Overview", slides = "Page N"; no stored `page-number` property |
-| PPT navigation | `navigate()` steps along the chain and opens via `workspace.openLinkText`, preserving reading view |
-| Settings | `PluginSettingTab` + `loadData/saveData` persist the toggles; hotkeys use Obsidian's native command system |
+| Piece                                            | Mechanism                                                                                                                                                                              |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hide the status bar                              | `styles.css`: `.status-bar { display: none !important; }`                                                                                                                              |
+| Hide the in-note properties panel (reading view) | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                                        |
+| Fullscreen reading mode                          | `refresh()` adds `rv-props-fullscreen` to `body` when in reading view; CSS hides ribbon / sidebars / tab bar / `.view-header`; `requestFullscreen()` tries OS fullscreen               |
+| Esc exits fullscreen + reading view              | `fullscreenchange` handler: when the OS leaves fullscreen while we were fullscreen, call `view.setMode("source")` (guarded so our own `exitFullscreen()` never re-triggers it)         |
+| Deck resolution                                  | `computeDeck()` reads `deck` (≤ 2 links) → resolves the overview and the first page → walks the chain via each slide's second link (cycle-guarded) → returns the chain + current index |
+| Page number                                      | position in the chain: index 0 = "Overview", slides = "Page N"; no stored `page-number` property                                                                                       |
+| PPT navigation                                   | `navigate()` steps along the chain and opens via `workspace.openLinkText`, preserving reading view                                                                                     |
+| Settings                                         | `PluginSettingTab` + `loadData/saveData` persist the toggles; hotkeys use Obsidian's native command system                                                                             |
 
 ## Development
 
 The plugin is written in TypeScript. You don't need to know TS to ask for changes — describe what you want in natural language and the code will be updated and rebuilt. To build manually:
 
+Run the commands from the repository root:
+
 ```sh
-cd obsidian/.obsidian/plugins/read-props-bar
 npm install        # first time only (downloads esbuild etc.)
 npm run build      # compiles main.ts → main.js
 npm run check      # optional: TypeScript type-check (tsc --noEmit)
