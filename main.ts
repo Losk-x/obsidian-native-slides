@@ -1,5 +1,5 @@
 /**
- * read-props-bar — Reading-view properties bar with PPT-style deck navigation
+ * native-slides — reading-view properties bar with PPT-style deck navigation
  *
  * Features:
  *   1. Hides Obsidian's native status bar and renders a "properties bar" at the

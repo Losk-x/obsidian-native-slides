@@ -1,4 +1,4 @@
-# read-props-bar — Reading-View Properties Bar
+# Native Slides — Reading-View Properties Bar
 
 **English** | [简体中文](README-zh.md)
 
@@ -58,7 +58,7 @@ The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian
 
 1. Open the example vault: Obsidian → _Open another vault_ → select the `example-vault/` directory inside this repo.
 2. Allow community plugins: _Settings → Community plugins → Turn off Safe mode_ (one-time, manual).
-3. Enable **Read-View Properties Bar** under _Settings → Community plugins_.
+3. Enable **Native Slides** under _Settings → Community plugins_.
 4. (For the overview page) Enable the core **Bases** plugin: _Settings → Core plugins → Bases_.
 
 Open `welcome.md` and press `Cmd/Ctrl+E` to switch to reading view — the bottom bar shows the properties, ◀ ▶ buttons and "Page 1". Press `Cmd/Ctrl+Shift+→` to go to slide 2.
@@ -102,7 +102,7 @@ Rebuild on change, then reload manually:
 npm run dev        # watch main.ts, rebuild main.js on change
 ```
 
-After editing `main.ts`, reload the plugin in Obsidian: open the command palette with `Cmd/Ctrl+P`, search for **Reload app without saving**, and run it (it has no default hotkey). Alternatively, disable/re-enable **Read-View Properties Bar** under _Settings → Community plugins_.
+After editing `main.ts`, reload the plugin in Obsidian: open the command palette with `Cmd/Ctrl+P`, search for **Reload app without saving**, and run it (it has no default hotkey). Alternatively, disable/re-enable **Native Slides** under _Settings → Community plugins_.
 
 ## Known limitations
 

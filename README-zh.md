@@ -1,4 +1,4 @@
-# read-props-bar — 阅读模式属性底栏
+# Native Slides — 阅读模式属性底栏
 
 [English](README.md) | **简体中文**
 
@@ -65,7 +65,7 @@ views:
 
 1. 打开示例库：Obsidian → 打开其他仓库 → 选择本仓库内的 `example-vault/` 目录；
 2. 允许第三方插件：设置 → 第三方插件 → 关闭"安全模式"（一次性手动操作）；
-3. 在第三方插件列表启用 **Read-View Properties Bar**；
+3. 在第三方插件列表启用 **Native Slides**；
 4. （使用概览页时）启用核心插件 _设置 → 核心插件 → Bases_。
 
 打开 `welcome.md`，按 `Cmd/Ctrl+E` 切到阅读模式——底部即显示属性、◀ ▶ 按钮和
@@ -111,7 +111,7 @@ npm run format:check  # 可选：Prettier
 npm run dev        # 监听 main.ts，变更时自动重建 main.js
 ```
 
-编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+P` 打开命令面板，搜索 **Reload app without saving** 并执行（该命令默认没有绑定快捷键）。或者，在 _设置 → 第三方插件_ 里关闭再开启 **Read-View Properties Bar**。
+编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+P` 打开命令面板，搜索 **Reload app without saving** 并执行（该命令默认没有绑定快捷键）。或者，在 _设置 → 第三方插件_ 里关闭再开启 **Native Slides**。
 
 ## 已知限制
 

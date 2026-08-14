@@ -1,5 +1,5 @@
 /**
- * deck.ts — Pure deck-resolution core for read-props-bar.
+ * deck.ts — Pure deck-resolution core for native-slides.
  *
  * Everything in this module is free of Obsidian runtime dependencies so it can
  * be unit tested directly (see test/deck.test.ts). main.ts adapts the vault
