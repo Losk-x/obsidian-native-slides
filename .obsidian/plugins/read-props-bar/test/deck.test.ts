@@ -15,17 +15,11 @@ describe("extractLinks", () => {
   });
 
   it("accepts a YAML list of strings", () => {
-    expect(extractLinks(["[[overview]]", "[[slide-2]]"])).toEqual([
-      "overview",
-      "slide-2",
-    ]);
+    expect(extractLinks(["[[overview]]", "[[slide-2]]"])).toEqual(["overview", "slide-2"]);
   });
 
   it("flattens nested arrays from unquoted [[x]] values", () => {
-    expect(extractLinks([["overview"], ["slide-2"]])).toEqual([
-      "overview",
-      "slide-2",
-    ]);
+    expect(extractLinks([["overview"], ["slide-2"]])).toEqual(["overview", "slide-2"]);
   });
 
   it("caps at MAX_DECK_LINKS", () => {
