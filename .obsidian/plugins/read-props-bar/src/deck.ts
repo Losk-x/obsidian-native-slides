@@ -35,7 +35,7 @@ export interface DeckInfo {
  */
 export function computeDeck(
   currentPath: string,
-  getLinks: (path: string) => string[]
+  getLinks: (path: string) => string[],
 ): DeckInfo | null {
   const currentLinks = getLinks(currentPath);
   if (currentLinks.length === 0) return null;
@@ -123,12 +123,7 @@ export function extractLinkText(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  return trimmed
-    .replace(/^\[\[/, "")
-    .replace(/\]\]$/, "")
-    .split("|")[0]
-    .split("#")[0]
-    .trim();
+  return trimmed.replace(/^\[\[/, "").replace(/\]\]$/, "").split("|")[0].split("#")[0].trim();
 }
 
 /** Render a property value as readable text: arrays/objects → JSON, else String */
