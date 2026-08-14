@@ -8,6 +8,10 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ## [Unreleased]
 
+### Changed
+
+- Bottom bar: no longer shows a "No properties" placeholder — the bar hides when it has nothing to display.
+
 ## [0.1.0] - 2026-08-14
 
 ### Added

@@ -267,27 +267,19 @@ export default class ReadPropsBarPlugin extends Plugin {
       }
     }
 
-    // ── Middle: chips for the remaining properties ──
+    // ── Middle: chips for the remaining properties (no placeholder) ──
     const visible = fm
       ? Object.entries(fm).filter(([key]) => key !== DECK_KEY && key !== "position")
       : [];
 
-    if (visible.length === 0) {
-      // No properties → placeholder text
+    for (const [key, value] of visible) {
       const span = document.createElement("span");
-      span.className = "rv-props-empty";
-      span.textContent = "No properties";
+      span.className = "rv-props-item";
+      const k = document.createElement("strong");
+      k.textContent = key;
+      span.appendChild(k);
+      span.appendChild(document.createTextNode(": " + formatValue(value)));
       this.bar.appendChild(span);
-    } else {
-      for (const [key, value] of visible) {
-        const span = document.createElement("span");
-        span.className = "rv-props-item";
-        const k = document.createElement("strong");
-        k.textContent = key;
-        span.appendChild(k);
-        span.appendChild(document.createTextNode(": " + formatValue(value)));
-        this.bar.appendChild(span);
-      }
     }
 
     // ── Bottom-right: auto-computed page number ──
@@ -299,7 +291,9 @@ export default class ReadPropsBarPlugin extends Plugin {
       this.bar.appendChild(page);
     }
 
-    this.bar.style.display = "";
+    // Hide the bar entirely when it has nothing to display (no properties,
+    // and not part of a deck)
+    this.bar.style.display = this.bar.childElementCount === 0 ? "none" : "";
   }
 
   /** Build a ◀ / ▶ navigation button */

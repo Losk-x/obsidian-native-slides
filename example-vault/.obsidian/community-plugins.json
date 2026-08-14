@@ -1,1 +1,4 @@
-["read-props-bar", "hot-reload"]
+[
+  "read-props-bar",
+  "hot-reload"
+]

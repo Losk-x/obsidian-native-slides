@@ -67,12 +67,6 @@ body.rv-props-fullscreen .workspace-split.mod-root .view-header {
   font-weight: 600;
 }
 
-/* "No properties" placeholder */
-.rv-props-empty {
-  opacity: 0.55;
-  font-style: italic;
-}
-
 /* ── 5. Navigation buttons (left of the bar) ───────────────── */
 .rv-props-nav {
   display: inline-flex;
