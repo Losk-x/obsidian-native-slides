@@ -67,12 +67,6 @@ body.rv-props-fullscreen .workspace-split.mod-root .view-header {
   font-weight: 600;
 }
 
-/* "No properties" placeholder */
-.rv-props-empty {
-  opacity: 0.55;
-  font-style: italic;
-}
-
 /* ── 5. Navigation buttons (left of the bar) ───────────────── */
 .rv-props-nav {
   display: inline-flex;
@@ -98,6 +92,12 @@ body.rv-props-fullscreen .workspace-split.mod-root .view-header {
 .rv-props-nav-btn:hover {
   background: var(--background-modifier-hover);
   color: var(--text-accent);
+}
+.rv-props-nav-btn:disabled {
+  color: var(--text-faint);
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* ── 6. Page number (bottom-right, pushed right) ───────────── */

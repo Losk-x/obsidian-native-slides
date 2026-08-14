@@ -31,8 +31,8 @@
   - **页号自动计算**：扫描全库、沿链接链（概览 → 第 1 页 → 第 2 页 → …）编号，
     无需再写 `page-number` 属性。概览页显示 "Overview"，放映页显示 "Page N"。
   - 点底栏左侧 ◀ ▶ 按钮翻页，或用 **上一页 / 下一页** 命令
-    （默认快捷键 `Cmd/Ctrl+Shift+←/→`，可在 **设置 → 快捷键** 重新绑定）；
-    第 1 页的 ◀ 回到概览页，最后一页没有 ▶。
+    （默认快捷键 `Cmd/Ctrl+Shift+←/→`，可在 **设置 → 快捷键** 重新绑定）。
+    两个箭头始终显示；无法移动的那一个（第一页的 ◀、最后一页的 ▶）为浅灰色禁用态。
   - 翻页后仍停留在阅读模式，沉浸式全屏体验不中断。
 
 - **设置页**：可开关 ◀ ▶ 按钮与页号显示。
@@ -79,6 +79,7 @@ views:
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 隐藏状态栏                   | `styles.css`：`.status-bar { display: none !important; }`                                                                                                 |
 | 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }`                                                                                           |
+| 空底栏隐藏                   | `refresh()` 无可显示属性（除 `deck`/`position` 外的 frontmatter 为空）时不渲染内容；套件页仍显示导航与页号                                                |     |
 | 全屏阅读模式                 | `refresh()` 检测到阅读模式即给 `body` 加 `rv-props-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏 |
 | Esc 退出全屏 + 阅读模式      | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发）              |
 | 套件解析                     | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                 |
@@ -102,7 +103,15 @@ npm run lint       # 可选：ESLint
 npm run format:check  # 可选：Prettier
 ```
 
-然后在 Obsidian 里重载插件（或装 Hot Reload 社区插件）。
+### 开发循环（重建 + 重载）
+
+先重建，再手动重载：
+
+```sh
+npm run dev        # 监听 main.ts，变更时自动重建 main.js
+```
+
+编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+P` 打开命令面板，搜索 **Reload app without saving** 并执行（该命令默认没有绑定快捷键）。或者，在 _设置 → 第三方插件_ 里关闭再开启 **Read-View Properties Bar**。
 
 ## 已知限制
 

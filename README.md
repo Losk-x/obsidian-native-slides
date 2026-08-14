@@ -11,7 +11,7 @@
 ## Features
 
 - Hides Obsidian's native status bar and renders a **properties bar** at the bottom of the window.
-- In **reading view**, shows the current note's properties (YAML frontmatter) as chips in the bar; the in-note properties panel is hidden (kept in edit view).
+- In **reading view**, shows the current note's properties (YAML frontmatter) as chips in the bar; the in-note properties panel is hidden (kept in edit view). The bar hides when there is nothing to show — a note with no properties gets no bar, and a deck page (frontmatter with only the reserved `deck` key) shows just the ◀ ▶ navigation and page number.
 - Reading view **auto-enters a fullscreen-like mode**: the ribbon, sidebars, tab bar and the pane header bar are hidden, and the OS-level fullscreen is requested (falls back gracefully). Everything restores when you leave reading view — and **pressing `Esc` exits both fullscreen and reading view**.
 - **PPT-style deck navigation** with **one reserved frontmatter property, `deck`** (up to two markdown links):
 
@@ -26,7 +26,7 @@
   ```
 
   - **Page numbers are auto-computed** by scanning the vault and walking the link chain (overview → slide 1 → slide 2 → …), so no `page-number` property is needed. The overview page shows "Overview", slides show "Page N".
-  - Flip pages with the ◀ ▶ buttons on the left of the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Slide 1's ◀ goes back to the overview; the last slide has no ▶.
+  - Flip pages with the ◀ ▶ buttons on the left of the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Both arrows are always shown; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
   - Navigation keeps you in reading view, so the immersive fullscreen experience is uninterrupted.
 
 - A **settings tab** toggles the ◀ ▶ buttons and the page number.
@@ -71,6 +71,7 @@ Demo deck: `overview.md` → `welcome.md` → `slide-2.md` → `slide-3.md`.
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Hide the status bar                              | `styles.css`: `.status-bar { display: none !important; }`                                                                                                                              |
 | Hide the in-note properties panel (reading view) | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                                        |
+| Hide the bar when empty                          | `refresh()` renders nothing when there are no displayable properties (frontmatter beyond `deck`/`position`); deck pages still show navigation + page number                            |     |
 | Fullscreen reading mode                          | `refresh()` adds `rv-props-fullscreen` to `body` when in reading view; CSS hides ribbon / sidebars / tab bar / `.view-header`; `requestFullscreen()` tries OS fullscreen               |
 | Esc exits fullscreen + reading view              | `fullscreenchange` handler: when the OS leaves fullscreen while we were fullscreen, call `view.setMode("source")` (guarded so our own `exitFullscreen()` never re-triggers it)         |
 | Deck resolution                                  | `computeDeck()` reads `deck` (≤ 2 links) → resolves the overview and the first page → walks the chain via each slide's second link (cycle-guarded) → returns the chain + current index |
@@ -93,7 +94,15 @@ npm run lint       # optional: ESLint
 npm run format:check  # optional: Prettier
 ```
 
-Then reload the plugin in Obsidian (or install the **Hot Reload** community plugin).
+### Dev loop (rebuild + reload)
+
+Rebuild on change, then reload manually:
+
+```sh
+npm run dev        # watch main.ts, rebuild main.js on change
+```
+
+After editing `main.ts`, reload the plugin in Obsidian: open the command palette with `Cmd/Ctrl+P`, search for **Reload app without saving**, and run it (it has no default hotkey). Alternatively, disable/re-enable **Read-View Properties Bar** under _Settings → Community plugins_.
 
 ## Known limitations
 
