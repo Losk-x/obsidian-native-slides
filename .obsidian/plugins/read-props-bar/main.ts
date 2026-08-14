@@ -43,6 +43,7 @@
  */
 
 import { Plugin, MarkdownView, TFile, PluginSettingTab, Setting } from "obsidian";
+import { computeDeck, extractLinks, formatValue, type DeckInfo } from "./src/deck";
 
 /** Plugin settings */
 interface ReadPropsBarSettings {
@@ -59,16 +60,6 @@ const DEFAULT_SETTINGS: ReadPropsBarSettings = {
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
 const DECK_KEY = "deck";
-/** A deck link list never holds more than two entries */
-const MAX_DECK_LINKS = 2;
-
-/** Result of resolving a note's position inside a deck */
-interface DeckInfo {
-  /** Chain of files: [0] is the overview note, then slides in order */
-  chain: TFile[];
-  /** Index of the current file inside chain */
-  index: number;
-}
 
 export default class ReadPropsBarPlugin extends Plugin {
   /** The properties bar DOM element */
@@ -188,76 +179,23 @@ export default class ReadPropsBarPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  // ── Deck resolution (scan the vault, follow the link chain) ───────────
+  // ── Deck resolution (walk the link chain) ─────────────────────────────
 
-  /**
-   * Resolve the current note's position inside its deck.
-   *
-   * Convention for the single `deck` property (up to two links):
-   *   - overview note: one link → that link IS the first page;
-   *   - slide note:    first link → the overview page, second link → next slide
-   *                    (no second link on the last slide).
-   *
-   * Returns the full chain ([overview, slide 1, slide 2, …]) and the current
-   * note's index, or null when the note is not part of any deck.
-   */
+  /** Resolve the current note's position inside its deck (path-based wrapper) */
   private computeDeck(file: TFile): DeckInfo | null {
-    const currentLinks = this.deckLinks(file);
-    if (currentLinks.length === 0) return null;
-
-    let overview: TFile | undefined;
-    let firstPage: TFile | undefined;
-
-    if (currentLinks.length >= 2) {
-      // A slide: first link is the overview page
-      overview = currentLinks[0];
-      firstPage = this.deckLinks(overview)[0];
-    } else {
-      // A single link: either we ARE the overview (link = first page),
-      // or we are the last slide (link = overview page)
-      const only = currentLinks[0];
-      const onlyLinks = this.deckLinks(only);
-      if (onlyLinks[0]?.path === file.path) {
-        overview = file;
-        firstPage = only;
-      } else {
-        overview = only;
-        firstPage = onlyLinks[0];
-      }
-    }
-    if (!overview || !firstPage) return null;
-
-    // Walk the chain: overview → first page → next → next → …
-    const chain: TFile[] = [];
-    const visited = new Set<string>();
-    const push = (f: TFile | undefined): void => {
-      if (f && !visited.has(f.path)) {
-        visited.add(f.path);
-        chain.push(f);
-      }
-    };
-    push(overview);
-    push(firstPage);
-    let cur = firstPage;
-    while (cur) {
-      const next = this.deckLinks(cur)[1];
-      if (!next || visited.has(next.path)) break; // end of deck or cycle guard
-      push(next);
-      cur = next;
-    }
-
-    const index = chain.findIndex((f) => f.path === file.path);
-    if (index === -1) return null;
-    return { chain, index };
+    return computeDeck(file.path, (path) => this.deckLinkPaths(path));
   }
 
-  /** Resolve the `deck` property of a note into real files (max two) */
-  private deckLinks(file: TFile): TFile[] {
-    const fm = this.frontmatterOf(file);
+  /** Resolve the `deck` property of a note into real note paths (max two) */
+  private deckLinkPaths(path: string): string[] {
+    const f = this.app.vault.getAbstractFileByPath(path);
+    if (!(f instanceof TFile)) return [];
+    const fm = this.frontmatterOf(f);
     const names = fm ? extractLinks(fm[DECK_KEY]) : [];
     return names
-      .map((name) => this.app.metadataCache.getFirstLinkpathDest(name, file.path))
-      .filter((f): f is TFile => !!f);
+      .map((name) => this.app.metadataCache.getFirstLinkpathDest(name, path))
+      .filter((x): x is TFile => !!x)
+      .map((x) => x.path);
   }
 
   /** Frontmatter of any note as an object, or null when absent */
@@ -276,7 +214,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     if (!deck) return;
     const target = deck.chain[direction === "prev" ? deck.index - 1 : deck.index + 1];
     if (!target) return;
-    void this.app.workspace.openLinkText(target.path, file.path);
+    void this.app.workspace.openLinkText(target, file.path);
   }
 
   // ── Mode / data access ────────────────────────────────────────────────
@@ -446,59 +384,6 @@ class ReadPropsBarSettingTab extends PluginSettingTab {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────
-
-/**
- * Extract up to MAX_DECK_LINKS note names from a `deck` property value.
- * Accepts a single string or a YAML list of strings; unquoted [[x]] values are
- * parsed by YAML as nested arrays and flattened here.
- */
-function extractLinks(value: unknown): string[] {
-  const flat: unknown[] = [];
-  const collect = (v: unknown): void => {
-    if (Array.isArray(v)) {
-      for (const item of v) collect(item);
-    } else {
-      flat.push(v);
-    }
-  };
-  collect(value);
-
-  const out: string[] = [];
-  for (const item of flat) {
-    const name = extractLinkText(item);
-    if (name) out.push(name);
-    if (out.length >= MAX_DECK_LINKS) break;
-  }
-  return out;
-}
-
-/**
- * Extract the target note name from a markdown link string.
- * Handles several shapes:
- *   "[[slide-2]]"        → slide-2
- *   "[[slide-2|alias]]"  → slide-2
- *   "[[slide-2#section]]"→ slide-2
- *   slide-2              → slide-2 (bare filename)
- */
-function extractLinkText(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  return trimmed.replace(/^\[\[/, "").replace(/\]\]$/, "").split("|")[0].split("#")[0].trim();
-}
-
-/** Render a property value as readable text: arrays/objects → JSON, else String */
-function formatValue(value: unknown): string {
-  if (value === null || value === undefined) return "—";
-  if (typeof value === "object") {
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return String(value);
-    }
-  }
-  return String(value);
-}
 
 /** Remove all children of an element */
 function clearChildren(el: HTMLElement): void {
