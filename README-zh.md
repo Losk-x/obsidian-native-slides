@@ -79,6 +79,7 @@ views:
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 隐藏状态栏                   | `styles.css`：`.status-bar { display: none !important; }`                                                                                                 |
 | 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }`                                                                                           |
+| 空底栏隐藏                   | `refresh()` 无可显示属性（除 `deck`/`position` 外的 frontmatter 为空）时不渲染内容；套件页仍显示导航与页号                                                |     |
 | 全屏阅读模式                 | `refresh()` 检测到阅读模式即给 `body` 加 `rv-props-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏 |
 | Esc 退出全屏 + 阅读模式      | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发）              |
 | 套件解析                     | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                 |
