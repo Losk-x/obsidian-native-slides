@@ -10,7 +10,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ### Changed
 
-- Bottom bar: no longer shows a "No properties" placeholder — the bar hides when it has nothing to display.
+- Bottom bar: a note with **no frontmatter at all** no longer shows a "No properties" placeholder (the bar hides when it has nothing to display); a note whose frontmatter has nothing displayable besides the reserved `deck` key still shows it.
 
 ## [0.1.0] - 2026-08-14
 
