@@ -96,18 +96,13 @@ npm run format:check  # optional: Prettier
 
 ### Dev loop (rebuild + reload)
 
-Rebuild on change — **no plugin required**:
+Rebuild on change, then reload manually:
 
 ```sh
 npm run dev        # watch main.ts, rebuild main.js on change
 ```
 
-Then reload the plugin in Obsidian:
-
-- **Without any plugin:** press `Cmd/Ctrl+R` (reload the window), or disable/re-enable **Read-View Properties Bar** under _Settings → Community plugins_.
-- **Automatically (optional):** the example vault also ships the **Hot Reload** plugin (vendored from [pjeby/hot-reload](https://github.com/pjeby/hot-reload) v0.3.1) with a `.hotreload` marker in the plugin folder — enable it once under _Settings → Community plugins_ and the plugin reloads itself ~0.75 s after you stop typing. Dev-only; the marker never ships to users.
-
-> Hot Reload is purely a developer convenience — the manual `Cmd/Ctrl+R` path always works. It requires Obsidian ≥ 1.6.7 (its `minAppVersion`). For how the vendored copy is kept in sync, see [the provenance note](example-vault/.obsidian/plugins/hot-reload/README.md).
+After editing `main.ts`, reload the plugin in Obsidian: press `Cmd/Ctrl+R` (reload the window), or disable/re-enable **Read-View Properties Bar** under _Settings → Community plugins_.
 
 ## Known limitations
 

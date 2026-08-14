@@ -2,4 +2,3 @@ main.js
 package-lock.json
 node_modules
 .npm-cache
-example-vault/.obsidian/plugins/hot-reload
