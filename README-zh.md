@@ -102,18 +102,20 @@ npm run lint       # 可选：ESLint
 npm run format:check  # 可选：Prettier
 ```
 
-### 热重载（开发循环）
+### 开发循环（重建 + 重载）
 
-示例库内置了 **Hot Reload** 插件（来自 [pjeby/hot-reload](https://github.com/pjeby/hot-reload) v0.3.1，已 vendored）并在插件目录放置了 `.hotreload` 标记，让你获得"编辑 → 重建 → 重载 → 预览"的秒级开发循环：
+仅重建、**无需任何插件**：
 
 ```sh
 npm run dev        # 监听 main.ts，变更时自动重建 main.js
 ```
 
-1. 在 Obsidian 中打开 `example-vault/`，在 _设置 → 第三方插件_ 里启用 **Hot Reload**（仅开发用；标记不会随发布泄漏给用户）。
-2. 运行 `npm run dev`，然后编辑 `main.ts` —— `main.js` 自动重建，插件自动重载（停止输入约 0.75 秒后）。无需手动重载。
+然后在 Obsidian 里重载插件：
 
-> Hot Reload 需要 Obsidian ≥ 1.6.7（其 `minAppVersion`）。vendored 副本的同步方式见[溯源说明](example-vault/.obsidian/plugins/hot-reload/README.md)。
+- **不装任何插件：** 按 `Cmd/Ctrl+R`（重载窗口），或在 _设置 → 第三方插件_ 里关闭再开启 **Read-View Properties Bar**。
+- **自动重载（可选）：** 示例库也内置了 **Hot Reload** 插件（来自 [pjeby/hot-reload](https://github.com/pjeby/hot-reload) v0.3.1）并在插件目录放置了 `.hotreload` 标记——在 _设置 → 第三方插件_ 里启用一次后，插件会在停止输入约 0.75 秒后自动重载。仅开发用；标记不会随发布泄漏。
+
+> Hot Reload 纯属开发便利——手动 `Cmd/Ctrl+R` 路径始终可用。它需要 Obsidian ≥ 1.6.7（其 `minAppVersion`）。vendored 副本的同步方式见[溯源说明](example-vault/.obsidian/plugins/hot-reload/README.md)。
 
 ## 已知限制
 

@@ -93,18 +93,20 @@ npm run lint       # optional: ESLint
 npm run format:check  # optional: Prettier
 ```
 
-### Hot reload (dev loop)
+### Dev loop (rebuild + reload)
 
-The example vault ships the **Hot Reload** plugin (vendored from [pjeby/hot-reload](https://github.com/pjeby/hot-reload) v0.3.1) plus a `.hotreload` marker in the plugin folder, giving an edit → rebuild → reload → preview loop in seconds:
+Rebuild on change — **no plugin required**:
 
 ```sh
 npm run dev        # watch main.ts, rebuild main.js on change
 ```
 
-1. Open `example-vault/` in Obsidian and enable **Hot Reload** under _Settings → Community plugins_ (dev-only; the marker never ships to users).
-2. Run `npm run dev`, then edit `main.ts` — `main.js` is rebuilt and the plugin reloads automatically (~0.75 s after you stop typing). No manual reload needed.
+Then reload the plugin in Obsidian:
 
-> Hot Reload requires Obsidian ≥ 1.6.7 (its `minAppVersion`). For how the vendored copy is kept in sync, see [the provenance note](example-vault/.obsidian/plugins/hot-reload/README.md).
+- **Without any plugin:** press `Cmd/Ctrl+R` (reload the window), or disable/re-enable **Read-View Properties Bar** under _Settings → Community plugins_.
+- **Automatically (optional):** the example vault also ships the **Hot Reload** plugin (vendored from [pjeby/hot-reload](https://github.com/pjeby/hot-reload) v0.3.1) with a `.hotreload` marker in the plugin folder — enable it once under _Settings → Community plugins_ and the plugin reloads itself ~0.75 s after you stop typing. Dev-only; the marker never ships to users.
+
+> Hot Reload is purely a developer convenience — the manual `Cmd/Ctrl+R` path always works. It requires Obsidian ≥ 1.6.7 (its `minAppVersion`). For how the vendored copy is kept in sync, see [the provenance note](example-vault/.obsidian/plugins/hot-reload/README.md).
 
 ## Known limitations
 
