@@ -734,6 +734,31 @@ export default class NativeSlidesPlugin extends Plugin {
       }
       return top;
     })();
+    // What occupies the space between the content top and the H1?
+    // (edit) first children of .cm-content, and the net H1 distance
+    // from the content anchor — reading has no such gap.
+    const anchor = isEdit
+      ? contentEl.querySelector(".cm-content")
+      : contentEl.querySelector(".markdown-reading-view .markdown-preview-view");
+    const h1TopInContent = (() => {
+      if (!h1 || !anchor) return undefined;
+      return Math.round(h1.getBoundingClientRect().top - anchor.getBoundingClientRect().top);
+    })();
+    const cmContentChildren = isEdit
+      ? (() => {
+          if (!anchor) return undefined;
+          return Array.from(anchor.children)
+            .slice(0, 4)
+            .map((el) => {
+              const cs = getComputedStyle(el);
+              return {
+                cls: (el as HTMLElement).className || el.tagName.toLowerCase(),
+                display: cs.display,
+                height: Math.round(el.getBoundingClientRect().height),
+              };
+            });
+        })()
+      : undefined;
 
     const dump = {
       mode: isEdit ? "edit (Live Preview)" : "reading",
@@ -745,6 +770,8 @@ export default class NativeSlidesPlugin extends Plugin {
       listLines: isEdit ? listLines : undefined,
       metadataContainerDisplay: isEdit ? metadataDisplay : undefined,
       h1OffsetTop: h1OffsetTop,
+      h1TopInContent: h1TopInContent,
+      cmContentChildren: cmContentChildren,
       container: style(container, [
         "font-family",
         "font-size",
@@ -1006,9 +1033,18 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     target[key] = section;
   }
   // Probe fields ride along (first non-empty wins)
-  for (const key of ["listLines", "metadataContainerDisplay", "h1OffsetTop"]) {
+  for (const key of [
+    "listLines",
+    "metadataContainerDisplay",
+    "h1OffsetTop",
+    "h1TopInContent",
+    "cmContentChildren",
+  ]) {
     const probe = sample[key];
     if (probe === undefined || probe === null) continue;
+    if (Array.isArray(probe) && probe.length === 0) continue;
+    if (typeof probe === "object" && !Array.isArray(probe) && Object.keys(probe).length === 0)
+      continue;
     if (target[key] === undefined) target[key] = probe;
   }
 }
