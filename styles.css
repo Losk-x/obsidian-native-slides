@@ -222,15 +222,21 @@ body.native-slides-wysiwyg
 }
 
 /* ── 7c. Images: standalone image lines are centered in both views ──
-   (a standalone image = the only child of its line/paragraph) */
+   Only the img element itself is centered (block + auto margins) —
+   the line/paragraph text is never affected, so headings or text
+   near images can never be centered by accident. */
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6
-  .cm-line:has(> img),
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:has(> img)
+  img,
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
   .markdown-reading-view
   .markdown-preview-view
-  p:has(> img) {
-  text-align: center;
+  p:has(> img)
+  img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }

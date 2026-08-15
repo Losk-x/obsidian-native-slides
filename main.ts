@@ -684,6 +684,7 @@ export default class NativeSlidesPlugin extends Plugin {
         "padding-bottom",
         "padding-left",
         "color",
+        "text-align",
       ]),
       paragraph: style(para, [
         "font-size",
@@ -693,14 +694,23 @@ export default class NativeSlidesPlugin extends Plugin {
         "margin-left",
         "margin-right",
         "text-indent",
+        "text-align",
       ]),
-      h1: style(h1, ["font-size", "line-height", "font-weight", "margin-top", "margin-bottom"]),
+      h1: style(h1, [
+        "font-size",
+        "line-height",
+        "font-weight",
+        "margin-top",
+        "margin-bottom",
+        "text-align",
+      ]),
       listItem: style(listItem, [
         "padding-left",
         "margin-left",
         "margin-right",
         "text-indent",
         "line-height",
+        "text-align",
       ]),
       codeBlock: style(pre, [
         "font-size",
