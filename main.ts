@@ -216,20 +216,8 @@ export default class NativeSlidesPlugin extends Plugin {
     return names.filter((name) => !this.app.metadataCache.getFirstLinkpathDest(name, file.path));
   }
 
-  /** Open the right-sidebar Properties view (core "Show file properties" command) */
+  /** Open the right-sidebar Properties view (typed public workspace API) */
   private async showFileProperties(): Promise<void> {
-    const match = Object.entries(this.app.commands.commands).find(([, cmd]) => {
-      const name = cmd.name ?? "";
-      return (
-        (name.toLowerCase().includes("properties") && /(?:show|display)/i.test(name)) ||
-        (name.includes("属性") && /(?:显示|打开)/.test(name))
-      );
-    });
-    if (match) {
-      await this.app.commands.executeCommandById(match[0]);
-      return;
-    }
-    // Fallback: open the properties view directly in the right leaf
     const leaf = this.app.workspace.getRightLeaf(false);
     if (leaf) {
       await leaf.setViewState({ type: "properties" });
