@@ -39,7 +39,7 @@
 - **设置页**：可开关 ◀ ▶ 按钮、页号显示与自动全屏。
 - **断链警告**：`deck` 链接指向不存在的笔记时，底栏显示 ⚠ 警告标签，方便作者发现笔误（该链只会终止或排除，不会报错）。
 - **WYSIWYG 模式**（仅 deck 笔记）：显式沉浸模式——命令 **Toggle WYSIWYG Mode**（默认快捷键 `Mod+Shift+E`）、底栏按钮或设置开关进入，默认关闭。**WYSIWYG = 把 Live Preview 的样式对齐到阅读视图**——阅读视图是原封不动的基准；WYSIWYG 内 Live Preview 的排版向它看齐（顶部留白、列表缩进、代码块度量）；**tab bar 与左右侧边栏在 Live Preview 与阅读视图下隐藏**；Live Preview 也显示底栏，底栏高度自动对齐 tab bar 实测高度（切换模式时内容区高度不变）；**编辑时隐藏笔记内属性面板**；**独立成行的图片在两种视图下居中**。**Source 模式与默认（未开启 WYSIWYG 的）Live Preview 完全保持原生**。
-- **命令**：_Toggle Properties Bar_ 与 _Pause/Resume Auto Fullscreen_（均持久化），套件翻页的 _Previous Page / Next Page_，建页用的 _Create Next Slide_，以及 _Toggle WYSIWYG Mode_——都可在 _设置 → 快捷键_ 重新绑定。_Debug: Dump Typography Styles_ 会自动在**编辑与阅读两种视图**各采样一次当前笔记、计算差异，并写入 vault 根目录的 `.native-slides-debug.json`（用于校准 WYSIWYG 对齐，无需手动复制控制台输出）。
+- **命令**：_Toggle Properties Bar_ 与 _Pause/Resume Auto Fullscreen_（均持久化），套件翻页的 _Previous Page / Next Page_，建页用的 _Create Next Slide_，以及 _Toggle WYSIWYG Mode_——都可在 _设置 → 快捷键_ 重新绑定。
 
 ## 概览页与内置 Base 视图
 
@@ -63,7 +63,7 @@ views:
 
 ## 示例库
 
-演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、`broken-link-demo.md`（断链警告演示）、`folded-properties-demo.md`（WYSIWYG 属性演示）、`typography-demo.md`（Markdown 全家桶——标题/列表/任务/引用/代码块/表格/图片，用于测试 WYSIWYG 排版对齐）、五个 `typography-sample-*.md` 笔记（`Debug: Dump Typography Styles` 命令专用的固定一页采样笔记——请勿改名或删除）、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/native-slides/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
+演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、`broken-link-demo.md`（断链警告演示）、`folded-properties-demo.md`（WYSIWYG 属性演示）、`typography-demo.md`（Markdown 全家桶——标题/列表/任务/引用/代码块/表格/图片，用于测试 WYSIWYG 排版对齐）、五个 `typography-sample-*.md` 笔记（**仅开发版** `Debug: Dump Typography Styles` 命令专用的固定一页采样笔记——请勿改名或删除）、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/native-slides/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
 
 > 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把 `main.js`、`manifest.json`、`styles.css` 复制到 `example-vault/.obsidian/plugins/native-slides/` 即可。
 
@@ -103,7 +103,8 @@ views:
 
 ```sh
 npm ci             # 仅首次需要（下载 esbuild 等）
-npm run build      # 编译 main.ts → main.js
+npm run build      # 编译 main.ts → main.js（开发版：含 debug 命令）
+npm run build:release  # 发布版：压缩并移除 debug 命令
 npm run check      # 可选：TypeScript 类型检查（tsc --noEmit）
 npm run test       # 可选：vitest 单元测试
 npm run lint       # 可选：ESLint
@@ -119,6 +120,15 @@ npm run dev        # 监听 main.ts，变更时自动重建 main.js
 ```
 
 编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+P` 打开命令面板，搜索 **Reload app without saving** 并执行（该命令默认没有绑定快捷键）。或者，在 _设置 → 第三方插件_ 里关闭再开启 **Native Slides**。
+
+## 开发者
+
+排版测量工具以**仅开发版**命令的形式提供，发布构建中不包含。
+
+- **开发构建**（`npm run build` / `npm run dev`）会注册 `Debug: Dump Typography Styles` 命令：在**编辑与阅读两种视图**各采样一次当前笔记、计算差异，并写入 vault 根目录的 `.native-slides-debug.json`（无需手动复制控制台输出）。在开启 WYSIWYG 的 deck 笔记上运行；`example-vault/` 里五个 `typography-sample-*.md` 是它的固定一页采样夹具——请勿改名或删除。
+- **发布构建**（`npm run build:release`）会压缩 `main.js`，并通过 `--define:DEV_MODE=false` + tree-shaking 彻底移除 debug 命令及其支撑代码。发布后执行 `npm run build` 即可恢复开发版产物。
+
+源码已拆分到 `src/` 模块（`types`、`mode`、`deck-service`、`bar`、`commands`、`settings`、`debug`、`deck`、`createNext`），`main.ts` 仅作编排入口。
 
 ## 已知限制
 
