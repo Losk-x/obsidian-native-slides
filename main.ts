@@ -28,14 +28,17 @@
  *      current one (name-collision aware), rewires the `deck` properties of
  *      both notes, and opens the new note in edit mode.
  *   8. "Toggle WYSIWYG Mode" (command + hotkey + bottom-bar button, deck
- *      notes only): an immersive mode with MINIMAL style intervention —
- *      the tab bar and sidebars hide in both views, the bottom bar shows
- *      in edit view too and matches the tab bar's measured height (no
- *      content-area height change when switching modes), in-note
- *      properties hide while editing, and standalone image lines are
- *      centered. Default typography is left untouched (edit and reading
- *      already look nearly identical; other themes/plugins may restyle).
- *      All rules are scoped under body.native-slides-wysiwyg.
+ *      notes only): an immersive mode with ZERO typography intervention —
+ *      Obsidian's native Live Preview and reading view already share the
+ *      same typography, so overriding it would break the WYSIWYG promise
+ *      and fight user themes. The mode only does layout-level work: the
+ *      tab bar and sidebars hide (Live Preview + reading view), the
+ *      bottom bar shows in Live Preview too and matches the tab bar's
+ *      measured height (no content-area height change when switching
+ *      modes), in-note properties hide while editing, and standalone
+ *      image lines are centered. Source mode and everything else stay
+ *      completely native. All rules are scoped under
+ *      body.native-slides-wysiwyg.
  *   9. "Debug: Dump Typography Styles" (ns-debug-styles): prints the
  *      key computed styles + CSS variables of the current view to the
  *      console — run once per view and compare (measurement tooling,
@@ -375,6 +378,21 @@ export default class NativeSlidesPlugin extends Plugin {
     return view ? (view.getMode() as "preview" | "source") : "";
   }
 
+  /**
+   * True when the active edit view is Live Preview (WYSIWYG) — as
+   * opposed to Source mode. Obsidian reports both as mode "source";
+   * the view state carries a `source` flag (Source mode = true), with
+   * a DOM class fallback (.is-live-preview) for safety.
+   */
+  private isLivePreview(): boolean {
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (!view || view.getMode() !== "source") return false;
+    const state = view.getState() as { source?: boolean };
+    if (state.source === true) return false;
+    if (state.source === false) return true;
+    return !!view.contentEl.querySelector(".markdown-source-view.mod-cm6.is-live-preview");
+  }
+
   /** Current note's frontmatter as an object, or null when absent */
   private frontmatter(): Record<string, unknown> | null {
     const file = this.app.workspace.getActiveFile();
@@ -396,11 +414,13 @@ export default class NativeSlidesPlugin extends Plugin {
     // Measure the tab bar while it is still visible (WYSIWYG hides it
     // below; the last measured value is reused once hidden).
     this.syncTabBarHeight();
-    // WYSIWYG mode body class — immersive mode (deck notes only): hides
-    // the tab bar and sidebars in both edit and reading views, matches
-    // the bottom bar's height to the tab bar, and hides in-note
-    // properties while editing.
-    const wysiwyg = isCard && this.settings.wysiwygMode;
+    // WYSIWYG mode body class — immersive mode (deck notes only),
+    // active in Live Preview and reading view only: hides the tab bar
+    // and sidebars, matches the bottom bar's height to the tab bar,
+    // hides in-note properties while editing, centers standalone
+    // images. Source mode and everything else stay completely native.
+    const isSourceMode = mode === "source" && !this.isLivePreview();
+    const wysiwyg = isCard && this.settings.wysiwygMode && !isSourceMode;
     document.body.classList.toggle("native-slides-wysiwyg", wysiwyg);
 
     // Auto-fullscreen: enter on reading view, restore on leaving it
@@ -410,9 +430,7 @@ export default class NativeSlidesPlugin extends Plugin {
     // (so the mode has visible feedback while editing). Hidden when the
     // user hid it manually.
     const barVisible =
-      !!file &&
-      (mode === "preview" || (mode === "source" && isCard && this.settings.wysiwygMode)) &&
-      !this.settings.barHidden;
+      !!file && (mode === "preview" || (mode === "source" && wysiwyg)) && !this.settings.barHidden;
     if (!barVisible) {
       this.bar.style.display = "none";
       return;
@@ -654,6 +672,7 @@ export default class NativeSlidesPlugin extends Plugin {
       wysiwygActive: document.body.classList.contains("native-slides-wysiwyg"),
       domTags: isEdit ? domTags : undefined,
       sourceViewClass: isEdit ? sourceViewClass : undefined,
+      livePreview: isEdit ? this.isLivePreview() : undefined,
       container: style(container, [
         "font-family",
         "font-size",

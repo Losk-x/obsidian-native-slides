@@ -20,8 +20,9 @@
    mode properties show normally in edit view. */
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6
+  .markdown-source-view.mod-cm6.is-live-preview
   .metadata-container {
+  /* Live Preview only — Source mode keeps its native properties */
   display: none !important;
 }
 
@@ -174,58 +175,20 @@ body.native-slides-wysiwyg .workspace-tabs.mod-top .workspace-tab-header-contain
 body.native-slides-wysiwyg .native-slides-bar {
   height: var(--native-slides-tabbar-height, 38px);
 }
-body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-reading-view .markdown-preview-view,
-body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content {
-  /* !important: Obsidian forces a 40vh bottom padding on .cm-content */
-  padding-bottom: var(--native-slides-tabbar-height, 38px) !important;
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-reading-view
+  .markdown-preview-view {
+  /* keeps the last line clear of the bottom bar; edit view already
+     has Obsidian's native 40vh bottom padding */
+  padding-bottom: var(--native-slides-tabbar-height, 38px);
 }
 
-/* ── 7. WYSIWYG geometry alignment (edit = reference) ───────
-   Aligns the two views' GEOMETRY (margins, padding, indentation,
-   type metrics) while leaving decoration (backgrounds, borders,
-   colors) untouched so themes and plugins stay compatible.
-   Measured via ns-debug-styles (2026-08):
-   • block rhythm: edit separates blocks with a 24px blank line
-     (line-height) vs reading's 16px margins → reading uses 1.5rem
-   • list indent: edit hangs the marker (0/23px) while reading
-     starts at 30px → edit list lines use the same start, no hanging
-   • code blocks: edit renders at --code-size (14px) vs reading
-     16px → reading uses --code-size too
-   • top margin: edit starts at 0 vs reading's 32px (--file-margins)
-     → edit gets the same top margin so the first line does not jump
-   Decorations (inline-code background, quote border) intentionally
-   stay per-view; standalone image lines are centered (7c). */
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-reading-view
-  .markdown-preview-view
-  :is(p, h1, h2, h3, h4, h5, h6, ul, ol, pre, blockquote, table, hr) {
-  margin-top: 0;
-  margin-bottom: 1.5rem; /* 24px — one edit-view blank line */
-}
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .cm-content {
-  /* Live Preview only — Source mode keeps its native layout */
-  padding-top: 32px; /* matches the reading view's --file-margins top */
-}
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6
-  .HyperMD-list-line {
-  /* !important: Obsidian styles list lines with a higher priority */
-  padding-left: calc(var(--list-indent) - 0.375em) !important;
-  text-indent: 0 !important;
-}
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-reading-view
-  .markdown-preview-view
-  pre {
-  font-size: var(--code-size, 0.875em);
-  line-height: 1.5;
-}
+/* ── 7. WYSIWYG zero typography intervention ────────────────
+   Obsidian's native Live Preview and reading view already share the
+   same typography; ANY override here breaks the WYSIWYG promise and
+   fights user themes. So WYSIWYG only centers standalone image
+   lines (below) — nothing else touches the note's layout. */
 
 /* ── 7c. Images: standalone image lines are centered in both views ──
    (a standalone image = the only child of its line/paragraph) */

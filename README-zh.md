@@ -38,7 +38,7 @@
 
 - **设置页**：可开关 ◀ ▶ 按钮、页号显示与自动全屏。
 - **断链警告**：`deck` 链接指向不存在的笔记时，底栏显示 ⚠ 警告标签，方便作者发现笔误（该链只会终止或排除，不会报错）。
-- **WYSIWYG 模式**（仅 deck 笔记）：显式沉浸模式——命令 **Toggle WYSIWYG Mode**（默认快捷键 `Mod+Shift+E`）、底栏按钮或设置开关进入，默认关闭。开启后：**tab bar 与左右侧边栏在编辑/阅读两种视图下都隐藏**；编辑视图也显示底栏，且底栏高度自动对齐 tab bar 实测高度（切换模式时内容区高度不变）；**编辑时隐藏笔记内属性面板**；**独立成行的图片在两种视图下居中**。默认排版刻意保持不动——Obsidian 的编辑与阅读本就几乎一致，且其他主题/插件可能改写过文字、公式与代码块样式（最小干预原则）。模式之外，编辑视图保持原生行为（属性正常显示）。
+- **WYSIWYG 模式**（仅 deck 笔记）：显式沉浸模式——命令 **Toggle WYSIWYG Mode**（默认快捷键 `Mod+Shift+E`）、底栏按钮或设置开关进入，默认关闭。开启后：**tab bar 与左右侧边栏在 Live Preview 与阅读视图下隐藏**（Source 模式完全保持原生）；Live Preview 也显示底栏，且底栏高度自动对齐 tab bar 实测高度（切换模式时内容区高度不变）；**编辑时隐藏笔记内属性面板**；**独立成行的图片在两种视图下居中**。**排版零干预**：Obsidian 原生 Live Preview 与阅读本就共享同一套排版，插件绝不覆盖（与主题/插件兼容）。
 - **命令**：_Toggle Properties Bar_ 与 _Pause/Resume Auto Fullscreen_（均持久化），套件翻页的 _Previous Page / Next Page_，建页用的 _Create Next Slide_，以及 _Toggle WYSIWYG Mode_——都可在 _设置 → 快捷键_ 重新绑定。_Debug: Dump Typography Styles_ 会把当前视图的关键排版数值打印到控制台（编辑/阅读各跑一次对比，用于校准 WYSIWYG 排版对齐）。
 
 ## 概览页与内置 Base 视图
