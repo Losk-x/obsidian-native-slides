@@ -14,6 +14,17 @@
   display: none !important;
 }
 
+/* ── 2b. WYSIWYG: deck (card) notes hide the in-note properties panel in
+   Live Preview — always, same look as reading view. Scoped to the active
+   pane (.mod-active) so other panes' notes are unaffected; properties are
+   edited in the right-sidebar Properties view or Source mode. */
+body.native-slides-card
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6
+  .metadata-container {
+  display: none !important;
+}
+
 /* ── 3. Fullscreen reading mode (entered automatically) ──────
    Hides the ribbon, sidebars, tab bar and the pane header bar
    (the one with the back/forward buttons) so the reading area
