@@ -568,7 +568,15 @@ export default class NativeSlidesPlugin extends Plugin {
     }
     const isEdit = view.getMode() === "source";
     const contentEl = view.contentEl;
-    const pick = (sel: string): HTMLElement | null => contentEl.querySelector<HTMLElement>(sel);
+    // First matching candidate wins — edit (cm6) and reading use
+    // different element structures (e.g. no pre/blockquote in cm6).
+    const pick = (sels: string[]): HTMLElement | null => {
+      for (const sel of sels) {
+        const el = contentEl.querySelector<HTMLElement>(sel);
+        if (el) return el;
+      }
+      return null;
+    };
     const style = (el: HTMLElement | null, props: string[]): Record<string, string> => {
       if (!el) return { "(missing)": "element not in this note" };
       const cs = getComputedStyle(el);
@@ -582,44 +590,51 @@ export default class NativeSlidesPlugin extends Plugin {
     const vars = getComputedStyle(document.body);
     const cssVar = (name: string): string => vars.getPropertyValue(name).trim();
 
-    const container = pick(
+    const container = pick([
       isEdit
         ? ".markdown-source-view.mod-cm6 .cm-content"
         : ".markdown-reading-view .markdown-preview-view",
-    );
-    const para = pick(
+    ]);
+    const para = pick([
       isEdit
         ? ".markdown-source-view.mod-cm6 .cm-line"
         : ".markdown-reading-view .markdown-preview-view p",
-    );
-    const h1 = pick(
+    ]);
+    const h1 = pick([
+      isEdit ? ".markdown-source-view.mod-cm6 .cm-header-1" : ".markdown-reading-view h1",
       isEdit
-        ? ".markdown-source-view.mod-cm6 .cm-line .cm-header-1"
+        ? ".markdown-source-view.mod-cm6 h1"
         : ".markdown-reading-view .markdown-preview-view h1",
-    );
-    const listItem = pick(
+    ]);
+    const listItem = pick([
       isEdit
         ? ".markdown-source-view.mod-cm6 .HyperMD-list-line"
-        : ".markdown-reading-view .markdown-preview-view ul > li",
-    );
-    const pre = pick(
+        : ".markdown-preview-view ul > li",
+      isEdit ? ".HyperMD-list-line" : ".markdown-reading-view .markdown-preview-view ul > li",
+    ]);
+    const pre = pick([
       isEdit
         ? ".markdown-source-view.mod-cm6 pre"
         : ".markdown-reading-view .markdown-preview-view pre",
-    );
-    const quote = pick(
+      isEdit ? ".markdown-source-view.mod-cm6 .HyperMD-codeblock" : ".markdown-preview-view pre",
+    ]);
+    const quote = pick([
+      isEdit ? ".markdown-source-view.mod-cm6 blockquote" : ".markdown-reading-view blockquote",
       isEdit
-        ? ".markdown-source-view.mod-cm6 blockquote"
+        ? ".markdown-source-view.mod-cm6 .HyperMD-quote"
         : ".markdown-reading-view .markdown-preview-view blockquote",
-    );
-    const inlineCode = pick(
+    ]);
+    const inlineCode = pick([
+      isEdit ? ".markdown-source-view.mod-cm6 code" : ".markdown-reading-view code",
       isEdit
-        ? ".markdown-source-view.mod-cm6 code"
+        ? ".markdown-source-view.mod-cm6 .cm-inline-code"
         : ".markdown-reading-view .markdown-preview-view code",
-    );
+    ]);
 
     const dump = {
       mode: isEdit ? "edit (Live Preview)" : "reading",
+      // Alignment CSS (rules 7/7b) only applies when WYSIWYG is on
+      wysiwygActive: document.body.classList.contains("native-slides-wysiwyg"),
       container: style(container, [
         "font-family",
         "font-size",
