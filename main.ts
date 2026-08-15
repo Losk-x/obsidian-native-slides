@@ -713,6 +713,27 @@ export default class NativeSlidesPlugin extends Plugin {
         });
       });
     }
+    // Frontmatter probes: does the (hidden) properties area still
+    // occupy space in Live Preview? And how far is the H1 from the
+    // top of the content area? (reading mode has no such padding)
+    const metadataDisplay = isEdit
+      ? (() => {
+          const el = contentEl.querySelector<HTMLElement>(
+            ".markdown-source-view .metadata-container",
+          );
+          return el ? getComputedStyle(el).display : "(not in DOM)";
+        })()
+      : undefined;
+    const h1OffsetTop = (() => {
+      if (!h1) return undefined;
+      let top = 0;
+      let node: HTMLElement | null = h1;
+      while (node && node !== contentEl && node !== document.body) {
+        top += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      return top;
+    })();
 
     const dump = {
       mode: isEdit ? "edit (Live Preview)" : "reading",
@@ -722,6 +743,8 @@ export default class NativeSlidesPlugin extends Plugin {
       sourceViewClass: isEdit ? sourceViewClass : undefined,
       livePreview: isEdit ? this.isLivePreview() : undefined,
       listLines: isEdit ? listLines : undefined,
+      metadataContainerDisplay: isEdit ? metadataDisplay : undefined,
+      h1OffsetTop: h1OffsetTop,
       container: style(container, [
         "font-family",
         "font-size",
@@ -983,7 +1006,7 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     target[key] = section;
   }
   // Probe fields ride along (first non-empty wins)
-  for (const key of ["listLines"]) {
+  for (const key of ["listLines", "metadataContainerDisplay", "h1OffsetTop"]) {
     const probe = sample[key];
     if (probe === undefined || probe === null) continue;
     if (target[key] === undefined) target[key] = probe;
