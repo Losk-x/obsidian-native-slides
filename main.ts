@@ -697,6 +697,21 @@ export default class NativeSlidesPlugin extends Plugin {
         .forEach((el) => tags.add(el.tagName.toLowerCase()));
       domTags.push(...tags);
     }
+    // List-line probe (edit view only): class names + computed padding
+    // of the first list lines — nested levels often use distinct
+    // classes or inline paddings, which decides whether a level-aware
+    // indent override is even possible.
+    const listLines: { className: string; paddingLeft: string }[] = [];
+    if (isEdit) {
+      contentEl.querySelectorAll(".HyperMD-list-line").forEach((el, i) => {
+        if (i >= 4) return;
+        const cs = getComputedStyle(el);
+        listLines.push({
+          className: el.className,
+          paddingLeft: cs.getPropertyValue("padding-left").trim(),
+        });
+      });
+    }
 
     const dump = {
       mode: isEdit ? "edit (Live Preview)" : "reading",
@@ -705,6 +720,7 @@ export default class NativeSlidesPlugin extends Plugin {
       domTags: isEdit ? domTags : undefined,
       sourceViewClass: isEdit ? sourceViewClass : undefined,
       livePreview: isEdit ? this.isLivePreview() : undefined,
+      listLines: isEdit ? listLines : undefined,
       container: style(container, [
         "font-family",
         "font-size",
