@@ -55,6 +55,8 @@ interface NativeSlidesSettings {
   barHidden: boolean;
   /** Whether auto-fullscreen in reading view is enabled */
   autoFullscreen: boolean;
+  /** Hide a folded properties panel completely in Live Preview for deck notes */
+  hideFoldedPropertiesInEdit: boolean;
 }
 
 const DEFAULT_SETTINGS: NativeSlidesSettings = {
@@ -62,6 +64,7 @@ const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showPageNumber: true,
   barHidden: false,
   autoFullscreen: true,
+  hideFoldedPropertiesInEdit: true,
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
@@ -253,6 +256,15 @@ export default class NativeSlidesPlugin extends Plugin {
     const file = this.app.workspace.getActiveFile();
     const mode = this.currentMode();
 
+    // Card-note body class (note has a `deck` property) — enables the
+    // edit-mode "hide folded properties" CSS (Live Preview WYSIWYG step).
+    const cardFm = file ? this.frontmatterOf(file) : null;
+    const isCard = cardFm !== null && DECK_KEY in cardFm;
+    document.body.classList.toggle(
+      "native-slides-card",
+      isCard && this.settings.hideFoldedPropertiesInEdit,
+    );
+
     // Auto-fullscreen: enter on reading view, restore on leaving it
     this.syncFullscreen(mode === "preview" && this.settings.autoFullscreen);
 
@@ -396,6 +408,19 @@ class NativeSlidesSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.autoFullscreen).onChange(async (value) => {
           this.plugin.settings.autoFullscreen = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName("Hide folded properties in edit mode")
+      .setDesc(
+        "For deck (card) notes in Live Preview: a folded properties panel is hidden completely (WYSIWYG — same as reading view). Unfold via the command palette (Toggle fold properties in current file) or Source mode.",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.hideFoldedPropertiesInEdit).onChange(async (value) => {
+          this.plugin.settings.hideFoldedPropertiesInEdit = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
         }),

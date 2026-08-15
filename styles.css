@@ -14,6 +14,17 @@
   display: none !important;
 }
 
+/* ── 2b. WYSIWYG: for deck (card) notes in Live Preview, a FOLDED
+   properties panel is hidden completely — same look as reading view.
+   Scoped to the active pane (.mod-active) so other panes' notes are
+   unaffected; unfolds back via the command palette or Source mode. */
+body.native-slides-card
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6
+  .metadata-container.is-collapsed {
+  display: none !important;
+}
+
 /* ── 3. Fullscreen reading mode (entered automatically) ──────
    Hides the ribbon, sidebars, tab bar and the pane header bar
    (the one with the back/forward buttons) so the reading area
