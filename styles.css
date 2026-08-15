@@ -67,6 +67,13 @@ body.native-slides-fullscreen .workspace-split.mod-root .view-header {
   font-weight: 600;
 }
 
+/* Broken deck-link warning */
+.native-slides-warn {
+  color: var(--text-warning, #e5a50a);
+  font-size: var(--font-ui-smaller, 12px);
+  flex-shrink: 0;
+}
+
 /* ── 5. Navigation buttons (left of the bar) ───────────────── */
 .native-slides-nav {
   display: inline-flex;
