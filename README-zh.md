@@ -39,7 +39,7 @@
 - **设置页**：可开关 ◀ ▶ 按钮、页号显示与自动全屏。
 - **断链警告**：`deck` 链接指向不存在的笔记时，底栏显示 ⚠ 警告标签，方便作者发现笔误（该链只会终止或排除，不会报错）。
 - **WYSIWYG**：对 deck（卡片）笔记，实时预览中的笔记内属性面板**始终隐藏**——与阅读模式观感一致。属性改在右侧栏 **Properties** 面板编辑（会话内首次激活 deck 笔记时自动打开）或源码模式。可在设置中开关。
-- **WYSIWYG 模式**（仅 deck 笔记）：显式模式——命令 **Toggle WYSIWYG Mode**（默认快捷键 `Mod+Shift+W`）、底栏按钮或设置开关进入，统一编辑与阅读的排版观感。本阶段先落地模式开关，tab bar 对称占位与排版对齐在后续阶段跟进。
+- **WYSIWYG 模式**（仅 deck 笔记）：显式模式——命令 **Toggle WYSIWYG Mode**（默认快捷键 `Mod+Shift+E`）、底栏按钮或设置开关进入，统一编辑与阅读的排版观感。开启后**编辑视图也显示底栏**；在阅读视图切换时自动跳入 WYSIWYG 编辑视图。tab bar 对称占位与排版对齐在后续阶段跟进。
 - **命令**：_Toggle Properties Bar_ 与 _Pause/Resume Auto Fullscreen_（均持久化），套件翻页的 _Previous Page / Next Page_，建页用的 _Create Next Slide_，以及 _Toggle WYSIWYG Mode_——都可在 _设置 → 快捷键_ 重新绑定。
 
 ## 概览页与内置 Base 视图

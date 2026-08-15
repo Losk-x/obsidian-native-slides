@@ -174,7 +174,7 @@ export default class NativeSlidesPlugin extends Plugin {
     this.addCommand({
       id: "ns-toggle-wysiwyg",
       name: "Toggle WYSIWYG Mode",
-      hotkeys: [{ modifiers: ["Mod", "Shift"], key: "W" }],
+      hotkeys: [{ modifiers: ["Mod", "Shift"], key: "E" }],
       checkCallback: (checking) => {
         const file = this.app.workspace.getActiveFile();
         if (!file) return false;
@@ -426,8 +426,14 @@ export default class NativeSlidesPlugin extends Plugin {
     // Auto-fullscreen: enter on reading view, restore on leaving it
     this.syncFullscreen(mode === "preview" && this.settings.autoFullscreen);
 
-    // Not a Markdown note / not in reading view / hidden by the user → hide
-    if (!file || mode !== "preview" || this.settings.barHidden) {
+    // Bar visibility: reading view always; edit view only in WYSIWYG mode
+    // (so the mode has visible feedback while editing). Hidden when the
+    // user hid it manually.
+    const barVisible =
+      !!file &&
+      (mode === "preview" || (mode === "source" && isCard && this.settings.wysiwygMode)) &&
+      !this.settings.barHidden;
+    if (!barVisible) {
       this.bar.style.display = "none";
       return;
     }
@@ -529,10 +535,21 @@ export default class NativeSlidesPlugin extends Plugin {
     }
   }
 
-  /** Toggle the WYSIWYG mode (persisted; only reachable on deck notes) */
+  /**
+   * Toggle the WYSIWYG mode (persisted; only reachable on deck notes).
+   * Toggling from reading view jumps into the WYSIWYG edit view, so the
+   * unified typography is immediately visible where the user works.
+   */
   private toggleWysiwyg(): void {
     this.settings.wysiwygMode = !this.settings.wysiwygMode;
     void this.saveSettings();
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (view && view.getMode() === "preview") {
+      // Leave reading view via the public view-state API (same as Esc)
+      const state = view.leaf.getViewState();
+      state.state = { ...state.state, mode: "source" };
+      void view.leaf.setViewState(state, { focus: false });
+    }
     this.refresh();
   }
 }
@@ -604,7 +621,7 @@ class NativeSlidesSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("WYSIWYG mode (deck notes)")
       .setDesc(
-        "Unified typography between edit and reading views for deck notes (tab bar hides in reading; the bottom bar takes its place). Toggle from the command palette, the Mod+Shift+W hotkey, or the bottom-bar button.",
+        "Unified typography between edit and reading views for deck notes (tab bar hides in reading; the bottom bar takes its place). Toggle from the command palette, the Mod+Shift+E hotkey, or the bottom-bar button.",
       )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.wysiwygMode).onChange(async (value) => {
