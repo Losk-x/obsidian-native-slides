@@ -28,17 +28,18 @@
  *      current one (name-collision aware), rewires the `deck` properties of
  *      both notes, and opens the new note in edit mode.
  *   8. "Toggle WYSIWYG Mode" (command + hotkey + bottom-bar button, deck
- *      notes only): switches to unified edit/reading typography — an
- *      immersive mode: the tab bar and sidebars hide in both views, the
- *      bottom bar shows in edit view too and matches the tab bar's
- *      measured height (no content-area height change when switching
- *      modes), in-note properties hide while editing, and typography
- *      alignment CSS narrows edit/reading differences. All rules are
- *      scoped under body.native-slides-wysiwyg.
+ *      notes only): an immersive mode with MINIMAL style intervention —
+ *      the tab bar and sidebars hide in both views, the bottom bar shows
+ *      in edit view too and matches the tab bar's measured height (no
+ *      content-area height change when switching modes), in-note
+ *      properties hide while editing, and standalone image lines are
+ *      centered. Default typography is left untouched (edit and reading
+ *      already look nearly identical; other themes/plugins may restyle).
+ *      All rules are scoped under body.native-slides-wysiwyg.
  *   9. "Debug: Dump Typography Styles" (ns-debug-styles): prints the
  *      key computed styles + CSS variables of the current view to the
- *      console — run once per view and compare to tune rule 8's
- *      typography alignment without eyeballing screenshots.
+ *      console — run once per view and compare (measurement tooling,
+ *      no screenshots needed).
  *
  * The deck usually starts from an overview note that embeds an Obsidian Base
  * view (core "Bases" plugin) filtering notes that link to the overview page:

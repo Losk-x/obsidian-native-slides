@@ -180,65 +180,12 @@ body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-
   padding-bottom: var(--native-slides-tabbar-height, 38px) !important;
 }
 
-/* ── 7. WYSIWYG typography alignment (phase 3) ───────────────
-   Baseline rules that are safe to apply without measurement: identical
-   content width and scrollbars in both views. The remaining metrics
-   (paragraph rhythm, list indentation, code/quote padding deltas) are
-   tuned from the ns-debug-styles console dumps — run it once per view
-   and compare the numbers. */
-body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content,
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-reading-view
-  .markdown-preview-view {
-  max-width: var(--file-line-width, 700px);
-}
-body.native-slides-wysiwyg .workspace-leaf.mod-active .cm-scroller::-webkit-scrollbar,
-body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-preview-view::-webkit-scrollbar {
-  width: 8px;
-}
-body.native-slides-wysiwyg .workspace-leaf.mod-active .cm-scroller::-webkit-scrollbar-thumb,
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-preview-view::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb-bg, rgba(0, 0, 0, 0.3));
-  border-radius: 4px;
-}
-
-/* ── 7b. Alignment tuned from ns-debug-styles dumps (2026-08) ─
-   Measured deltas (default theme) and their fixes:
-   • top margin: edit cm-content padding-top 0px vs reading 32px
-     (--file-margins) → same top margin in edit view
-   • block rhythm: reading p/h1 margins are 16px vs the edit blank
-     line (line-height 24px) → reading blocks use 1.5rem (24px), so
-     one blank line in the note equals one block gap in both views
-   • list indent: edit hangs the marker (0 / text 23px) while reading
-     starts at calc(var(--list-indent) - 0.375em) → edit list lines
-     use the same start without the hanging offset
-   (code/quote/inline-code deltas pending — rerun the dump on a note
-   containing them, e.g. overview.md) */
-body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content {
-  padding-top: 32px; /* matches --file-margins top of reading view */
-}
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-reading-view
-  .markdown-preview-view
-  :is(p, h1, h2, h3, h4, h5, h6, ul, ol, pre, blockquote, table, hr) {
-  margin-top: 0;
-  margin-bottom: 1.5rem; /* 24px — one edit-view blank line */
-}
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6
-  .HyperMD-list-line {
-  /* !important: Obsidian styles list lines with a higher priority */
-  padding-left: calc(var(--list-indent) - 0.375em) !important;
-  text-indent: 0 !important;
-}
-
-/* ── 7c. Images: standalone image lines are centered in both views ──
-   (a standalone image = the only child of its line/paragraph) */
+/* ── 7. WYSIWYG minimal style intervention ───────────────────
+   Principle: keep Obsidian's default typography in both views —
+   edit and reading already look nearly identical, and other themes /
+   plugins may restyle text, formulas and code blocks. Only standalone
+   image lines are centered (they differ per view). The ns-debug-styles
+   command remains available for future measurement. */
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6
@@ -249,29 +196,4 @@ body.native-slides-wysiwyg
   .markdown-preview-view
   p:has(> img) {
   text-align: center;
-}
-
-/* ── 7d. Inline code & blockquotes (tuned from dumps) ────────
-   • inline code: edit renders it with a background + padding
-     (2.1px/4.2px ≈ 0.15em/0.3em, --code-background) while reading
-     shows none → reading matches edit
-   • blockquote: edit lines (.HyperMD-quote-1) use 13px padding and
-     no left border while reading uses 24px + 2px border → edit
-     matches reading */
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-reading-view
-  .markdown-preview-view
-  code {
-  background: var(--code-background, rgb(250, 250, 250));
-  padding: 0.15em 0.3em;
-  border-radius: var(--code-radius, 4px);
-}
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6
-  .HyperMD-quote-1 {
-  padding-left: var(--blockquote-padding, 24px);
-  border-left: var(--blockquote-border-thickness, 2px) solid
-    var(--blockquote-border-color, var(--background-modifier-border));
 }
