@@ -204,6 +204,13 @@ export default class NativeSlidesPlugin extends Plugin {
       .map((x) => x.path);
   }
 
+  /** Names in the `deck` property that resolve to no note (broken links) */
+  private brokenDeckLinks(file: TFile): string[] {
+    const fm = this.frontmatterOf(file);
+    const names = fm ? extractLinks(fm[DECK_KEY]) : [];
+    return names.filter((name) => !this.app.metadataCache.getFirstLinkpathDest(name, file.path));
+  }
+
   /** Frontmatter of any note as an object, or null when absent */
   private frontmatterOf(file: TFile): Record<string, unknown> | null {
     const cache = this.app.metadataCache.getFileCache(file);
@@ -284,6 +291,16 @@ export default class NativeSlidesPlugin extends Plugin {
       span.appendChild(k);
       span.appendChild(document.createTextNode(": " + formatValue(value)));
       this.bar.appendChild(span);
+    }
+
+    // Broken deck links → warning chip so deck authors spot typos
+    const broken = file ? this.brokenDeckLinks(file) : [];
+    if (broken.length > 0) {
+      const warn = document.createElement("span");
+      warn.className = "native-slides-warn";
+      warn.textContent = "⚠ " + broken.join(", ");
+      warn.title = "Broken deck link(s) — the target note does not exist";
+      this.bar.appendChild(warn);
     }
 
     // ── Bottom-right: auto-computed page number ──

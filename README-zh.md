@@ -36,6 +36,7 @@
   - 翻页后仍停留在阅读模式，沉浸式全屏体验不中断。
 
 - **设置页**：可开关 ◀ ▶ 按钮、页号显示与自动全屏。
+- **断链警告**：`deck` 链接指向不存在的笔记时，底栏显示 ⚠ 警告标签，方便作者发现笔误（该链只会终止或排除，不会报错）。
 - **命令**：_Toggle Properties Bar_ 与 _Pause/Resume Auto Fullscreen_（均持久化），以及套件翻页的 _Previous Page / Next Page_——都可在 _设置 → 快捷键_ 重新绑定。
 
 ## 概览页与内置 Base 视图
@@ -60,7 +61,7 @@ views:
 
 ## 示例库
 
-演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/native-slides/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
+演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、`broken-link-demo.md`（断链警告演示）、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/native-slides/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
 
 > 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把 `main.js`、`manifest.json`、`styles.css` 复制到 `example-vault/.obsidian/plugins/native-slides/` 即可。
 

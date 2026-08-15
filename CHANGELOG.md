@@ -14,6 +14,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 - Navigation: the ◀ ▶ arrows are always both shown inside a deck; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
 - Settings: the bar-hidden and auto-fullscreen toggles are now persisted (previously reset on reload); auto-fullscreen is also exposed in the settings tab.
 - The plugin is now **desktop-only** (`isDesktopOnly: true`); mobile is not supported.
+- Broken `deck` links are flagged with a ⚠ warning chip in the bar.
 
 ## [0.1.0] - 2026-08-14
 
