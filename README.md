@@ -31,7 +31,7 @@
 
 - A **settings tab** toggles the ◀ ▶ buttons, the page number, and auto-fullscreen.
 - **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
-- **WYSIWYG step**: for deck (card) notes in Live Preview, a **folded** properties panel is hidden completely — the same look as reading view (unfold via the command palette _Toggle fold properties in current file_, or Source mode). Toggleable in settings.
+- **WYSIWYG**: for deck (card) notes, the in-note properties panel is **always hidden** in Live Preview — the same look as reading view. Properties are edited in the right-sidebar **Properties** view (auto-opened the first time a deck note is activated in a session) or in Source mode. Toggleable in settings.
 - **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation — all rebindable under _Settings → Hotkeys_.
 
 ## Overview page with an embedded Base view
@@ -55,7 +55,7 @@ Enable the core plugin if the view does not render: _Settings → Core plugins �
 
 ## Example vault
 
-The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, `broken-link-demo.md` (broken-link warning), `folded-properties-demo.md` (WYSIWYG folded-properties demo), a minimal `.obsidian/` configuration, and a plugin folder `example-vault/.obsidian/plugins/native-slides/` whose files (`manifest.json`, `main.js`, `styles.css`) are **symlinks to the repository root** — so the example vault always runs the current build.
+The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, `broken-link-demo.md` (broken-link warning), `folded-properties-demo.md` (WYSIWYG properties demo), a minimal `.obsidian/` configuration, and a plugin folder `example-vault/.obsidian/plugins/native-slides/` whose files (`manifest.json`, `main.js`, `styles.css`) are **symlinks to the repository root** — so the example vault always runs the current build.
 
 > Symlinks require filesystem support (macOS/Linux work out of the box; on Windows enable Developer Mode). If symlinks are unavailable, copy `main.js`, `manifest.json`, `styles.css` into `example-vault/.obsidian/plugins/native-slides/`.
 

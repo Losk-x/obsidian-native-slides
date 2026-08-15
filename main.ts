@@ -56,7 +56,7 @@ interface NativeSlidesSettings {
   /** Whether auto-fullscreen in reading view is enabled */
   autoFullscreen: boolean;
   /** Hide a folded properties panel completely in Live Preview for deck notes */
-  hideFoldedPropertiesInEdit: boolean;
+  hideCardPropertiesInEdit: boolean;
 }
 
 const DEFAULT_SETTINGS: NativeSlidesSettings = {
@@ -64,7 +64,7 @@ const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showPageNumber: true,
   barHidden: false,
   autoFullscreen: true,
-  hideFoldedPropertiesInEdit: true,
+  hideCardPropertiesInEdit: true,
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
@@ -77,6 +77,8 @@ export default class NativeSlidesPlugin extends Plugin {
   private fullscreen = false;
   /** Last refresh key ("path|mode") to avoid pointless re-renders */
   private lastKey = "";
+  /** Whether the right-sidebar Properties view was auto-opened this session */
+  private sidebarOpenedThisSession = false;
   /** Plugin settings */
   settings: NativeSlidesSettings = { ...DEFAULT_SETTINGS };
 
@@ -214,6 +216,27 @@ export default class NativeSlidesPlugin extends Plugin {
     return names.filter((name) => !this.app.metadataCache.getFirstLinkpathDest(name, file.path));
   }
 
+  /** Open the right-sidebar Properties view (core "Show file properties" command) */
+  private async showFileProperties(): Promise<void> {
+    const match = Object.entries(this.app.commands.commands).find(([, cmd]) => {
+      const name = cmd.name ?? "";
+      return (
+        (name.toLowerCase().includes("properties") && /(?:show|display)/i.test(name)) ||
+        (name.includes("属性") && /(?:显示|打开)/.test(name))
+      );
+    });
+    if (match) {
+      await this.app.commands.executeCommandById(match[0]);
+      return;
+    }
+    // Fallback: open the properties view directly in the right leaf
+    const leaf = this.app.workspace.getRightLeaf(false);
+    if (leaf) {
+      await leaf.setViewState({ type: "properties" });
+      this.app.workspace.revealLeaf(leaf);
+    }
+  }
+
   /** Frontmatter of any note as an object, or null when absent */
   private frontmatterOf(file: TFile): Record<string, unknown> | null {
     const cache = this.app.metadataCache.getFileCache(file);
@@ -257,13 +280,26 @@ export default class NativeSlidesPlugin extends Plugin {
     const mode = this.currentMode();
 
     // Card-note body class (note has a `deck` property) — enables the
-    // edit-mode "hide folded properties" CSS (Live Preview WYSIWYG step).
+    // edit-mode "hide in-note properties" CSS (Live Preview WYSIWYG step).
     const cardFm = file ? this.frontmatterOf(file) : null;
     const isCard = cardFm !== null && DECK_KEY in cardFm;
     document.body.classList.toggle(
       "native-slides-card",
-      isCard && this.settings.hideFoldedPropertiesInEdit,
+      isCard && this.settings.hideCardPropertiesInEdit,
     );
+
+    // WYSIWYG: once per session, open the right-sidebar Properties view when a
+    // card note is activated in edit mode — a gentle hint that its (hidden)
+    // properties are edited there.
+    if (
+      isCard &&
+      this.settings.hideCardPropertiesInEdit &&
+      mode === "source" &&
+      !this.sidebarOpenedThisSession
+    ) {
+      this.sidebarOpenedThisSession = true;
+      void this.showFileProperties();
+    }
 
     // Auto-fullscreen: enter on reading view, restore on leaving it
     this.syncFullscreen(mode === "preview" && this.settings.autoFullscreen);
@@ -414,13 +450,13 @@ class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Hide folded properties in edit mode")
+      .setName("Hide in-note properties in edit mode (deck notes)")
       .setDesc(
-        "For deck (card) notes in Live Preview: a folded properties panel is hidden completely (WYSIWYG — same as reading view). Unfold via the command palette (Toggle fold properties in current file) or Source mode.",
+        "For deck (card) notes in Live Preview, the in-note properties panel is always hidden (WYSIWYG — same as reading view). Edit them in the right-sidebar Properties view (opened automatically the first time a deck note is activated in a session) or in Source mode.",
       )
       .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.hideFoldedPropertiesInEdit).onChange(async (value) => {
-          this.plugin.settings.hideFoldedPropertiesInEdit = value;
+        toggle.setValue(this.plugin.settings.hideCardPropertiesInEdit).onChange(async (value) => {
+          this.plugin.settings.hideCardPropertiesInEdit = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
         }),

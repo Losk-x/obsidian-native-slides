@@ -15,7 +15,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 - Settings: the bar-hidden and auto-fullscreen toggles are now persisted (previously reset on reload); auto-fullscreen is also exposed in the settings tab.
 - The plugin is now **desktop-only** (`isDesktopOnly: true`); mobile is not supported.
 - Broken `deck` links are flagged with a ⚠ warning chip in the bar.
-- WYSIWYG step: for deck (card) notes in Live Preview, a folded properties panel is hidden completely (same as reading view); unfold via the command palette or Source mode. `minAppVersion` raised to 1.7.0.
+- WYSIWYG: for deck (card) notes, the in-note properties panel is always hidden in Live Preview (same as reading view); the right-sidebar Properties view auto-opens once per session for editing. `minAppVersion` raised to 1.7.0.
 
 ## [0.1.0] - 2026-08-14
 
