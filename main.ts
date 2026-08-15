@@ -216,13 +216,24 @@ export default class NativeSlidesPlugin extends Plugin {
     return names.filter((name) => !this.app.metadataCache.getFirstLinkpathDest(name, file.path));
   }
 
-  /** Open the right-sidebar Properties view (typed public workspace API) */
+  /** Open the built-in "Properties view: Show file properties" panel */
   private async showFileProperties(): Promise<void> {
-    const leaf = this.app.workspace.getRightLeaf(false);
-    if (leaf) {
-      await leaf.setViewState({ type: "properties" });
-      this.app.workspace.revealLeaf(leaf);
-    }
+    // `app.commands` is not in the public typings; the runtime API is stable
+    // and executing a built-in command is the standard way to open the panel.
+    const commands = (
+      this.app as unknown as {
+        commands?: {
+          commands?: Record<string, { name?: string }>;
+          executeCommandById?: (id: string) => Promise<void>;
+        };
+      }
+    ).commands;
+    if (!commands?.executeCommandById) return;
+    // Locate the command by its (localized) name — robust across versions
+    const id = Object.entries(commands.commands ?? {}).find(([, c]) =>
+      /(?:show|display).*file.*properties|(?:显示|打开).*文件.*属性/i.test(c.name ?? ""),
+    )?.[0];
+    if (id) await commands.executeCommandById(id);
   }
 
   /** Frontmatter of any note as an object, or null when absent */
