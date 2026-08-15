@@ -25,11 +25,12 @@
   deck: ["[[overview]]"]
   ```
 
-  - **Page numbers are auto-computed** by scanning the vault and walking the link chain (overview → slide 1 → slide 2 → …), so no `page-number` property is needed. The overview page shows "Overview", slides show "Page N".
+  - **Page numbers are auto-computed** by walking the link chain (overview → slide 1 → slide 2 → …), so no `page-number` property is needed. The overview page shows "Overview", slides show "Page N".
   - Flip pages with the ◀ ▶ buttons on the left of the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Both arrows are always shown; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
   - Navigation keeps you in reading view, so the immersive fullscreen experience is uninterrupted.
 
-- A **settings tab** toggles the ◀ ▶ buttons and the page number.
+- A **settings tab** toggles the ◀ ▶ buttons, the page number, and auto-fullscreen.
+- **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation — all rebindable under _Settings → Hotkeys_.
 
 ## Overview page with an embedded Base view
 
@@ -47,6 +48,8 @@ views:
 ````
 
 Enable the core plugin if the view does not render: _Settings → Core plugins → Bases_.
+
+> The Base view needs Obsidian **1.10+** (the Bases core plugin); the plugin itself supports **1.4.0+** (its `minAppVersion`) — on older versions the overview table simply won't render.
 
 ## Example vault
 
@@ -86,7 +89,7 @@ The plugin is written in TypeScript. You don't need to know TS to ask for change
 Run the commands from the repository root:
 
 ```sh
-npm install        # first time only (downloads esbuild etc.)
+npm ci             # first time only (downloads esbuild etc.)
 npm run build      # compiles main.ts → main.js
 npm run check      # optional: TypeScript type-check (tsc --noEmit)
 npm run test       # optional: vitest unit tests
@@ -108,7 +111,7 @@ After editing `main.ts`, reload the plugin in Obsidian: open the command palette
 
 - Properties come from **frontmatter** (the `---` YAML block at the top); inline `key:: value` properties are not read.
 - Hiding the status bar is **global** (all notes, all modes); remove the `.status-bar` rule in `styles.css` to disable.
-- `deck` is a **reserved key name**.
+- `deck` is a **reserved key name**; the `position` key is also reserved and hidden from the bar (it can be used by other tools without cluttering the bar).
 - The default hotkeys shadow the editor's "select to line start/end" shortcuts in edit view; remove them in **Settings → Hotkeys** if you don't need page navigation.
 - OS-level fullscreen relies on Electron's Fullscreen API; where unsupported it degrades to "hide sidebars and tab bar only".
 - Quote link values in YAML (`deck: ["[[slide-2]]"]`) — unquoted `[[...]]` becomes a nested YAML array (the plugin tolerates it, but quoting is the correct form).
