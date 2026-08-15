@@ -143,6 +143,8 @@ vite.config.ts.timestamp-*
 .vite/
 
 # Obsidian per-machine workspace state (personal; matches nested vaults)
+# Native Slides debug output (written by the ns-debug-styles command)
+**/.native-slides-debug.json
 **/.obsidian/workspace.json
 **/.obsidian/workspace-mobile.json
 **/.obsidian/workspace-state.json

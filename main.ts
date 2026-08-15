@@ -197,7 +197,7 @@ export default class NativeSlidesPlugin extends Plugin {
     this.addCommand({
       id: "ns-debug-styles",
       name: "Debug: Dump Typography Styles",
-      callback: () => this.debugStyles(),
+      callback: () => void this.debugStyles(),
     });
 
     // ── 4. Esc exits OS fullscreen → leave reading view as well ─────────
@@ -573,18 +573,10 @@ export default class NativeSlidesPlugin extends Plugin {
     this.refresh();
   }
 
-  /**
-   * Dump key typography computed styles + CSS variables to the console.
-   * Run once in edit view and once in reading view (same note), then compare
-   * the numbers — that is how the WYSIWYG typography alignment CSS is tuned
-   * without eyeballing screenshots.
-   */
-  private debugStyles(): void {
+  /** Sample the current view's typography computed styles + CSS variables */
+  private sampleStyles(): Record<string, unknown> | null {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (!view) {
-      new Notice("Native Slides: no active Markdown note");
-      return;
-    }
+    if (!view) return null;
     const isEdit = view.getMode() === "source";
     const contentEl = view.contentEl;
     // First matching candidate wins — edit (cm6) and reading use
@@ -762,22 +754,59 @@ export default class NativeSlidesPlugin extends Plugin {
         "--font-text-size": cssVar("--font-text-size"),
       },
     };
-    console.log(
-      "[native-slides debug-styles] " +
-        (isEdit ? "EDIT" : "READING") +
-        "\n" +
-        JSON.stringify(dump, null, 2),
-    );
-    const wysHint = document.body.classList.contains("native-slides-wysiwyg")
-      ? "WYSIWYG is ON — alignment rules active."
-      : "WYSIWYG is OFF — alignment rules NOT active. On a deck note, toggle it on (Mod+Shift+E) and rerun.";
-    // The edit view only renders the visible area (CodeMirror virtual
-    // rendering) — off-screen elements are not in the DOM, so scroll to
-    // the element you want to sample before running.
-    const scrollHint = isEdit
-      ? " Edit view renders only the visible area — scroll to the code block/table/quote, then rerun."
-      : "";
-    new Notice("Typography dump → Console (Cmd+Opt+I). " + wysHint + scrollHint);
+    return dump;
+  }
+
+  /**
+   * Debug typography: samples the current view, flips to the other mode
+   * (edit ↔ reading) and samples again, computes a diff, then writes
+   * everything to .native-slides-debug.json in the vault root — the
+   * numbers can be inspected without copying console output by hand.
+   */
+  private async debugStyles(): Promise<void> {
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (!view) {
+      new Notice("Native Slides: no active Markdown note");
+      return;
+    }
+    const startMode = view.getMode();
+    if (startMode !== "source" && startMode !== "preview") return;
+    const first = this.sampleStyles();
+    if (!first) return;
+
+    // Flip to the other mode (auto-fullscreen would disturb sampling)
+    const savedFullscreen = this.settings.autoFullscreen;
+    this.settings.autoFullscreen = false;
+    const state = view.leaf.getViewState();
+    state.state = { ...state.state, mode: startMode === "preview" ? "source" : "preview" };
+    await view.leaf.setViewState(state, { focus: false });
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const second = this.sampleStyles();
+    if (!second) {
+      this.settings.autoFullscreen = savedFullscreen;
+      return;
+    }
+
+    // Restore the original mode + fullscreen setting
+    const state2 = view.leaf.getViewState();
+    state2.state = { ...state2.state, mode: startMode };
+    await view.leaf.setViewState(state2, { focus: false });
+    this.settings.autoFullscreen = savedFullscreen;
+    this.refresh();
+
+    const edit = startMode === "source" ? first : second;
+    const reading = startMode === "source" ? second : first;
+    const payload = { edit, reading, diff: diffDumps(edit, reading) };
+    try {
+      await this.app.vault.adapter.write(
+        ".native-slides-debug.json",
+        JSON.stringify(payload, null, 2),
+      );
+      new Notice("Typography dump → .native-slides-debug.json (vault root)");
+    } catch (error) {
+      new Notice(`Native Slides: could not write debug file (${String(error)})`);
+    }
+    console.log("[native-slides debug-styles]", JSON.stringify(payload, null, 2));
   }
 }
 
@@ -866,4 +895,37 @@ class NativeSlidesSettingTab extends PluginSettingTab {
 /** Remove all children of an element */
 function clearChildren(el: HTMLElement): void {
   while (el.firstChild) el.removeChild(el.firstChild);
+}
+
+/**
+ * Compare the style sections of an edit dump and a reading dump; only
+ * keys whose values differ are kept, as { key: { edit, reading } }.
+ */
+function diffDumps(
+  edit: Record<string, unknown>,
+  reading: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const sections = [
+    "container",
+    "paragraph",
+    "h1",
+    "listItem",
+    "codeBlock",
+    "blockquote",
+    "inlineCode",
+  ];
+  for (const section of sections) {
+    const e = (edit[section] ?? {}) as Record<string, string>;
+    const r = (reading[section] ?? {}) as Record<string, string>;
+    const keys = new Set([...Object.keys(e), ...Object.keys(r)]);
+    const diffs: Record<string, { edit: string; reading: string }> = {};
+    for (const key of keys) {
+      if (e[key] !== r[key]) {
+        diffs[key] = { edit: e[key] ?? "(missing)", reading: r[key] ?? "(missing)" };
+      }
+    }
+    if (Object.keys(diffs).length > 0) out[section] = diffs;
+  }
+  return out;
 }
