@@ -1,14 +1,17 @@
 /**
- * native-slides — reading-view properties bar with PPT-style deck navigation
+ * native-slides — a "Slides mode" for Obsidian deck notes
  *
  * One reserved frontmatter key, `deck` (up to two markdown links), drives
- * prev/next navigation and auto-computed page numbers. Reading view shows the
- * note's properties in a bottom bar and auto-enters a fullscreen-like mode.
- * WYSIWYG mode (deck notes only) styles the Live Preview to match the reading
- * view — the reading view is the untouched reference.
+ * prev/next navigation and auto-computed page numbers. A deck note can be
+ * entered into **Slides mode** — an immersive, editable (Live Preview) view
+ * with a bottom bar showing properties, navigation and the page number.
  *
- * This file is the plugin entry point and a thin orchestration layer; the
- * logic lives in `src/`:
+ * Native Obsidian modes (Source / default Live Preview / Reading view) are
+ * left completely untouched: no status-bar hiding, no bottom bar, no
+ * fullscreen, no styling. Slides mode is the plugin's only surface.
+ *
+ * This file is the entry point and a thin orchestration layer; the logic
+ * lives in `src/`:
  *   - src/types.ts        settings shape + defaults + reserved `deck` key
  *   - src/mode.ts         view mode / frontmatter helpers (pure, `App`-based)
  *   - src/deck-service.ts deck chain resolution + "create next slide" glue
@@ -36,8 +39,15 @@ export default class NativeSlidesPlugin extends Plugin {
   deckService!: DeckService;
   /** Plugin settings */
   settings: NativeSlidesSettings = { ...DEFAULT_SETTINGS };
-  /** Whether fullscreen reading mode is currently active */
-  private fullscreen = false;
+
+  /** Whether Slides mode is currently active (session state, not persisted) */
+  private slidesMode = false;
+  /** View mode to restore when leaving Slides mode ("preview" | "source") */
+  private exitMode: "preview" | "source" = "source";
+  /** Whether the exit view was Source mode (true) vs Live Preview (false) */
+  private exitSource = false;
+  /** Last note auto-entered into Slides mode (prevents re-entering after manual exit) */
+  private autoEnteredPath = "";
   /** Last refresh key ("path|mode") to avoid pointless re-renders */
   private lastKey = "";
   /** Last measured tab-bar height (px) — cached while the bar is hidden */
@@ -49,7 +59,12 @@ export default class NativeSlidesPlugin extends Plugin {
     this.addSettingTab(new NativeSlidesSettingTab(this));
 
     // ── 1. Refresh on "current note / view changed" events ──────────────
-    this.registerEvent(this.app.workspace.on("file-open", () => this.refresh()));
+    this.registerEvent(
+      this.app.workspace.on("file-open", () => {
+        this.maybeAutoEnterSlides();
+        this.refresh();
+      }),
+    );
     this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.refresh()));
     this.registerEvent(this.app.workspace.on("layout-change", () => this.refresh()));
     // Refresh when the note content (including frontmatter) changes / saves
@@ -74,25 +89,7 @@ export default class NativeSlidesPlugin extends Plugin {
     // ── 3. Commands ─────────────────────────────────────────────────────
     registerCommands(this);
 
-    // ── 4. Esc exits OS fullscreen → leave reading view as well ─────────
-    // Keeps internal state in sync when the user presses Esc; also switches
-    // the active Markdown view back to edit mode. Our own syncFullscreen()
-    // sets this.fullscreen = false first, so it never triggers this.
-    this.registerDomEvent(document, "fullscreenchange", () => {
-      if (!document.fullscreenElement && this.fullscreen) {
-        this.fullscreen = false;
-        document.body.classList.remove("native-slides-fullscreen");
-        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-        if (view && view.getMode() === "preview") {
-          // Leave reading view via the public view-state API
-          const state = view.leaf.getViewState();
-          state.state = { ...state.state, mode: "source" };
-          void view.leaf.setViewState(state, { focus: false });
-        }
-      }
-    });
-
-    // ── 5. Create the bar and do the first render ───────────────────────
+    // ── 4. Create the bar and do the first render ───────────────────────
     this.bar = createBar();
     document.body.appendChild(this.bar);
     this.refresh();
@@ -101,10 +98,7 @@ export default class NativeSlidesPlugin extends Plugin {
   onunload(): void {
     this.bar?.remove();
     this.bar = null;
-    // Leave OS fullscreen and drop the fullscreen class so no UI residue remains
-    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-    document.body.classList.remove("native-slides-fullscreen");
-    document.body.classList.remove("native-slides-wysiwyg");
+    document.body.classList.remove("native-slides-mode");
   }
 
   // ── Settings ──────────────────────────────────────────────────────────
@@ -117,9 +111,66 @@ export default class NativeSlidesPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
+  // ── Slides mode ───────────────────────────────────────────────────────
+
+  /** Whether the active note is a deck note (has a `deck` property) */
+  private isDeckNote(file: TFile | null): boolean {
+    if (!file) return false;
+    const fm = frontmatterOf(this.app, file);
+    return fm !== null && DECK_KEY in fm;
+  }
+
+  /** Enter Slides mode: record the exit state and force the Live Preview */
+  private enterSlides(): void {
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (view) {
+      const state = view.getState() as { mode?: string; source?: boolean };
+      this.exitMode = state.mode === "preview" ? "preview" : "source";
+      this.exitSource = state.source === true;
+      // Slides mode is always the editable Live Preview
+      const next = view.leaf.getViewState();
+      next.state = { ...next.state, mode: "source", source: false };
+      void view.leaf.setViewState(next, { focus: false });
+    }
+    this.slidesMode = true;
+    this.refresh();
+  }
+
+  /** Exit Slides mode: restore the view mode recorded at entry */
+  private exitSlides(): void {
+    this.slidesMode = false;
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (view) {
+      const state = view.leaf.getViewState();
+      if (this.exitMode === "preview") {
+        state.state = { ...state.state, mode: "preview" };
+      } else {
+        state.state = { ...state.state, mode: "source", source: this.exitSource };
+      }
+      void view.leaf.setViewState(state, { focus: false });
+    }
+    this.refresh();
+  }
+
+  /** Toggle Slides mode (deck notes only — enforced by the command) */
+  toggleSlides(): void {
+    if (this.slidesMode) this.exitSlides();
+    else this.enterSlides();
+  }
+
+  /** Auto-enter Slides mode once per opened deck note when the setting is on */
+  private maybeAutoEnterSlides(): void {
+    const file = this.app.workspace.getActiveFile();
+    if (!file || file.path === this.autoEnteredPath) return;
+    this.autoEnteredPath = file.path;
+    if (this.settings.autoEnterSlides && this.isDeckNote(file) && !this.slidesMode) {
+      this.enterSlides();
+    }
+  }
+
   // ── PPT navigation ────────────────────────────────────────────────────
 
-  /** Move one step back/forward along the deck chain */
+  /** Move one step back/forward along the deck chain (entering Slides mode as needed) */
   navigate(direction: "prev" | "next"): void {
     const file = this.app.workspace.getActiveFile();
     if (!file) return;
@@ -127,6 +178,7 @@ export default class NativeSlidesPlugin extends Plugin {
     if (!deck) return;
     const target = deck.chain[direction === "prev" ? deck.index - 1 : deck.index + 1];
     if (!target) return;
+    if (!this.slidesMode) this.enterSlides();
     void this.app.workspace.openLinkText(target, file.path);
   }
 
@@ -138,34 +190,25 @@ export default class NativeSlidesPlugin extends Plugin {
 
     const file = this.app.workspace.getActiveFile();
     const mode = currentMode(this.app);
+    const isCard = this.isDeckNote(file);
 
-    // Card note = has a `deck` property (the WYSIWYG mode's scope marker)
-    const cardFm = file ? frontmatterOf(this.app, file) : null;
-    const isCard = cardFm !== null && DECK_KEY in cardFm;
-    // Measure the tab bar while it is still visible (WYSIWYG hides it
+    // Leaving a deck note ends Slides mode
+    if (this.slidesMode && !isCard) this.slidesMode = false;
+
+    // Measure the tab bar while it is still visible (Slides mode hides it
     // below; the last measured value is reused once hidden).
     this.tabBarHeight = syncTabBarHeight(this.tabBarHeight);
-    // WYSIWYG mode body class — immersive mode (deck notes only),
-    // active in Live Preview and reading view only: hides the tab bar
-    // and sidebars, matches the bottom bar's height to the tab bar,
-    // hides in-note properties while editing, centers standalone
-    // images. Source mode and everything else stay completely native.
-    const isSourceMode = mode === "source" && !isLivePreview(this.app);
-    const wysiwyg = isCard && this.settings.wysiwygMode && !isSourceMode;
-    document.body.classList.toggle("native-slides-wysiwyg", wysiwyg);
 
-    // Auto-fullscreen: enter on reading view, restore on leaving it
-    this.syncFullscreen(mode === "preview" && this.settings.autoFullscreen);
+    // Slides mode is active only while actually in the editable Live Preview
+    const slides = this.slidesMode && isCard && mode === "source" && isLivePreview(this.app);
+    document.body.classList.toggle("native-slides-mode", slides);
 
-    // Bar visibility: reading view always; edit view only in WYSIWYG mode
-    // (so the mode has visible feedback while editing). Hidden when the
-    // user hid it manually.
-    const barVisible =
-      !!file && (mode === "preview" || (mode === "source" && wysiwyg)) && !this.settings.barHidden;
+    const barVisible = slides && !this.settings.barHidden;
     if (!barVisible) {
       this.bar.style.display = "none";
       return;
     }
+    if (!file) return; // barVisible implies a file, but narrow for TypeScript
 
     const fm = activeFrontmatter(this.app);
     const deck = this.deckService.compute(file);
@@ -208,15 +251,13 @@ export default class NativeSlidesPlugin extends Plugin {
       this.bar.appendChild(warn);
     }
 
-    // ── Bottom-right: WYSIWYG mode toggle (deck notes only) ──
-    if (isCard) {
-      const btn = document.createElement("button");
-      btn.className = "native-slides-wysiwyg-btn" + (this.settings.wysiwygMode ? " is-active" : "");
-      btn.textContent = this.settings.wysiwygMode ? "WYSIWYG: On" : "WYSIWYG: Off";
-      btn.title = "Toggle WYSIWYG mode — unified typography between edit and reading";
-      btn.addEventListener("click", () => this.toggleWysiwyg());
-      this.bar.appendChild(btn);
-    }
+    // ── Bottom-right: exit Slides mode (deck notes only) ──
+    const btn = document.createElement("button");
+    btn.className = "native-slides-mode-btn is-active";
+    btn.textContent = "Slides: On";
+    btn.title = "Exit Slides mode (back to your previous view)";
+    btn.addEventListener("click", () => this.toggleSlides());
+    this.bar.appendChild(btn);
 
     // ── Bottom-right: auto-computed page number ──
     if (this.settings.showPageNumber && deck) {
@@ -230,39 +271,5 @@ export default class NativeSlidesPlugin extends Plugin {
     // Hide the bar entirely when it has nothing to display (no properties,
     // and not part of a deck)
     this.bar.style.display = this.bar.childElementCount === 0 ? "none" : "";
-  }
-
-  /** Sync the fullscreen state: add the class + request OS fullscreen, or restore */
-  syncFullscreen(active: boolean): void {
-    if (this.fullscreen === active) return; // nothing to do
-    this.fullscreen = active;
-    document.body.classList.toggle("native-slides-fullscreen", active);
-
-    // Request OS-level fullscreen when entering (Obsidian runs on Electron and
-    // supports the Fullscreen API); failures (e.g. in a plain browser) are
-    // ignored silently — the "hide sidebars" effect still applies.
-    if (active) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-    } else if (document.fullscreenElement) {
-      document.exitFullscreen?.().catch(() => {});
-    }
-  }
-
-  /**
-   * Toggle the WYSIWYG mode (persisted; only reachable on deck notes).
-   * Toggling from reading view jumps into the WYSIWYG edit view, so the
-   * unified typography is immediately visible where the user works.
-   */
-  toggleWysiwyg(): void {
-    this.settings.wysiwygMode = !this.settings.wysiwygMode;
-    void this.saveSettings();
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (view && view.getMode() === "preview") {
-      // Leave reading view via the public view-state API (same as Esc)
-      const state = view.leaf.getViewState();
-      state.state = { ...state.state, mode: "source" };
-      void view.leaf.setViewState(state, { focus: false });
-    }
-    this.refresh();
   }
 }

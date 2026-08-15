@@ -23,6 +23,13 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 - Broken `deck` links are flagged with a ⚠ warning chip in the bar.
 - WYSIWYG properties behavior reworked: the old always-hide-in-edit + auto-open-right-sidebar behavior is replaced by the WYSIWYG mode (above) — outside the mode, edit view shows in-note properties natively. `minAppVersion` remains 1.7.0.
 - Development tooling: `main.ts` was split into `src/` modules (`types`, `mode`, `deck-service`, `bar`, `commands`, `settings`, `debug`) with `main.ts` as the orchestration entry point. The `Debug: Dump Typography Styles` command is now registered only in **dev builds** (`npm run build`/`npm run dev`); **release builds** (`npm run build:release`) are minified and exclude it entirely (`--define:DEV_MODE=false` + tree-shaking). No user-visible change beyond removing the debug command from release builds.
+- **Slides mode replaces WYSIWYG mode**: the plugin now provides a single immersive, editable card view for deck notes — **Slides mode** — instead of modifying the reading view. Native modes (Source / default Live Preview / Reading) are now **completely untouched** (no status-bar hiding, no bottom bar, no auto-fullscreen, no styling), so the plugin coexists with other reading-view plugins. Enter Slides mode with the `Toggle Slides Mode` command (`Mod+Shift+E`), which records and restores your previous view; the `Previous Page` / `Next Page` hotkeys now auto-enter Slides mode and flip; a new `autoEnterSlides` setting (default off) opens deck notes straight into Slides mode. Slides mode's styling is unchanged from the WYSIWYG look for now.
+
+### Removed
+
+- Reading-view properties bar, reading-view auto-fullscreen, and the global status-bar hide — native modes are now fully untouched.
+- `Pause/Resume Auto Fullscreen` command and the `autoFullscreen` setting (obsolete with reading-view fullscreen).
+- `Toggle WYSIWYG Mode` command (renamed to `Toggle Slides Mode`).
 
 ## [0.1.0] - 2026-08-14
 

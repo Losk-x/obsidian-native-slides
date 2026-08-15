@@ -272,8 +272,8 @@ function sampleStyles(app: App): Record<string, unknown> | null {
 
   const dump = {
     mode: isEdit ? "edit (Live Preview)" : "reading",
-    // Alignment CSS (rules 7/7b) only applies when WYSIWYG is on
-    wysiwygActive: document.body.classList.contains("native-slides-wysiwyg"),
+    // Slides styling only applies when Slides mode is on
+    slidesActive: document.body.classList.contains("native-slides-mode"),
     domTags: isEdit ? domTags : undefined,
     sourceViewClass: isEdit ? sourceViewClass : undefined,
     livePreview: isEdit ? isLivePreview(app) : undefined,
@@ -388,8 +388,8 @@ function sampleStyles(app: App): Record<string, unknown> | null {
  */
 export async function dumpTypography(plugin: NativeSlidesPlugin): Promise<void> {
   const app = plugin.app;
-  if (!plugin.settings.wysiwygMode) {
-    new Notice("Native Slides: turn WYSIWYG mode on first (Mod+Shift+E on a deck note)");
+  if (!document.body.classList.contains("native-slides-mode")) {
+    new Notice("Native Slides: enter Slides mode first (Mod+Shift+E on a deck note)");
     return;
   }
   const view = app.workspace.getActiveViewOfType(MarkdownView);

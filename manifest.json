@@ -3,7 +3,7 @@
   "name": "Native Slides",
   "version": "0.1.0",
   "minAppVersion": "1.7.0",
-  "description": "Hides the status bar; in reading view, shows the note's properties in a bottom bar with PPT-style deck navigation — one `deck` property (overview + next links) drives prev/next and auto-computed page numbers.",
+  "description": "Slides mode for deck notes: an immersive, editable card view with a bottom bar for properties and PPT-style navigation — one `deck` property (overview + next links) drives prev/next and auto-computed page numbers.",
   "author": "research-skills",
   "isDesktopOnly": true
 }

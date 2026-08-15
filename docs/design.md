@@ -23,8 +23,8 @@ has them. Demo notes keep this footprint to the bare minimum (no decorative
 
 - Everything derived from the notes (deck chains, page numbers) is computed
   **on the fly** from `metadataCache`; nothing derived is ever cached to disk.
-- The only persisted data is **configuration**: two UI booleans (show ◀ ▶
-  buttons, show page number), via `loadData/saveData`.
+- The only persisted data is **configuration** (show ◀ ▶ buttons, show page
+  number, hide the bar, auto-enter Slides mode), via `loadData/saveData`.
 - Required data belongs to the **note structure itself** — the deck _is_ the
   overview note plus each slide's `deck` links. There is no separate "deck
   index" file or database to create, keep in sync, or corrupt.
@@ -42,8 +42,8 @@ has them. Demo notes keep this footprint to the bare minimum (no decorative
 
 ## Trade-offs
 
-- Reading view hides the in-note properties panel (CSS only) to avoid duplicating
-  what the bottom bar shows — the note file itself is never touched.
+- Slides mode hides the in-note properties panel (CSS only) in its Live Preview
+  to avoid duplicating what the bottom bar shows — the note file itself is never touched.
 - The `deck` chain walk reads the frontmatter of every note in the chain on each
   refresh; acceptable because `metadataCache` is in-memory and decks are small.
   Per principle 4, a memoized chain cache is deliberately deferred until profiling

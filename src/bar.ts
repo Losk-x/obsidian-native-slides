@@ -25,7 +25,7 @@ export function navButton(
 /**
  * Measure the top tab bar and expose its height as the CSS variable
  * --native-slides-tabbar-height, returning the (possibly updated) cached
- * value. The bar is hidden in WYSIWYG reading view, so the last measured
+ * value. The bar is hidden in Slides mode, so the last measured
  * value is reused there.
  */
 export function syncTabBarHeight(cached: number): number {

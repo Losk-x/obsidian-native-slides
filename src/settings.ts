@@ -1,7 +1,7 @@
 import { PluginSettingTab, Setting } from "obsidian";
 import type NativeSlidesPlugin from "../main";
 
-/** Settings tab: toggles the nav buttons, page number, auto-fullscreen and WYSIWYG mode. */
+/** Settings tab: toggles the nav buttons, page number, auto-enter and bar visibility. */
 export class NativeSlidesSettingTab extends PluginSettingTab {
   constructor(private plugin: NativeSlidesPlugin) {
     super(plugin.app, plugin);
@@ -10,7 +10,7 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Properties Bar · Settings" });
+    containerEl.createEl("h2", { text: "Native Slides · Settings" });
 
     new Setting(containerEl)
       .setName("Show Previous/Next buttons")
@@ -39,26 +39,13 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Auto fullscreen in reading view")
+      .setName("Auto-enter Slides mode")
       .setDesc(
-        "Enter the immersive fullscreen reading mode automatically when switching to reading view (also toggleable via the Pause/Resume Auto Fullscreen command)",
+        "Open deck notes directly in Slides mode. Leave off to enter manually with the Toggle Slides Mode command (Mod+Shift+E) or the previous/next page hotkeys.",
       )
       .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.autoFullscreen).onChange(async (value) => {
-          this.plugin.settings.autoFullscreen = value;
-          await this.plugin.saveSettings();
-          this.plugin.refresh();
-        }),
-      );
-
-    new Setting(containerEl)
-      .setName("WYSIWYG mode (deck notes)")
-      .setDesc(
-        "Immersive deck mode: hides the tab bar and sidebars, shows the bottom bar at tab-bar height in both views, and hides in-note properties while editing. Toggle from the command palette, the Mod+Shift+E hotkey, or the bottom-bar button.",
-      )
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.wysiwygMode).onChange(async (value) => {
-          this.plugin.settings.wysiwygMode = value;
+        toggle.setValue(this.plugin.settings.autoEnterSlides).onChange(async (value) => {
+          this.plugin.settings.autoEnterSlides = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
         }),

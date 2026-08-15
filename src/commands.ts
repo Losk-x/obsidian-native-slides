@@ -5,7 +5,7 @@ import { DECK_KEY } from "./types";
 
 /** Register every command; the debug command is dev-build only. */
 export function registerCommands(plugin: NativeSlidesPlugin): void {
-  // Toggle the properties bar
+  // Toggle the properties bar (within Slides mode)
   plugin.addCommand({
     id: "ns-toggle-bar",
     name: "Toggle Properties Bar",
@@ -15,19 +15,7 @@ export function registerCommands(plugin: NativeSlidesPlugin): void {
       plugin.refresh();
     },
   });
-  // Pause / resume auto-fullscreen in reading view
-  plugin.addCommand({
-    id: "ns-toggle-fullscreen",
-    name: "Pause/Resume Auto Fullscreen",
-    callback: async () => {
-      plugin.settings.autoFullscreen = !plugin.settings.autoFullscreen;
-      await plugin.saveSettings();
-      // When paused, restore the layout immediately; when resumed, re-sync
-      if (!plugin.settings.autoFullscreen) plugin.syncFullscreen(false);
-      else plugin.refresh();
-    },
-  });
-  // Previous / next page (deck navigation, rebindable in Settings → Hotkeys)
+  // Previous / next page (deck navigation; entering Slides mode as needed)
   plugin.addCommand({
     id: "ns-prev",
     name: "Previous Page",
@@ -54,17 +42,17 @@ export function registerCommands(plugin: NativeSlidesPlugin): void {
       return true;
     },
   });
-  // Toggle WYSIWYG mode — unified edit/reading typography (deck notes only)
+  // Toggle Slides mode — the immersive card view (deck notes only)
   plugin.addCommand({
-    id: "ns-toggle-wysiwyg",
-    name: "Toggle WYSIWYG Mode",
+    id: "ns-toggle-slides",
+    name: "Toggle Slides Mode",
     hotkeys: [{ modifiers: ["Mod", "Shift"], key: "E" }],
     checkCallback: (checking) => {
       const file = plugin.app.workspace.getActiveFile();
       if (!file) return false;
       const fm = frontmatterOf(plugin.app, file);
       if (fm === null || !(DECK_KEY in fm)) return false;
-      if (!checking) plugin.toggleWysiwyg();
+      if (!checking) plugin.toggleSlides();
       return true;
     },
   });
