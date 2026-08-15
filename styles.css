@@ -2,51 +2,32 @@
    native-slides styles
    ============================================================ */
 
-/* ── 1. Hide the native status bar ─────────────────────────── */
-.status-bar {
+/* ── 1. Hide the native status bar in Slides mode ───────────
+   The bottom bar takes the status bar's spot; native modes keep
+   Obsidian's default status bar untouched. */
+body.native-slides-mode .status-bar {
   display: none !important;
 }
 
-/* ── 2. Hide the in-note properties panel in reading view ────
-   Properties already live in the bottom bar, so the panel would
-   be redundant; it stays visible in edit view for editing */
-.markdown-reading-view .metadata-container {
-  display: none !important;
-}
-
-/* ── 2b. WYSIWYG mode: hide in-note properties in Live Preview while
-   editing (reading view already hides them via rule 2). Scoped to the
-   active pane so other panes' notes are unaffected; outside WYSIWYG
-   mode properties show normally in edit view. */
-body.native-slides-wysiwyg
+/* ── 2. Slides mode: hide in-note properties in Live Preview ──
+   Properties already live in the bottom bar, so the panel would be
+   redundant. Scoped to the active pane + Live Preview; Source mode
+   keeps its native properties, and reading view is never touched. */
+body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .metadata-container {
-  /* Live Preview only — Source mode keeps its native properties */
   display: none !important;
 }
 
-/* ── 3. Fullscreen reading mode (entered automatically) ──────
-   Hides the ribbon, sidebars, tab bar and the pane header bar
-   (the one with the back/forward buttons) so the reading area
-   fills the window; the bottom properties bar stays visible */
-body.native-slides-fullscreen .workspace-ribbon,
-body.native-slides-fullscreen .workspace-split.mod-left-split,
-body.native-slides-fullscreen .workspace-split.mod-right-split,
-body.native-slides-fullscreen .workspace-tabs.mod-top .workspace-tab-header-container,
-body.native-slides-fullscreen .workspace-split.mod-root .view-header {
-  display: none !important;
-}
-
-/* ── 3b. WYSIWYG mode: immersive layout ───────────────────
-   Hides the ribbon, sidebars and the top tab bar in BOTH edit and
-   reading views (the tab bar's tab-switching role is served by leaving
-   the mode); the bottom bar takes the tab bar's height so the content
-   area height stays identical across modes. */
-body.native-slides-wysiwyg .workspace-ribbon,
-body.native-slides-wysiwyg .workspace-split.mod-left-split,
-body.native-slides-wysiwyg .workspace-split.mod-right-split,
-body.native-slides-wysiwyg .workspace-tabs.mod-top .workspace-tab-header-container {
+/* ── 3. Slides mode: immersive layout ─────────────────────
+   Hides the ribbon, sidebars and the top tab bar so the card fills
+   the window; the bottom bar takes the tab bar's height (measured
+   at runtime → --native-slides-tabbar-height). */
+body.native-slides-mode .workspace-ribbon,
+body.native-slides-mode .workspace-split.mod-left-split,
+body.native-slides-mode .workspace-split.mod-right-split,
+body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container {
   display: none !important;
 }
 
@@ -141,8 +122,8 @@ body.native-slides-wysiwyg .workspace-tabs.mod-top .workspace-tab-header-contain
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 6b. WYSIWYG mode toggle button (right of the bar) ────── */
-.native-slides-wysiwyg-btn {
+/* ── 6b. Slides mode button (right of the bar) ────── */
+.native-slides-mode-btn {
   all: unset;
   display: inline-flex;
   align-items: center;
@@ -158,81 +139,45 @@ body.native-slides-wysiwyg .workspace-tabs.mod-top .workspace-tab-header-contain
   user-select: none;
   flex-shrink: 0;
 }
-.native-slides-wysiwyg-btn:hover {
+.native-slides-mode-btn:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
-.native-slides-wysiwyg-btn.is-active {
+.native-slides-mode-btn.is-active {
   background: var(--interactive-accent, #7c5cff);
   color: var(--text-on-accent, #fff);
 }
 
-/* ── 6c. WYSIWYG layout symmetry ────────────────────────────
+/* ── 6c. Slides layout symmetry ────────────────────────────
    The bottom bar matches the top tab bar's height (measured at runtime
-   → --native-slides-tabbar-height), and both views pad their scroll
-   content by the same amount so the last line is never hidden behind
-   the bar. */
-body.native-slides-wysiwyg .native-slides-bar {
+   → --native-slides-tabbar-height). */
+body.native-slides-mode .native-slides-bar {
   height: var(--native-slides-tabbar-height, 38px);
 }
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-reading-view
-  .markdown-preview-view {
-  /* keeps the last line clear of the bottom bar; edit view already
-     has Obsidian's native 40vh bottom padding */
-  padding-bottom: var(--native-slides-tabbar-height, 38px);
-}
 
-/* ── 7. WYSIWYG = Live Preview styled to match reading view ──
-   Reading view stays fully DEFAULT (the reference); only the Live
-   Preview inside WYSIWYG gets these overrides, so what you see
-   while editing equals the reading output. Source mode and the
-   default (non-WYSIWYG) Live Preview are untouched.
-   Measured via ns-debug-styles (default theme, 2026-08):
-   • top margin: NOT overridden — Obsidian already gives the edit
-     view its 32px top spacing via .cm-scroller, matching reading's
-     --file-margins; an extra .cm-content padding doubled it (fixed)
-   • code blocks: live preview renders at --code-size (14px) vs
-     reading 16px → align to reading
-   Lists are deliberately NOT overridden: Obsidian's native hanging
-   indent (marker at 0, text at 23px) is what its nested-level
-   accumulation is built on — a flat padding override collapses
-   nested list levels (reported in review). The ~7px start delta vs
-   reading is a native, accepted difference.
-   Known remaining deltas (not overridable without hurting editing):
-   paragraph spacing — live preview's blank line is one line-height
-   (24px), reading uses --p-spacing (16px). Decorations (inline-code
-   background, quote border) stay per view by design. */
-
-body.native-slides-wysiwyg
+/* ── 7. Slides typography ────────────────────────────────
+   Code blocks render at 16px/1.5 so a slide's code matches its body
+   text (the editor's default --code-size is 14px). */
+body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   pre,
-body.native-slides-wysiwyg
+body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-codeblock {
-  /* reading's code blocks are 16px; the editor's code lines carry
-     the .HyperMD-codeblock class (measured via ns-debug-styles) */
   font-size: 1rem;
   line-height: 1.5;
 }
 
-/* ── 7c. Images: standalone image lines are centered in both views ──
+/* ── 7c. Images: standalone image lines are centered ──
    Only the img element itself is centered (block + auto margins) —
    the line/paragraph text is never affected, so headings or text
    near images can never be centered by accident. */
-body.native-slides-wysiwyg
+body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-line:has(> img)
-  img,
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-reading-view
-  .markdown-preview-view
-  p:has(> img)
   img {
   display: block;
   margin-left: auto;

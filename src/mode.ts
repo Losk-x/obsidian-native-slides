@@ -7,7 +7,7 @@ export function currentMode(app: App): "preview" | "source" | "" {
 }
 
 /**
- * True when the active edit view is Live Preview (WYSIWYG) — as
+ * True when the active edit view is Live Preview (Slides) — as
  * opposed to Source mode. Obsidian reports both as mode "source";
  * the view state carries a `source` flag (Source mode = true), with
  * a DOM class fallback (.is-live-preview) for safety.

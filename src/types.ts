@@ -6,18 +6,15 @@ export interface NativeSlidesSettings {
   showPageNumber: boolean;
   /** Whether the user manually hid the bar (toggle command) */
   barHidden: boolean;
-  /** Whether auto-fullscreen in reading view is enabled */
-  autoFullscreen: boolean;
-  /** WYSIWYG mode (unified edit/reading typography) — deck notes only */
-  wysiwygMode: boolean;
+  /** Auto-enter Slides mode when opening a deck note (default off) */
+  autoEnterSlides: boolean;
 }
 
 export const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showNavButtons: true,
   showPageNumber: true,
   barHidden: false,
-  autoFullscreen: true,
-  wysiwygMode: false,
+  autoEnterSlides: false,
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */

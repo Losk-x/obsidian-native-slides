@@ -1,7 +1,7 @@
 {
   "name": "native-slides",
   "version": "0.1.0",
-  "description": "Reading-view properties bar with PPT-style deck navigation for Obsidian: one `deck` property drives prev/next and auto-computed page numbers.",
+  "description": "Slides mode for Obsidian deck notes: an immersive, editable card view with a bottom bar for properties and PPT-style deck navigation — one `deck` property drives prev/next and auto-computed page numbers.",
   "main": "main.js",
   "scripts": {
     "build": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline --define:DEV_MODE=true",
