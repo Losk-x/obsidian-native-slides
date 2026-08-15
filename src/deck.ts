@@ -112,6 +112,33 @@ export function extractLinks(value: unknown, max: number = MAX_DECK_LINKS): stri
 }
 
 /**
+ * Extract up to `max` raw link strings from a `deck` property value — the
+ * trimmed values exactly as written (alias / path forms preserved). Same
+ * flattening rules as extractLinks(), but without extracting the target name.
+ */
+export function extractRawLinks(value: unknown, max: number = MAX_DECK_LINKS): string[] {
+  const flat: unknown[] = [];
+  const collect = (v: unknown): void => {
+    if (Array.isArray(v)) {
+      for (const item of v) collect(item);
+    } else {
+      flat.push(v);
+    }
+  };
+  collect(value);
+
+  const out: string[] = [];
+  for (const item of flat) {
+    if (typeof item !== "string") continue;
+    const trimmed = item.trim();
+    if (!trimmed) continue;
+    out.push(trimmed);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+/**
  * Extract the target note name from a markdown link string.
  * Handles several shapes:
  *   "[[slide-2]]"        → slide-2

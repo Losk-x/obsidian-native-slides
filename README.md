@@ -27,12 +27,13 @@
 
   - **Page numbers are auto-computed** by walking the link chain (overview → slide 1 → slide 2 → …), so no `page-number` property is needed. The overview page shows "Overview", slides show "Page N".
   - Flip pages with the ◀ ▶ buttons on the left of the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Both arrows are always shown; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
+  - **Create Next Slide** command: creates a new slide right after the current one — the file is named `<current>-next` (collision-aware: `-2`, `-3`, …), both `deck` properties are rewired automatically, and the new note opens in edit mode ready for content. If the current note's second `deck` link points to a missing note, that exact note is created instead (fixing the ⚠ warning); on the overview page it inserts a new first page. Greyed out for notes that cannot take a next slide.
   - Navigation keeps you in reading view, so the immersive fullscreen experience is uninterrupted.
 
 - A **settings tab** toggles the ◀ ▶ buttons, the page number, and auto-fullscreen.
 - **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
 - **WYSIWYG**: for deck (card) notes, the in-note properties panel is **always hidden** in Live Preview — the same look as reading view. Properties are edited in the right-sidebar **Properties** view (auto-opened the first time a deck note is activated in a session) or in Source mode. Toggleable in settings.
-- **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation — all rebindable under _Settings → Hotkeys_.
+- **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation and _Create Next Slide_ for deck authoring — all rebindable under _Settings → Hotkeys_.
 
 ## Overview page with an embedded Base view
 
@@ -72,17 +73,18 @@ Demo deck: `overview.md` → `welcome.md` → `slide-2.md` → `slide-3.md`.
 
 ## How it works
 
-| Piece                                            | Mechanism                                                                                                                                                                              |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Hide the status bar                              | `styles.css`: `.status-bar { display: none !important; }`                                                                                                                              |
-| Hide the in-note properties panel (reading view) | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                                        |
-| Hide the bar when empty                          | `refresh()` renders nothing when there are no displayable properties (frontmatter beyond `deck`/`position`); deck pages still show navigation + page number                            |     |
-| Fullscreen reading mode                          | `refresh()` adds `native-slides-fullscreen` to `body` when in reading view; CSS hides ribbon / sidebars / tab bar / `.view-header`; `requestFullscreen()` tries OS fullscreen          |
-| Esc exits fullscreen + reading view              | `fullscreenchange` handler: when the OS leaves fullscreen while we were fullscreen, call `view.setMode("source")` (guarded so our own `exitFullscreen()` never re-triggers it)         |
-| Deck resolution                                  | `computeDeck()` reads `deck` (≤ 2 links) → resolves the overview and the first page → walks the chain via each slide's second link (cycle-guarded) → returns the chain + current index |
-| Page number                                      | position in the chain: index 0 = "Overview", slides = "Page N"; no stored `page-number` property                                                                                       |
-| PPT navigation                                   | `navigate()` steps along the chain and opens via `workspace.openLinkText`, preserving reading view                                                                                     |
-| Settings                                         | `PluginSettingTab` + `loadData/saveData` persist the toggles; hotkeys use Obsidian's native command system                                                                             |
+| Piece                                            | Mechanism                                                                                                                                                                                                                   |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hide the status bar                              | `styles.css`: `.status-bar { display: none !important; }`                                                                                                                                                                   |
+| Hide the in-note properties panel (reading view) | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                                                                             |
+| Hide the bar when empty                          | `refresh()` renders nothing when there are no displayable properties (frontmatter beyond `deck`/`position`); deck pages still show navigation + page number                                                                 |     |
+| Fullscreen reading mode                          | `refresh()` adds `native-slides-fullscreen` to `body` when in reading view; CSS hides ribbon / sidebars / tab bar / `.view-header`; `requestFullscreen()` tries OS fullscreen                                               |
+| Esc exits fullscreen + reading view              | `fullscreenchange` handler: when the OS leaves fullscreen while we were fullscreen, call `view.setMode("source")` (guarded so our own `exitFullscreen()` never re-triggers it)                                              |
+| Deck resolution                                  | `computeDeck()` reads `deck` (≤ 2 links) → resolves the overview and the first page → walks the chain via each slide's second link (cycle-guarded) → returns the chain + current index                                      |
+| Page number                                      | position in the chain: index 0 = "Overview", slides = "Page N"; no stored `page-number` property                                                                                                                            |
+| PPT navigation                                   | `navigate()` steps along the chain and opens via `workspace.openLinkText`, preserving reading view                                                                                                                          |
+| Create Next Slide                                | `planCreateNext()` (pure core) computes the new file name, the new note's `deck` links and the rewrites; the command applies them via `vault.create` + `fileManager.processFrontMatter` and opens the new note in edit mode |
+| Settings                                         | `PluginSettingTab` + `loadData/saveData` persist the toggles; hotkeys use Obsidian's native command system                                                                                                                  |
 
 ## Development
 
