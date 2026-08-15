@@ -89,7 +89,28 @@ export default class NativeSlidesPlugin extends Plugin {
     // ── 3. Commands ─────────────────────────────────────────────────────
     registerCommands(this);
 
-    // ── 4. Create the bar and do the first render ───────────────────────
+    // ── 4. Pin the Slides editor to one screen ───────────────────────────
+    // CSS `overflow: hidden` blocks the wheel, but native drag-select
+    // autoscroll and CodeMirror's programmatic scrollIntoView still move the
+    // scroller. This capture-phase listener resets any scroll inside the
+    // active markdown view back to the top while Slides mode is active.
+    this.registerDomEvent(
+      document,
+      "scroll",
+      (evt) => {
+        if (!document.body.classList.contains("native-slides-mode")) return;
+        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+        if (!view) return;
+        const el = evt.target;
+        if (el instanceof HTMLElement && view.contentEl.contains(el)) {
+          if (el.scrollTop !== 0) el.scrollTop = 0;
+          if (el.scrollLeft !== 0) el.scrollLeft = 0;
+        }
+      },
+      { capture: true },
+    );
+
+    // ── 5. Create the bar and do the first render ───────────────────────
     this.bar = createBar();
     document.body.appendChild(this.bar);
     this.refresh();
