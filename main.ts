@@ -30,7 +30,7 @@ import { formatValue } from "./src/deck";
 import { activeFrontmatter, currentMode, frontmatterOf, isLivePreview } from "./src/mode";
 import { NativeSlidesSettingTab } from "./src/settings";
 import { DECK_KEY, DEFAULT_SETTINGS, type NativeSlidesSettings } from "./src/types";
-import { clearChildren } from "./src/utils";
+import { clearChildren, lockScroller, unlockScroller } from "./src/utils";
 
 export default class NativeSlidesPlugin extends Plugin {
   /** The properties bar DOM element */
@@ -52,6 +52,8 @@ export default class NativeSlidesPlugin extends Plugin {
   private lastKey = "";
   /** Last measured tab-bar height (px) — cached while the bar is hidden */
   private tabBarHeight = 0;
+  /** Editor scroller currently pinned to one screen (null when unpinned) */
+  private pinnedScroller: HTMLElement | null = null;
 
   async onload(): Promise<void> {
     await this.loadSettings();
@@ -98,6 +100,10 @@ export default class NativeSlidesPlugin extends Plugin {
   onunload(): void {
     this.bar?.remove();
     this.bar = null;
+    if (this.pinnedScroller) {
+      unlockScroller(this.pinnedScroller);
+      this.pinnedScroller = null;
+    }
     document.body.classList.remove("native-slides-mode");
   }
 
@@ -168,6 +174,24 @@ export default class NativeSlidesPlugin extends Plugin {
     }
   }
 
+  /**
+   * Pin (or unpin) the active editor's scroller so Slides mode is exactly one
+   * screen: no manual scroll and no CodeMirror programmatic scrollIntoView
+   * (edit / drag-select). Unpinned when leaving Slides mode so native modes
+   * scroll normally.
+   */
+  private syncScrollerPin(slides: boolean): void {
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const scroller = slides
+      ? (view?.contentEl.querySelector<HTMLElement>(".cm-scroller") ?? null)
+      : null;
+    if (scroller === this.pinnedScroller) return;
+
+    if (this.pinnedScroller) unlockScroller(this.pinnedScroller);
+    if (scroller) lockScroller(scroller);
+    this.pinnedScroller = scroller;
+  }
+
   // ── PPT navigation ────────────────────────────────────────────────────
 
   /** Move one step back/forward along the deck chain (entering Slides mode as needed) */
@@ -206,6 +230,7 @@ export default class NativeSlidesPlugin extends Plugin {
     // Slides mode is active only while actually in the editable Live Preview
     const slides = this.slidesMode && isCard && livePreviewNow;
     document.body.classList.toggle("native-slides-mode", slides);
+    this.syncScrollerPin(slides);
 
     const barVisible = slides && !this.settings.barHidden;
     if (!barVisible) {
