@@ -191,11 +191,14 @@ body.native-slides-wysiwyg
    default (non-WYSIWYG) Live Preview are untouched.
    Measured via ns-debug-styles (default theme, 2026-08):
    • top margin: live preview 0 vs reading 32px (--file-margins)
-   • list indent: live preview hangs the marker (0/23px) vs reading
-     start at calc(var(--list-indent) - 0.375em)
    • code blocks: live preview renders at --code-size (14px) vs
      reading 16px → align to reading
-   Known remaining delta (not overridable without hurting editing):
+   Lists are deliberately NOT overridden: Obsidian's native hanging
+   indent (marker at 0, text at 23px) is what its nested-level
+   accumulation is built on — a flat padding override collapses
+   nested list levels (reported in review). The ~7px start delta vs
+   reading is a native, accepted difference.
+   Known remaining deltas (not overridable without hurting editing):
    paragraph spacing — live preview's blank line is one line-height
    (24px), reading uses --p-spacing (16px). Decorations (inline-code
    background, quote border) stay per view by design. */
@@ -204,14 +207,6 @@ body.native-slides-wysiwyg
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-content {
   padding-top: 32px; /* matches reading's --file-margins top */
-}
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .HyperMD-list-line {
-  /* !important: Obsidian styles list lines with a higher priority */
-  padding-left: calc(var(--list-indent) - 0.375em) !important;
-  text-indent: 0 !important;
 }
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
