@@ -190,7 +190,9 @@ body.native-slides-wysiwyg
    while editing equals the reading output. Source mode and the
    default (non-WYSIWYG) Live Preview are untouched.
    Measured via ns-debug-styles (default theme, 2026-08):
-   • top margin: live preview 0 vs reading 32px (--file-margins)
+   • top margin: NOT overridden — Obsidian already gives the edit
+     view its 32px top spacing via .cm-scroller, matching reading's
+     --file-margins; an extra .cm-content padding doubled it (fixed)
    • code blocks: live preview renders at --code-size (14px) vs
      reading 16px → align to reading
    Lists are deliberately NOT overridden: Obsidian's native hanging
@@ -202,12 +204,7 @@ body.native-slides-wysiwyg
    paragraph spacing — live preview's blank line is one line-height
    (24px), reading uses --p-spacing (16px). Decorations (inline-code
    background, quote border) stay per view by design. */
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .cm-content {
-  padding-top: 32px; /* matches reading's --file-margins top */
-}
+
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
@@ -220,23 +217,6 @@ body.native-slides-wysiwyg
      the .HyperMD-codeblock class (measured via ns-debug-styles) */
   font-size: 1rem;
   line-height: 1.5;
-}
-
-/* ── 7d. Frontmatter ghost slot ─────────────────────────────
-   Obsidian keeps a hidden div as the frontmatter slot at the top
-   of .cm-content (the properties panel inside it is display:none,
-   but the slot itself can still carry margin/padding, pushing the
-   H1 ~72px further down than in reading view). Zero it out in
-   WYSIWYG so the first line sits as close to the top as in
-   reading view. */
-body.native-slides-wysiwyg
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .cm-content
-  > div:first-child {
-  margin: 0 !important;
-  padding: 0 !important;
-  height: 0 !important;
 }
 
 /* ── 7c. Images: standalone image lines are centered in both views ──
