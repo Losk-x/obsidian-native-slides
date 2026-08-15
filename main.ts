@@ -90,6 +90,33 @@ const DEFAULT_SETTINGS: NativeSlidesSettings = {
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
 const DECK_KEY = "deck";
 
+/**
+ * Fixed one-page sample notes used by the ns-debug-styles command
+ * (edit side). Do not rename or remove them: each covers a group of
+ * typography elements so everything is visible without scrolling.
+ */
+const SAMPLE_NOTE_NAMES = [
+  "typography-sample-headings",
+  "typography-sample-list",
+  "typography-sample-code",
+  "typography-sample-quote",
+  "typography-sample-media",
+];
+
+/** Style sections sampled by sampleStyles() and compared by diffDumps() */
+const STYLE_SECTIONS = [
+  "container",
+  "paragraph",
+  "h1",
+  "listItem",
+  "codeBlock",
+  "blockquote",
+  "inlineCode",
+  "table",
+  "image",
+  "horizontalRule",
+];
+
 export default class NativeSlidesPlugin extends Plugin {
   /** The properties bar DOM element */
   private bar: HTMLElement | null = null;
@@ -608,7 +635,7 @@ export default class NativeSlidesPlugin extends Plugin {
     ]);
     const para = pick([
       isEdit
-        ? ".markdown-source-view.mod-cm6 .cm-line"
+        ? ".markdown-source-view.mod-cm6 .cm-line:not(.HyperMD-header)"
         : ".markdown-reading-view .markdown-preview-view p",
     ]);
     const h1 = pick([
@@ -774,95 +801,57 @@ export default class NativeSlidesPlugin extends Plugin {
   }
 
   /**
-   * Sample the current view, then (edit views only) auto-scroll through
-   * the document to capture elements CodeMirror's virtual rendering
-   * keeps out of the DOM (code blocks, quotes, tables) — no manual
-   * scrolling needed. The scroller ends back at the top.
-   */
-  private async sampleStylesScrolled(): Promise<Record<string, unknown> | null> {
-    const base = this.sampleStyles();
-    if (!base) return null;
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (!view || view.getMode() !== "source") return base;
-    const scroller = view.contentEl.querySelector<HTMLElement>(".cm-scroller");
-    if (!scroller || scroller.scrollHeight - scroller.clientHeight <= 0) return base;
-
-    const pending = ["codeBlock", "blockquote", "table", "image", "horizontalRule"];
-    const capture = (): void => {
-      const s = this.sampleStyles();
-      if (!s) return;
-      for (const key of [...pending]) {
-        const section = s[key] as Record<string, string> | undefined;
-        if (section && !("(missing)" in section)) {
-          (base as Record<string, unknown>)[key] = section;
-          pending.splice(pending.indexOf(key), 1);
-        }
-      }
-    };
-    capture(); // the initial viewport may already contain a target
-    // CM6's scrollHeight is an estimate (virtual rendering) that gets
-    // updated while scrolling — recompute the range at every step.
-    // The sweep always runs to the end (no early exit) so the user
-    // sees the full scroll and bottom elements are always reached.
-    for (let i = 1; i <= 8; i++) {
-      const max = scroller.scrollHeight - scroller.clientHeight;
-      scroller.scrollTop = max > 0 ? (max * i) / 8 : 0;
-      await new Promise((resolve) => setTimeout(resolve, 250));
-      capture();
-    }
-    // Explicitly reach the TRUE bottom (the estimate may fall short):
-    // keep setting scrollTop = scrollHeight until it stops moving.
-    let prevTop = -1;
-    for (let pass = 0; pass < 8; pass++) {
-      scroller.scrollTop = scroller.scrollHeight;
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      capture();
-      if (scroller.scrollTop === prevTop) break;
-      prevTop = scroller.scrollTop;
-    }
-    scroller.scrollTop = 0;
-    return base;
-  }
-
-  /**
-   * Debug typography: samples the current view, flips to the other mode
-   * (edit ↔ reading) and samples again, computes a diff, then writes
-   * everything to .native-slides-debug.json in the vault root — the
-   * numbers can be inspected without copying console output by hand.
+   * Debug typography: samples the fixed one-page sample notes (each
+   * covering a group of elements — all visible without scrolling),
+   * then the kitchen-sink note in reading view (no virtualization
+   * there), merges everything, computes the edit-vs-reading diff and
+   * writes it to .native-slides-debug.json in the vault root.
+   * The user's own note is restored at the end.
    */
   private async debugStyles(): Promise<void> {
+    if (!this.settings.wysiwygMode) {
+      new Notice("Native Slides: turn WYSIWYG mode on first (Mod+Shift+E on a deck note)");
+      return;
+    }
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
     if (!view) {
       new Notice("Native Slides: no active Markdown note");
       return;
     }
     const startMode = view.getMode();
-    if (startMode !== "source" && startMode !== "preview") return;
-    const first = await this.sampleStylesScrolled();
-    if (!first) return;
+    const activeFile = this.app.workspace.getActiveFile();
+    const leaf = this.app.workspace.getLeaf(false);
 
-    // Flip to the other mode (auto-fullscreen would disturb sampling)
-    const savedFullscreen = this.settings.autoFullscreen;
-    this.settings.autoFullscreen = false;
-    const state = view.leaf.getViewState();
-    state.state = { ...state.state, mode: startMode === "preview" ? "source" : "preview" };
-    await view.leaf.setViewState(state, { focus: false });
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    const second = await this.sampleStylesScrolled();
-    if (!second) {
-      this.settings.autoFullscreen = savedFullscreen;
+    // Edit side: each short note keeps every target element on screen
+    const edit: Record<string, unknown> = {};
+    for (const name of SAMPLE_NOTE_NAMES) {
+      const f = this.app.vault.getAbstractFileByPath(`${name}.md`);
+      if (!(f instanceof TFile)) continue;
+      await leaf.openFile(f, { state: { mode: "source" } });
+      await sleep(500);
+      const s = this.sampleStyles();
+      if (s) mergeSample(edit, s);
+    }
+
+    // Reading side: the kitchen-sink note renders everything at once
+    let reading: Record<string, unknown> | null = null;
+    const demo = this.app.vault.getAbstractFileByPath("typography-demo.md");
+    if (demo instanceof TFile) {
+      await leaf.openFile(demo, { state: { mode: "preview" } });
+      await sleep(800);
+      reading = this.sampleStyles();
+    }
+
+    // Restore the user's note
+    if (activeFile) {
+      await leaf.openFile(activeFile, { state: { mode: startMode } });
+      this.refresh();
+    }
+    if (!reading) {
+      new Notice("Native Slides: reading sample failed");
       return;
     }
 
-    // Restore the original mode + fullscreen setting
-    const state2 = view.leaf.getViewState();
-    state2.state = { ...state2.state, mode: startMode };
-    await view.leaf.setViewState(state2, { focus: false });
-    this.settings.autoFullscreen = savedFullscreen;
-    this.refresh();
-
-    const edit = startMode === "source" ? first : second;
-    const reading = startMode === "source" ? second : first;
     const payload = { edit, reading, diff: diffDumps(edit, reading) };
     try {
       await this.app.vault.adapter.write(
@@ -959,6 +948,25 @@ class NativeSlidesSettingTab extends PluginSettingTab {
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 
+/** Promise-based sleep */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Merge non-missing style sections of a fresh sample into the target
+ * (first non-missing value wins).
+ */
+function mergeSample(target: Record<string, unknown>, sample: Record<string, unknown>): void {
+  for (const key of STYLE_SECTIONS) {
+    const section = sample[key] as Record<string, string> | undefined;
+    if (!section || "(missing)" in section) continue;
+    const existing = target[key] as Record<string, string> | undefined;
+    if (existing && !("(missing)" in existing)) continue;
+    target[key] = section;
+  }
+}
+
 /** Remove all children of an element */
 function clearChildren(el: HTMLElement): void {
   while (el.firstChild) el.removeChild(el.firstChild);
@@ -973,19 +981,7 @@ function diffDumps(
   reading: Record<string, unknown>,
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  const sections = [
-    "container",
-    "paragraph",
-    "h1",
-    "listItem",
-    "codeBlock",
-    "blockquote",
-    "inlineCode",
-    "table",
-    "image",
-    "horizontalRule",
-  ];
-  for (const section of sections) {
+  for (const section of STYLE_SECTIONS) {
     const e = (edit[section] ?? {}) as Record<string, string>;
     const r = (reading[section] ?? {}) as Record<string, string>;
     const keys = new Set([...Object.keys(e), ...Object.keys(r)]);

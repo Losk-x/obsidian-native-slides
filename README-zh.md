@@ -63,7 +63,7 @@ views:
 
 ## 示例库
 
-演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、`broken-link-demo.md`（断链警告演示）、`folded-properties-demo.md`（WYSIWYG 属性演示）、`typography-demo.md`（Markdown 全家桶——标题/列表/任务/引用/代码块/表格/图片，用于测试 WYSIWYG 排版对齐）、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/native-slides/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
+演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、`broken-link-demo.md`（断链警告演示）、`folded-properties-demo.md`（WYSIWYG 属性演示）、`typography-demo.md`（Markdown 全家桶——标题/列表/任务/引用/代码块/表格/图片，用于测试 WYSIWYG 排版对齐）、五个 `typography-sample-*.md` 笔记（`Debug: Dump Typography Styles` 命令专用的固定一页采样笔记——请勿改名或删除）、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/native-slides/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
 
 > 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把 `main.js`、`manifest.json`、`styles.css` 复制到 `example-vault/.obsidian/plugins/native-slides/` 即可。
 
