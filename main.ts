@@ -121,7 +121,7 @@ export default class NativeSlidesPlugin extends Plugin {
   }
 
   /** Enter Slides mode: record the exit state and force the Live Preview */
-  private enterSlides(): void {
+  private async enterSlides(): Promise<void> {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
     if (view) {
       const state = view.getState() as { mode?: string; source?: boolean };
@@ -130,7 +130,7 @@ export default class NativeSlidesPlugin extends Plugin {
       // Slides mode is always the editable Live Preview
       const next = view.leaf.getViewState();
       next.state = { ...next.state, mode: "source", source: false };
-      void view.leaf.setViewState(next, { focus: false });
+      await view.leaf.setViewState(next, { focus: false });
     }
     this.slidesMode = true;
     this.refresh();
@@ -155,7 +155,7 @@ export default class NativeSlidesPlugin extends Plugin {
   /** Toggle Slides mode (deck notes only — enforced by the command) */
   toggleSlides(): void {
     if (this.slidesMode) this.exitSlides();
-    else this.enterSlides();
+    else void this.enterSlides();
   }
 
   /** Auto-enter Slides mode once per opened deck note when the setting is on */
@@ -164,21 +164,21 @@ export default class NativeSlidesPlugin extends Plugin {
     if (!file || file.path === this.autoEnteredPath) return;
     this.autoEnteredPath = file.path;
     if (this.settings.autoEnterSlides && this.isDeckNote(file) && !this.slidesMode) {
-      this.enterSlides();
+      void this.enterSlides();
     }
   }
 
   // ── PPT navigation ────────────────────────────────────────────────────
 
   /** Move one step back/forward along the deck chain (entering Slides mode as needed) */
-  navigate(direction: "prev" | "next"): void {
+  async navigate(direction: "prev" | "next"): Promise<void> {
     const file = this.app.workspace.getActiveFile();
     if (!file) return;
     const deck = this.deckService.compute(file);
     if (!deck) return;
     const target = deck.chain[direction === "prev" ? deck.index - 1 : deck.index + 1];
     if (!target) return;
-    if (!this.slidesMode) this.enterSlides();
+    if (!this.slidesMode) await this.enterSlides();
     void this.app.workspace.openLinkText(target, file.path);
   }
 
@@ -191,16 +191,20 @@ export default class NativeSlidesPlugin extends Plugin {
     const file = this.app.workspace.getActiveFile();
     const mode = currentMode(this.app);
     const isCard = this.isDeckNote(file);
+    const livePreviewNow = mode === "source" && isLivePreview(this.app);
 
-    // Leaving a deck note ends Slides mode
-    if (this.slidesMode && !isCard) this.slidesMode = false;
+    // Leaving a deck note, or leaving the Live Preview (e.g. Cmd/Ctrl+E to
+    // reading view), ends Slides mode — only the toggle command re-enters it.
+    if (this.slidesMode && (!isCard || !livePreviewNow)) {
+      this.slidesMode = false;
+    }
 
     // Measure the tab bar while it is still visible (Slides mode hides it
     // below; the last measured value is reused once hidden).
     this.tabBarHeight = syncTabBarHeight(this.tabBarHeight);
 
     // Slides mode is active only while actually in the editable Live Preview
-    const slides = this.slidesMode && isCard && mode === "source" && isLivePreview(this.app);
+    const slides = this.slidesMode && isCard && livePreviewNow;
     document.body.classList.toggle("native-slides-mode", slides);
 
     const barVisible = slides && !this.settings.barHidden;
