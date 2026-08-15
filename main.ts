@@ -737,7 +737,13 @@ export default class NativeSlidesPlugin extends Plugin {
     const wysHint = document.body.classList.contains("native-slides-wysiwyg")
       ? "WYSIWYG is ON — alignment rules active."
       : "WYSIWYG is OFF — alignment rules NOT active. On a deck note, toggle it on (Mod+Shift+E) and rerun.";
-    new Notice("Typography dump → Console (Cmd+Opt+I). " + wysHint);
+    // The edit view only renders the visible area (CodeMirror virtual
+    // rendering) — off-screen elements are not in the DOM, so scroll to
+    // the element you want to sample before running.
+    const scrollHint = isEdit
+      ? " Edit view renders only the visible area — scroll to the code block/table/quote, then rerun."
+      : "";
+    new Notice("Typography dump → Console (Cmd+Opt+I). " + wysHint + scrollHint);
   }
 }
 
