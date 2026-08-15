@@ -1,6 +1,6 @@
 ---
 name: dev-workflow
-description: Mandatory development workflow for this repository — isolated branch/worktree, merge latest main before PR, CLI-first, human review required, cleanup after merge.
+description: Mandatory development workflow for this repository — single checkout, one branch at a time, merge latest main before PR, CLI-first, human review required, reload-based preview loop, cleanup after merge.
 ---
 
 # Development Workflow (Rule 1)
@@ -9,24 +9,30 @@ This skill is the full specification of **Rule 1** in [AGENTS.md](../../AGENTS.m
 
 ## Principles
 
-- **CLI tools first.** Every step is driven by CLI tools (`git`, `gh`, `npm`). After the CLI creates a worktree, enter it with the agent's own harness command for entering a worktree (a human just `cd`s into it). Never operate on the main checkout from a worktree context and vice versa.
+- **CLI tools first.** Every step is driven by CLI tools (`git`, `gh`, `npm`).
+- **Single checkout, one branch at a time.** All work happens in the one repository checkout; branches are created/switched with `git switch`. Features are developed **serially** — never parallel. No git worktrees.
 - **No rebase.** Always `merge` the latest `main` into the branch and resolve conflicts explicitly. Never rewrite history with `rebase`.
 - **Human review required.** A PR is merged only after a human reviews/approves it. The agent MUST NOT merge its own PR and MUST NOT bypass the review process.
 
+## Preview loop (no restart, no hot-reload plugin)
+
+The human opens **`example-vault/`** in Obsidian **once** and never needs to reopen it:
+
+- After a **branch switch** or a **code change**, the human reloads with: `Cmd/Ctrl+P` → **Reload app without saving** (this reloads the whole vault in place — notes, config and plugins — per the official "Build a plugin" docs). The vault folder never changes, so Obsidian never needs "Open another vault".
+- The agent announces "**ready to reload**" only after doing its part:
+  1. **Clean Obsidian runtime noise** — Obsidian rewrites `example-vault/.obsidian/` configs (`core-plugins.json`, `community-plugins.json`, …) while running; revert those (`git checkout -- example-vault/.obsidian/`) so `git switch` is never blocked by a dirty tree.
+  2. **Verify** — run `npm run check` / `npm run test` / `npm run lint` / `npm run format:check` / `npm run build` and confirm `main.js` is in sync (`git diff --exit-code -- main.js`).
+- `npm run dev` (esbuild watch) is only needed while **actively editing** `main.ts`; viewing a branch's behavior needs nothing but the switch + reload (each branch carries its own committed, in-sync `main.js`).
+
 ## Workflow
 
-### 1. Create / enter an isolated branch or worktree
+### 1. Create / enter a branch (single checkout)
 
 ```sh
-# Option A: branch in the current checkout
 git switch -c feat/my-change
-
-# Option B: dedicated worktree (keeps the main checkout clean)
-git worktree add ../obsidian-wt-my-change -b feat/my-change
-# then enter the worktree:
-#   agent  → use your harness command to enter the created worktree
-#   human  → cd ../obsidian-wt-my-change
 ```
+
+One feature at a time; the branch is based on the latest `main`.
 
 ### 2. Before opening a PR: merge the latest main
 
@@ -72,8 +78,7 @@ A PR is merged only after a human reviews/approves it. The agent MUST NOT merge 
 ### 5. After the PR is merged: clean up and sync
 
 ```sh
-git checkout main
+git switch main
 git pull origin main                          # sync to the latest main
 git branch -d feat/my-change                  # delete the local branch
-git worktree remove ../obsidian-wt-my-change  # remove the worktree, if used
 ```
