@@ -51,11 +51,17 @@ interface NativeSlidesSettings {
   showNavButtons: boolean;
   /** Show the auto-computed page number at the bottom-right of the bar */
   showPageNumber: boolean;
+  /** Whether the user manually hid the bar (toggle command) */
+  barHidden: boolean;
+  /** Whether auto-fullscreen in reading view is enabled */
+  autoFullscreen: boolean;
 }
 
 const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showNavButtons: true,
   showPageNumber: true,
+  barHidden: false,
+  autoFullscreen: true,
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
@@ -64,12 +70,8 @@ const DECK_KEY = "deck";
 export default class NativeSlidesPlugin extends Plugin {
   /** The properties bar DOM element */
   private bar: HTMLElement | null = null;
-  /** Whether the user manually hid the bar (toggle command) */
-  private barHidden = false;
   /** Whether fullscreen reading mode is currently active */
   private fullscreen = false;
-  /** Whether auto-fullscreen in reading view is enabled (default on) */
-  private autoFullscreen = true;
   /** Last refresh key ("path|mode") to avoid pointless re-renders */
   private lastKey = "";
   /** Plugin settings */
@@ -107,8 +109,9 @@ export default class NativeSlidesPlugin extends Plugin {
     this.addCommand({
       id: "ns-toggle-bar",
       name: "Toggle Properties Bar",
-      callback: () => {
-        this.barHidden = !this.barHidden;
+      callback: async () => {
+        this.settings.barHidden = !this.settings.barHidden;
+        await this.saveSettings();
         this.refresh();
       },
     });
@@ -116,10 +119,11 @@ export default class NativeSlidesPlugin extends Plugin {
     this.addCommand({
       id: "ns-toggle-fullscreen",
       name: "Pause/Resume Auto Fullscreen",
-      callback: () => {
-        this.autoFullscreen = !this.autoFullscreen;
+      callback: async () => {
+        this.settings.autoFullscreen = !this.settings.autoFullscreen;
+        await this.saveSettings();
         // When paused, restore the layout immediately; when resumed, re-sync
-        if (!this.autoFullscreen) this.syncFullscreen(false);
+        if (!this.settings.autoFullscreen) this.syncFullscreen(false);
         else this.refresh();
       },
     });
@@ -241,10 +245,10 @@ export default class NativeSlidesPlugin extends Plugin {
     const mode = this.currentMode();
 
     // Auto-fullscreen: enter on reading view, restore on leaving it
-    this.syncFullscreen(mode === "preview" && this.autoFullscreen);
+    this.syncFullscreen(mode === "preview" && this.settings.autoFullscreen);
 
     // Not a Markdown note / not in reading view / hidden by the user → hide
-    if (!file || mode !== "preview" || this.barHidden) {
+    if (!file || mode !== "preview" || this.settings.barHidden) {
       this.bar.style.display = "none";
       return;
     }
@@ -360,6 +364,19 @@ class NativeSlidesSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showPageNumber).onChange(async (value) => {
           this.plugin.settings.showPageNumber = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName("Auto fullscreen in reading view")
+      .setDesc(
+        "Enter the immersive fullscreen reading mode automatically when switching to reading view (also toggleable via the Pause/Resume Auto Fullscreen command)",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.autoFullscreen).onChange(async (value) => {
+          this.plugin.settings.autoFullscreen = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
         }),
