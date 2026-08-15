@@ -109,6 +109,7 @@ After editing `main.ts`, reload the plugin in Obsidian: open the command palette
 
 ## Known limitations
 
+- **Desktop only** — the plugin targets the Obsidian desktop app (it hides the status bar and requests OS fullscreen); mobile is not supported.
 - Properties come from **frontmatter** (the `---` YAML block at the top); inline `key:: value` properties are not read.
 - Hiding the status bar is **global** (all notes, all modes); remove the `.status-bar` rule in `styles.css` to disable.
 - `deck` is a **reserved key name**; the `position` key is also reserved and hidden from the bar (it can be used by other tools without cluttering the bar).

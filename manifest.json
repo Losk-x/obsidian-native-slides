@@ -5,5 +5,5 @@
   "minAppVersion": "1.4.0",
   "description": "Hides the status bar; in reading view, shows the note's properties in a bottom bar with PPT-style deck navigation — one `deck` property (overview + next links) drives prev/next and auto-computed page numbers.",
   "author": "research-skills",
-  "isDesktopOnly": false
+  "isDesktopOnly": true
 }
