@@ -9,4 +9,4 @@ tags:
 
 This deck (card) note has frontmatter properties (`author`, `tags`) besides the reserved `deck` key.
 
-In **Live Preview** the in-note properties panel is **always hidden** (WYSIWYG — same as reading view). The right-sidebar **Properties** view opens automatically the first time a deck note is activated in a session — edit the properties there, or switch to **Source mode**.
+In the default edit view the in-note properties panel shows normally (native behavior). Turn on **WYSIWYG mode** (command `Mod+Shift+E`, bottom-bar button, or settings): the editor becomes immersive — tab bar and sidebars hide, the bottom bar takes the tab bar's height, and the in-note properties panel hides while editing, exactly like reading view.

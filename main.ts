@@ -66,8 +66,6 @@ interface NativeSlidesSettings {
   barHidden: boolean;
   /** Whether auto-fullscreen in reading view is enabled */
   autoFullscreen: boolean;
-  /** Hide a folded properties panel completely in Live Preview for deck notes */
-  hideCardPropertiesInEdit: boolean;
   /** WYSIWYG mode (unified edit/reading typography) — deck notes only */
   wysiwygMode: boolean;
 }
@@ -77,7 +75,6 @@ const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showPageNumber: true,
   barHidden: false,
   autoFullscreen: true,
-  hideCardPropertiesInEdit: true,
   wysiwygMode: false,
 };
 
@@ -91,8 +88,6 @@ export default class NativeSlidesPlugin extends Plugin {
   private fullscreen = false;
   /** Last refresh key ("path|mode") to avoid pointless re-renders */
   private lastKey = "";
-  /** Whether the right-sidebar Properties view was auto-opened this session */
-  private sidebarOpenedThisSession = false;
   /** Last measured tab-bar height (px) — cached while the bar is hidden */
   private tabBarHeight = 0;
   /** Plugin settings */
@@ -223,7 +218,6 @@ export default class NativeSlidesPlugin extends Plugin {
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
     document.body.classList.remove("native-slides-fullscreen");
     document.body.classList.remove("native-slides-wysiwyg");
-    document.body.classList.remove("native-slides-wysiwyg-reading");
   }
 
   // ── Settings ──────────────────────────────────────────────────────────
@@ -342,26 +336,6 @@ export default class NativeSlidesPlugin extends Plugin {
     await leaf.openFile(newFile, { state: { mode: "source" } });
   }
 
-  /** Open the built-in "Properties view: Show file properties" panel */
-  private async showFileProperties(): Promise<void> {
-    // `app.commands` is not in the public typings; the runtime API is stable
-    // and executing a built-in command is the standard way to open the panel.
-    const commands = (
-      this.app as unknown as {
-        commands?: {
-          commands?: Record<string, { name?: string }>;
-          executeCommandById?: (id: string) => Promise<void>;
-        };
-      }
-    ).commands;
-    if (!commands?.executeCommandById) return;
-    // Locate the command by its (localized) name — robust across versions
-    const id = Object.entries(commands.commands ?? {}).find(([, c]) =>
-      /(?:show|display).*file.*properties|(?:显示|打开).*文件.*属性/i.test(c.name ?? ""),
-    )?.[0];
-    if (id) await commands.executeCommandById(id);
-  }
-
   /** Frontmatter of any note as an object, or null when absent */
   private frontmatterOf(file: TFile): Record<string, unknown> | null {
     const cache = this.app.metadataCache.getFileCache(file);
@@ -404,36 +378,18 @@ export default class NativeSlidesPlugin extends Plugin {
     const file = this.app.workspace.getActiveFile();
     const mode = this.currentMode();
 
-    // Card-note body class (note has a `deck` property) — enables the
-    // edit-mode "hide in-note properties" CSS (Live Preview WYSIWYG step).
+    // Card note = has a `deck` property (the WYSIWYG mode's scope marker)
     const cardFm = file ? this.frontmatterOf(file) : null;
     const isCard = cardFm !== null && DECK_KEY in cardFm;
-    document.body.classList.toggle(
-      "native-slides-card",
-      isCard && this.settings.hideCardPropertiesInEdit,
-    );
-    // WYSIWYG mode body class — unified edit/reading typography CSS
-    // (deck notes only; the typography rules land in later phases)
+    // Measure the tab bar while it is still visible (WYSIWYG hides it
+    // below; the last measured value is reused once hidden).
+    this.syncTabBarHeight();
+    // WYSIWYG mode body class — immersive mode (deck notes only): hides
+    // the tab bar and sidebars in both edit and reading views, matches
+    // the bottom bar's height to the tab bar, and hides in-note
+    // properties while editing.
     const wysiwyg = isCard && this.settings.wysiwygMode;
     document.body.classList.toggle("native-slides-wysiwyg", wysiwyg);
-    // WYSIWYG + reading view: the tab bar hides and the bottom bar takes
-    // its height — keep the measured height fresh (edit mode measures it,
-    // reading mode reuses the cached value).
-    this.syncTabBarHeight();
-    document.body.classList.toggle("native-slides-wysiwyg-reading", wysiwyg && mode === "preview");
-
-    // WYSIWYG: once per session, open the right-sidebar Properties view when a
-    // card note is activated in edit mode — a gentle hint that its (hidden)
-    // properties are edited there.
-    if (
-      isCard &&
-      this.settings.hideCardPropertiesInEdit &&
-      mode === "source" &&
-      !this.sidebarOpenedThisSession
-    ) {
-      this.sidebarOpenedThisSession = true;
-      void this.showFileProperties();
-    }
 
     // Auto-fullscreen: enter on reading view, restore on leaving it
     this.syncFullscreen(mode === "preview" && this.settings.autoFullscreen);
@@ -541,10 +497,16 @@ export default class NativeSlidesPlugin extends Plugin {
       ".workspace-tabs.mod-top .workspace-tab-header-container",
     );
     if (tabBar && tabBar.offsetHeight > 0) this.tabBarHeight = tabBar.offsetHeight;
-    document.documentElement.style.setProperty(
-      "--native-slides-tabbar-height",
-      `${this.tabBarHeight}px`,
-    );
+    if (this.tabBarHeight > 0) {
+      document.documentElement.style.setProperty(
+        "--native-slides-tabbar-height",
+        `${this.tabBarHeight}px`,
+      );
+    } else {
+      // No measurement yet (tab bar hidden since load) — let the CSS
+      // fallback value apply.
+      document.documentElement.style.removeProperty("--native-slides-tabbar-height");
+    }
   }
 
   /** Sync the fullscreen state: add the class + request OS fullscreen, or restore */
@@ -634,22 +596,9 @@ class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Hide in-note properties in edit mode (deck notes)")
-      .setDesc(
-        "For deck (card) notes in Live Preview, the in-note properties panel is always hidden (WYSIWYG — same as reading view). Edit them in the right-sidebar Properties view (opened automatically the first time a deck note is activated in a session) or in Source mode.",
-      )
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.hideCardPropertiesInEdit).onChange(async (value) => {
-          this.plugin.settings.hideCardPropertiesInEdit = value;
-          await this.plugin.saveSettings();
-          this.plugin.refresh();
-        }),
-      );
-
-    new Setting(containerEl)
       .setName("WYSIWYG mode (deck notes)")
       .setDesc(
-        "Unified typography between edit and reading views for deck notes (tab bar hides in reading; the bottom bar takes its place). Toggle from the command palette, the Mod+Shift+E hotkey, or the bottom-bar button.",
+        "Immersive deck mode: hides the tab bar and sidebars, shows the bottom bar at tab-bar height in both views, and hides in-note properties while editing. Toggle from the command palette, the Mod+Shift+E hotkey, or the bottom-bar button.",
       )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.wysiwygMode).onChange(async (value) => {

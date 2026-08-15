@@ -11,8 +11,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 ### Added
 
 - **Create Next Slide** command: creates a new slide right after the current one — the file is named `<current>-next` (collision-aware: `-2`, `-3`, …), both `deck` properties are rewired automatically, and the new note opens in edit mode. If the current note's second `deck` link points to a missing note, that exact note is created instead (fixing the ⚠ warning); on the overview page it inserts a new first page. The command is greyed out for notes that cannot take a next slide.
-- **WYSIWYG mode** (deck notes only): explicit mode switch — command `Toggle WYSIWYG Mode` (default hotkey `Mod+Shift+E`), bottom-bar button, or settings toggle (default off). When on, the bottom bar also shows in edit view, and toggling from reading view jumps into the WYSIWYG edit view.
-- **WYSIWYG tab-bar symmetry**: in WYSIWYG reading view the top tab bar hides while the bottom bar matches its measured height (runtime-measured CSS variable), and the active pane's scroll content is padded by the same amount — switching between edit and reading does not change the content-area height.
+- **WYSIWYG mode** (deck notes only): explicit immersive mode — command `Toggle WYSIWYG Mode` (default hotkey `Mod+Shift+E`), bottom-bar button, or settings toggle (default off). When on, the **tab bar and sidebars hide** in both edit and reading views, the bottom bar also shows in edit view and matches the tab bar's measured height (runtime CSS variable; no content-area height change when switching modes), and **in-note properties hide while editing** (same look as reading view). Toggling from reading view jumps into the WYSIWYG edit view.
 
 ### Changed
 
@@ -21,7 +20,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 - Settings: the bar-hidden and auto-fullscreen toggles are now persisted (previously reset on reload); auto-fullscreen is also exposed in the settings tab.
 - The plugin is now **desktop-only** (`isDesktopOnly: true`); mobile is not supported.
 - Broken `deck` links are flagged with a ⚠ warning chip in the bar.
-- WYSIWYG: for deck (card) notes, the in-note properties panel is always hidden in Live Preview (same as reading view); the right-sidebar Properties view auto-opens once per session for editing. `minAppVersion` raised to 1.7.0.
+- WYSIWYG properties behavior reworked: the old always-hide-in-edit + auto-open-right-sidebar behavior is replaced by the WYSIWYG mode (above) — outside the mode, edit view shows in-note properties natively. `minAppVersion` remains 1.7.0.
 
 ## [0.1.0] - 2026-08-14
 

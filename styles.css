@@ -14,11 +14,11 @@
   display: none !important;
 }
 
-/* ── 2b. WYSIWYG: deck (card) notes hide the in-note properties panel in
-   Live Preview — always, same look as reading view. Scoped to the active
-   pane (.mod-active) so other panes' notes are unaffected; properties are
-   edited in the right-sidebar Properties view or Source mode. */
-body.native-slides-card
+/* ── 2b. WYSIWYG mode: hide in-note properties in Live Preview while
+   editing (reading view already hides them via rule 2). Scoped to the
+   active pane so other panes' notes are unaffected; outside WYSIWYG
+   mode properties show normally in edit view. */
+body.native-slides-wysiwyg
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6
   .metadata-container {
@@ -37,11 +37,15 @@ body.native-slides-fullscreen .workspace-split.mod-root .view-header {
   display: none !important;
 }
 
-/* ── 3b. WYSIWYG reading view: hide the top tab bar ────────
-   In edit view the tab bar stays visible (it switches tabs); in WYSIWYG
-   reading view it hides and the bottom bar takes its height, so the
-   content area height is identical in both modes. */
-body.native-slides-wysiwyg-reading .workspace-tabs.mod-top .workspace-tab-header-container {
+/* ── 3b. WYSIWYG mode: immersive layout ───────────────────
+   Hides the ribbon, sidebars and the top tab bar in BOTH edit and
+   reading views (the tab bar's tab-switching role is served by leaving
+   the mode); the bottom bar takes the tab bar's height so the content
+   area height stays identical across modes. */
+body.native-slides-wysiwyg .workspace-ribbon,
+body.native-slides-wysiwyg .workspace-split.mod-left-split,
+body.native-slides-wysiwyg .workspace-split.mod-right-split,
+body.native-slides-wysiwyg .workspace-tabs.mod-top .workspace-tab-header-container {
   display: none !important;
 }
 
@@ -163,14 +167,14 @@ body.native-slides-wysiwyg-reading .workspace-tabs.mod-top .workspace-tab-header
 }
 
 /* ── 6c. WYSIWYG layout symmetry ────────────────────────────
-   In WYSIWYG mode the bottom bar matches the top tab bar's height
-   (measured at runtime → --native-slides-tabbar-height), and reading
-   view pads the active pane's scroll content by the same amount so
-   the last line is never hidden behind the bar and the visible
-   content height matches edit view (tab bar ↔ bottom bar). */
+   The bottom bar matches the top tab bar's height (measured at runtime
+   → --native-slides-tabbar-height), and both views pad their scroll
+   content by the same amount so the last line is never hidden behind
+   the bar. */
 body.native-slides-wysiwyg .native-slides-bar {
   height: var(--native-slides-tabbar-height, 38px);
 }
-body.native-slides-wysiwyg-reading .workspace-leaf.mod-active > .view-content {
+body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-reading-view .markdown-preview-view,
+body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content {
   padding-bottom: var(--native-slides-tabbar-height, 38px);
 }
