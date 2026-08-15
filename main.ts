@@ -676,6 +676,7 @@ export default class NativeSlidesPlugin extends Plugin {
     const img = pick([
       isEdit ? ".markdown-source-view.mod-cm6 img" : ".markdown-reading-view img",
       isEdit ? ".cm-line img" : ".markdown-reading-view .markdown-preview-view img",
+      "img", // whole-document fallback
     ]);
     const hr = pick([
       isEdit ? ".markdown-source-view.mod-cm6 hr" : ".markdown-reading-view hr",
@@ -980,6 +981,12 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     const existing = target[key] as Record<string, string> | undefined;
     if (existing && !("(missing)" in existing)) continue;
     target[key] = section;
+  }
+  // Probe fields ride along (first non-empty wins)
+  for (const key of ["listLines"]) {
+    const probe = sample[key];
+    if (probe === undefined || probe === null) continue;
+    if (target[key] === undefined) target[key] = probe;
   }
 }
 
