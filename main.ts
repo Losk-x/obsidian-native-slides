@@ -774,16 +774,12 @@ export default class NativeSlidesPlugin extends Plugin {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
     if (!view || view.getMode() !== "source") return base;
     const scroller = view.contentEl.querySelector<HTMLElement>(".cm-scroller");
-    if (!scroller) return base;
-    const max = scroller.scrollHeight - scroller.clientHeight;
-    if (max <= 0) return base;
+    if (!scroller || scroller.scrollHeight - scroller.clientHeight <= 0) return base;
 
     const pending = ["codeBlock", "blockquote", "table"];
-    for (let i = 1; i <= 10 && pending.length > 0; i++) {
-      scroller.scrollTop = (max * i) / 10;
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    const capture = (): void => {
       const s = this.sampleStyles();
-      if (!s) continue;
+      if (!s) return;
       for (const key of [...pending]) {
         const section = s[key] as Record<string, string> | undefined;
         if (section && !("(missing)" in section)) {
@@ -791,6 +787,22 @@ export default class NativeSlidesPlugin extends Plugin {
           pending.splice(pending.indexOf(key), 1);
         }
       }
+    };
+    capture(); // the initial viewport may already contain a target
+    // CM6's scrollHeight is an estimate (virtual rendering) that gets
+    // updated while scrolling — recompute the range at every step.
+    for (let i = 1; i <= 12 && pending.length > 0; i++) {
+      const max = scroller.scrollHeight - scroller.clientHeight;
+      scroller.scrollTop = max > 0 ? (max * i) / 12 : 0;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      capture();
+    }
+    // Explicitly reach the TRUE bottom (the estimate may fall short)
+    // and sample there; repeat once because height updates after render.
+    for (let pass = 0; pass < 2 && pending.length > 0; pass++) {
+      scroller.scrollTop = scroller.scrollHeight;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      capture();
     }
     scroller.scrollTop = 0;
     return base;
