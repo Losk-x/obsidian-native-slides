@@ -28,16 +28,16 @@
  *      current one (name-collision aware), rewires the `deck` properties of
  *      both notes, and opens the new note in edit mode.
  *   8. "Toggle WYSIWYG Mode" (command + hotkey + bottom-bar button, deck
- *      notes only): an immersive mode with ZERO typography intervention —
- *      Obsidian's native Live Preview and reading view already share the
- *      same typography, so overriding it would break the WYSIWYG promise
- *      and fight user themes. The mode only does layout-level work: the
- *      tab bar and sidebars hide (Live Preview + reading view), the
- *      bottom bar shows in Live Preview too and matches the tab bar's
- *      measured height (no content-area height change when switching
- *      modes), in-note properties hide while editing, and standalone
- *      image lines are centered. Source mode and everything else stay
- *      completely native. All rules are scoped under
+ *      notes only): WYSIWYG = the Live Preview styled to match the
+ *      reading view (the reading view is the untouched reference).
+ *      Overrides apply ONLY inside WYSIWYG's Live Preview (top margin,
+ *      list indent, code-block metrics) plus layout work: tab bar and
+ *      sidebars hide (Live Preview + reading), the bottom bar shows in
+ *      Live Preview too and matches the tab bar's measured height (no
+ *      content-area height change when switching modes), in-note
+ *      properties hide while editing, standalone image lines are
+ *      centered. Source mode and the default (non-WYSIWYG) Live
+ *      Preview are completely untouched. All rules are scoped under
  *      body.native-slides-wysiwyg.
  *   9. "Debug: Dump Typography Styles" (ns-debug-styles): prints the
  *      key computed styles + CSS variables of the current view to the
