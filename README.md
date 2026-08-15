@@ -33,7 +33,7 @@
 - A **settings tab** toggles the ◀ ▶ buttons, the page number, and auto-fullscreen.
 - **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
 - **WYSIWYG mode** (_deck notes only_): an explicit immersive mode (command **Toggle WYSIWYG Mode**, default hotkey `Mod+Shift+E`, a bottom-bar button, or the settings toggle, default off). **WYSIWYG = the Live Preview styled to match the reading view** — the reading view is the untouched reference; inside WYSIWYG, Live Preview's typography is aligned to it (top margin, list indentation, code-block metrics), the **tab bar and sidebars hide** (Live Preview + reading view), the bottom bar shows in Live Preview too and matches the tab bar's measured height (no content-area height change when switching modes), the **in-note properties panel hides while editing**, and **standalone image lines are centered**. **Source mode and the default (non-WYSIWYG) Live Preview stay completely untouched.**
-- **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation, _Create Next Slide_ for deck authoring, and _Toggle WYSIWYG Mode_ — all rebindable under _Settings → Hotkeys_. _Debug: Dump Typography Styles_ samples the current note in **both** edit and reading views, computes an edit-vs-reading diff, and writes it to `.native-slides-debug.json` in the vault root (used to tune the WYSIWYG alignment).
+- **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation, _Create Next Slide_ for deck authoring, and _Toggle WYSIWYG Mode_ — all rebindable under _Settings → Hotkeys_.
 
 ## Overview page with an embedded Base view
 
@@ -56,7 +56,7 @@ Enable the core plugin if the view does not render: _Settings → Core plugins �
 
 ## Example vault
 
-The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, `broken-link-demo.md` (broken-link warning), `folded-properties-demo.md` (WYSIWYG properties demo), `typography-demo.md` (a Markdown kitchen sink — headings, lists, tasks, quotes, code blocks, tables, images — used to test WYSIWYG typography alignment), five `typography-sample-*.md` notes (fixed one-page samples consumed by the `Debug: Dump Typography Styles` command — do not rename or remove them), a minimal `.obsidian/` configuration, and a plugin folder `example-vault/.obsidian/plugins/native-slides/` whose files (`manifest.json`, `main.js`, `styles.css`) are **symlinks to the repository root** — so the example vault always runs the current build.
+The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, `broken-link-demo.md` (broken-link warning), `folded-properties-demo.md` (WYSIWYG properties demo), `typography-demo.md` (a Markdown kitchen sink — headings, lists, tasks, quotes, code blocks, tables, images — used to test WYSIWYG typography alignment), five `typography-sample-*.md` notes (fixed one-page samples consumed by the **dev-only** `Debug: Dump Typography Styles` command — do not rename or remove them), a minimal `.obsidian/` configuration, and a plugin folder `example-vault/.obsidian/plugins/native-slides/` whose files (`manifest.json`, `main.js`, `styles.css`) are **symlinks to the repository root** — so the example vault always runs the current build.
 
 > Symlinks require filesystem support (macOS/Linux work out of the box; on Windows enable Developer Mode). If symlinks are unavailable, copy `main.js`, `manifest.json`, `styles.css` into `example-vault/.obsidian/plugins/native-slides/`.
 
@@ -94,7 +94,8 @@ Run the commands from the repository root:
 
 ```sh
 npm ci             # first time only (downloads esbuild etc.)
-npm run build      # compiles main.ts → main.js
+npm run build      # compiles main.ts → main.js (dev build: debug command included)
+npm run build:release  # publish build: minified, debug command excluded
 npm run check      # optional: TypeScript type-check (tsc --noEmit)
 npm run test       # optional: vitest unit tests
 npm run lint       # optional: ESLint
@@ -110,6 +111,15 @@ npm run dev        # watch main.ts, rebuild main.js on change
 ```
 
 After editing `main.ts`, reload the plugin in Obsidian: open the command palette with `Cmd/Ctrl+P`, search for **Reload app without saving**, and run it (it has no default hotkey). Alternatively, disable/re-enable **Native Slides** under _Settings → Community plugins_.
+
+## For developers
+
+The typography-measurement tooling ships as a **dev-only** command and is excluded from release builds.
+
+- **Dev build** (`npm run build` / `npm run dev`) registers the `Debug: Dump Typography Styles` command: it samples the current note in **both** edit and reading views, computes an edit-vs-reading diff, and writes `.native-slides-debug.json` to the vault root (no manual console copy/paste). Run it on a deck note with WYSIWYG mode on; the five `typography-sample-*.md` notes in `example-vault/` are its fixed one-page fixtures — do not rename or remove them.
+- **Release build** (`npm run build:release`) minifies `main.js` and drops the debug command (and its supporting code) entirely via `--define:DEV_MODE=false` + tree-shaking. Run `npm run build` afterwards to restore the dev artifact.
+
+The source is split into `src/` modules (`types`, `mode`, `deck-service`, `bar`, `commands`, `settings`, `debug`, `deck`, `createNext`) with `main.ts` as the orchestration entry point.
 
 ## Known limitations
 

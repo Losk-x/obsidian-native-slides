@@ -4,8 +4,9 @@
   "description": "Reading-view properties bar with PPT-style deck navigation for Obsidian: one `deck` property drives prev/next and auto-computed page numbers.",
   "main": "main.js",
   "scripts": {
-    "build": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline",
-    "dev": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline --watch=forever",
+    "build": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline --define:DEV_MODE=true",
+    "build:release": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline --minify --define:DEV_MODE=false",
+    "dev": "esbuild main.ts --bundle --format=cjs --external:obsidian --outfile=main.js --sourcemap=inline --watch=forever --define:DEV_MODE=true",
     "check": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint .",
