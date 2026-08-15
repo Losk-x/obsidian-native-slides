@@ -191,6 +191,8 @@ body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-
      starts at 30px → edit list lines use the same start, no hanging
    • code blocks: edit renders at --code-size (14px) vs reading
      16px → reading uses --code-size too
+   • top margin: edit starts at 0 vs reading's 32px (--file-margins)
+     → edit gets the same top margin so the first line does not jump
    Decorations (inline-code background, quote border) intentionally
    stay per-view; standalone image lines are centered (7c). */
 body.native-slides-wysiwyg
@@ -200,6 +202,9 @@ body.native-slides-wysiwyg
   :is(p, h1, h2, h3, h4, h5, h6, ul, ol, pre, blockquote, table, hr) {
   margin-top: 0;
   margin-bottom: 1.5rem; /* 24px — one edit-view blank line */
+}
+body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content {
+  padding-top: 32px; /* matches the reading view's --file-margins top */
 }
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
