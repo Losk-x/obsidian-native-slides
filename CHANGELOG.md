@@ -12,6 +12,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 - **Create Next Slide** command: creates a new slide right after the current one — the file is named `<current>-next` (collision-aware: `-2`, `-3`, …), both `deck` properties are rewired automatically, and the new note opens in edit mode. If the current note's second `deck` link points to a missing note, that exact note is created instead (fixing the ⚠ warning); on the overview page it inserts a new first page. The command is greyed out for notes that cannot take a next slide.
 - **WYSIWYG mode** (deck notes only): explicit immersive mode — command `Toggle WYSIWYG Mode` (default hotkey `Mod+Shift+E`), bottom-bar button, or settings toggle (default off). When on, the **tab bar and sidebars hide** in both edit and reading views, the bottom bar also shows in edit view and matches the tab bar's measured height (runtime CSS variable; no content-area height change when switching modes), and **in-note properties hide while editing** (same look as reading view). Toggling from reading view jumps into the WYSIWYG edit view.
+- **WYSIWYG typography alignment (baseline)**: under WYSIWYG mode, both views get identical content width (`--file-line-width`) and scrollbar styling; finer metrics (paragraph rhythm, list indentation, code/quote padding) are tuned from the new **Debug: Dump Typography Styles** command, which prints the current view's key computed styles and CSS variables to the console for edit-vs-reading comparison.
 
 ### Changed
 

@@ -28,12 +28,17 @@
  *      current one (name-collision aware), rewires the `deck` properties of
  *      both notes, and opens the new note in edit mode.
  *   8. "Toggle WYSIWYG Mode" (command + hotkey + bottom-bar button, deck
- *      notes only): switches to unified edit/reading typography — the
- *      bottom bar also shows in edit view, reading view hides the top
- *      tab bar while the bar matches its measured height (so switching
- *      modes does not change the content-area height), and typography
- *      alignment CSS follows. All rules are scoped under
- *      body.native-slides-wysiwyg.
+ *      notes only): switches to unified edit/reading typography — an
+ *      immersive mode: the tab bar and sidebars hide in both views, the
+ *      bottom bar shows in edit view too and matches the tab bar's
+ *      measured height (no content-area height change when switching
+ *      modes), in-note properties hide while editing, and typography
+ *      alignment CSS narrows edit/reading differences. All rules are
+ *      scoped under body.native-slides-wysiwyg.
+ *   9. "Debug: Dump Typography Styles" (ns-debug-styles): prints the
+ *      key computed styles + CSS variables of the current view to the
+ *      console — run once per view and compare to tune rule 8's
+ *      typography alignment without eyeballing screenshots.
  *
  * The deck usually starts from an overview note that embeds an Obsidian Base
  * view (core "Bases" plugin) filtering notes that link to the overview page:
@@ -183,6 +188,12 @@ export default class NativeSlidesPlugin extends Plugin {
         if (!checking) this.toggleWysiwyg();
         return true;
       },
+    });
+    // 3f. Debug: dump typography computed styles for edit/reading comparison
+    this.addCommand({
+      id: "ns-debug-styles",
+      name: "Debug: Dump Typography Styles",
+      callback: () => this.debugStyles(),
     });
 
     // ── 4. Esc exits OS fullscreen → leave reading view as well ─────────
@@ -541,6 +552,160 @@ export default class NativeSlidesPlugin extends Plugin {
       void view.leaf.setViewState(state, { focus: false });
     }
     this.refresh();
+  }
+
+  /**
+   * Dump key typography computed styles + CSS variables to the console.
+   * Run once in edit view and once in reading view (same note), then compare
+   * the numbers — that is how the WYSIWYG typography alignment CSS is tuned
+   * without eyeballing screenshots.
+   */
+  private debugStyles(): void {
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (!view) {
+      new Notice("Native Slides: no active Markdown note");
+      return;
+    }
+    const isEdit = view.getMode() === "source";
+    const contentEl = view.contentEl;
+    const pick = (sel: string): HTMLElement | null => contentEl.querySelector<HTMLElement>(sel);
+    const style = (el: HTMLElement | null, props: string[]): Record<string, string> => {
+      if (!el) return {};
+      const cs = getComputedStyle(el);
+      const out: Record<string, string> = {};
+      for (const p of props) {
+        const v = cs.getPropertyValue(p).trim();
+        if (v) out[p] = v;
+      }
+      return out;
+    };
+    const vars = getComputedStyle(document.body);
+    const cssVar = (name: string): string => vars.getPropertyValue(name).trim();
+
+    const container = pick(
+      isEdit
+        ? ".markdown-source-view.mod-cm6 .cm-content"
+        : ".markdown-reading-view .markdown-preview-view",
+    );
+    const para = pick(
+      isEdit
+        ? ".markdown-source-view.mod-cm6 .cm-line"
+        : ".markdown-reading-view .markdown-preview-view p",
+    );
+    const h1 = pick(
+      isEdit
+        ? ".markdown-source-view.mod-cm6 .cm-line .cm-header-1"
+        : ".markdown-reading-view .markdown-preview-view h1",
+    );
+    const listItem = pick(
+      isEdit
+        ? ".markdown-source-view.mod-cm6 .HyperMD-list-line"
+        : ".markdown-reading-view .markdown-preview-view ul > li",
+    );
+    const pre = pick(
+      isEdit
+        ? ".markdown-source-view.mod-cm6 pre"
+        : ".markdown-reading-view .markdown-preview-view pre",
+    );
+    const quote = pick(
+      isEdit
+        ? ".markdown-source-view.mod-cm6 blockquote"
+        : ".markdown-reading-view .markdown-preview-view blockquote",
+    );
+    const inlineCode = pick(
+      isEdit
+        ? ".markdown-source-view.mod-cm6 code"
+        : ".markdown-reading-view .markdown-preview-view code",
+    );
+
+    const dump = {
+      mode: isEdit ? "edit (Live Preview)" : "reading",
+      container: style(container, [
+        "font-family",
+        "font-size",
+        "line-height",
+        "max-width",
+        "width",
+        "padding-top",
+        "padding-right",
+        "padding-bottom",
+        "padding-left",
+        "color",
+      ]),
+      paragraph: style(para, [
+        "font-size",
+        "line-height",
+        "margin-top",
+        "margin-bottom",
+        "margin-left",
+        "margin-right",
+        "text-indent",
+      ]),
+      h1: style(h1, ["font-size", "line-height", "font-weight", "margin-top", "margin-bottom"]),
+      listItem: style(listItem, [
+        "padding-left",
+        "margin-left",
+        "margin-right",
+        "text-indent",
+        "line-height",
+      ]),
+      codeBlock: style(pre, [
+        "font-size",
+        "line-height",
+        "padding-top",
+        "padding-right",
+        "padding-bottom",
+        "padding-left",
+        "background-color",
+        "border-radius",
+      ]),
+      blockquote: style(quote, [
+        "padding-top",
+        "padding-right",
+        "padding-bottom",
+        "padding-left",
+        "margin-top",
+        "margin-bottom",
+        "border-left-width",
+        "background-color",
+      ]),
+      inlineCode: style(inlineCode, [
+        "font-size",
+        "padding-top",
+        "padding-bottom",
+        "padding-left",
+        "padding-right",
+        "background-color",
+        "border-radius",
+      ]),
+      cssVariables: {
+        "--font-text": cssVar("--font-text"),
+        "--line-height-normal": cssVar("--line-height-normal"),
+        "--h1-size": cssVar("--h1-size"),
+        "--h1-line-height": cssVar("--h1-line-height"),
+        "--h1-margin-top": cssVar("--h1-margin-top"),
+        "--h1-margin-bottom": cssVar("--h1-margin-bottom"),
+        "--p-spacing": cssVar("--p-spacing"),
+        "--list-spacing": cssVar("--list-spacing"),
+        "--list-indent": cssVar("--list-indent"),
+        "--code-size": cssVar("--code-size"),
+        "--code-padding": cssVar("--code-padding"),
+        "--code-radius": cssVar("--code-radius"),
+        "--blockquote-padding": cssVar("--blockquote-padding"),
+        "--blockquote-border-thickness": cssVar("--blockquote-border-thickness"),
+        "--file-margins": cssVar("--file-margins"),
+        "--file-line-width": cssVar("--file-line-width"),
+        "--normal-font-size": cssVar("--normal-font-size"),
+        "--font-text-size": cssVar("--font-text-size"),
+      },
+    };
+    console.log(
+      "[native-slides debug-styles] " +
+        (isEdit ? "EDIT" : "READING") +
+        "\n" +
+        JSON.stringify(dump, null, 2),
+    );
+    new Notice("Typography dump → Console (Cmd+Opt+I). Run again in the other view and compare.");
   }
 }
 

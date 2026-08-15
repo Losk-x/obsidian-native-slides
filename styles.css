@@ -178,3 +178,28 @@ body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-reading-view .ma
 body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content {
   padding-bottom: var(--native-slides-tabbar-height, 38px);
 }
+
+/* ── 7. WYSIWYG typography alignment (phase 3) ───────────────
+   Baseline rules that are safe to apply without measurement: identical
+   content width and scrollbars in both views. The remaining metrics
+   (paragraph rhythm, list indentation, code/quote padding deltas) are
+   tuned from the ns-debug-styles console dumps — run it once per view
+   and compare the numbers. */
+body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content,
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-reading-view
+  .markdown-preview-view {
+  max-width: var(--file-line-width, 700px);
+}
+body.native-slides-wysiwyg .workspace-leaf.mod-active .cm-scroller::-webkit-scrollbar,
+body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-preview-view::-webkit-scrollbar {
+  width: 8px;
+}
+body.native-slides-wysiwyg .workspace-leaf.mod-active .cm-scroller::-webkit-scrollbar-thumb,
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-preview-view::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb-bg, rgba(0, 0, 0, 0.3));
+  border-radius: 4px;
+}
