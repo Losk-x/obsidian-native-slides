@@ -716,14 +716,13 @@ export default class NativeSlidesPlugin extends Plugin {
     // Frontmatter probes: does the (hidden) properties area still
     // occupy space in Live Preview? And how far is the H1 from the
     // top of the content area? (reading mode has no such padding)
-    const metadataDisplay = isEdit
-      ? (() => {
-          const el = contentEl.querySelector<HTMLElement>(
-            ".markdown-source-view .metadata-container",
-          );
-          return el ? getComputedStyle(el).display : "(not in DOM)";
-        })()
-      : undefined;
+    const metadataDisplay = (() => {
+      const sel = isEdit
+        ? ".markdown-source-view .metadata-container"
+        : ".markdown-reading-view .metadata-container";
+      const el = contentEl.querySelector<HTMLElement>(sel);
+      return el ? getComputedStyle(el).display : "(not in DOM)";
+    })();
     const h1OffsetTop = (() => {
       if (!h1) return undefined;
       let top = 0;
@@ -738,39 +737,36 @@ export default class NativeSlidesPlugin extends Plugin {
     // (edit) first children of .cm-content, and the net H1 distance
     // from the content anchor — reading has no such gap.
     const anchor = isEdit
-      ? contentEl.querySelector(".cm-content")
-      : contentEl.querySelector(".markdown-reading-view .markdown-preview-view");
+      ? contentEl.querySelector<HTMLElement>(".cm-content")
+      : contentEl.querySelector<HTMLElement>(".markdown-reading-view .markdown-preview-view");
     const h1TopInContent = (() => {
       if (!h1 || !anchor) return undefined;
       return Math.round(h1.getBoundingClientRect().top - anchor.getBoundingClientRect().top);
     })();
-    const cmContentChildren = isEdit
-      ? (() => {
-          if (!anchor) return undefined;
-          return Array.from(anchor.children)
-            .slice(0, 4)
-            .map((el) => {
-              const cs = getComputedStyle(el);
-              return {
-                cls: (el as HTMLElement).className || el.tagName.toLowerCase(),
-                display: cs.display,
-                height: Math.round(el.getBoundingClientRect().height),
-                marginTop: cs.marginTop,
-                paddingTop: cs.paddingTop,
-                marginBottom: cs.marginBottom,
-                paddingBottom: cs.paddingBottom,
-              };
-            });
-        })()
-      : undefined;
+    const contentChildren = (() => {
+      if (!anchor) return undefined;
+      return Array.from(anchor.children)
+        .slice(0, 4)
+        .map((el) => {
+          const cs = getComputedStyle(el);
+          return {
+            cls: (el as HTMLElement).className || el.tagName.toLowerCase(),
+            display: cs.display,
+            height: Math.round(el.getBoundingClientRect().height),
+            marginTop: cs.marginTop,
+            paddingTop: cs.paddingTop,
+            marginBottom: cs.marginBottom,
+            paddingBottom: cs.paddingBottom,
+          };
+        });
+    })();
     // Container chain probe: from .cm-content up to the view-content,
     // each wrapper's padding/margin — locates the leftover vertical
     // offset between edit and reading content areas.
     const topChain = (() => {
-      const cc = contentEl.querySelector<HTMLElement>(".cm-content");
-      if (!cc) return undefined;
+      if (!anchor) return undefined;
       const parts: { cls: string; padTop: string; marTop: string }[] = [];
-      let node: HTMLElement | null = cc;
+      let node: HTMLElement | null = anchor;
       while (node && node !== contentEl && node !== document.body) {
         const cs = getComputedStyle(node);
         parts.push({
@@ -791,11 +787,11 @@ export default class NativeSlidesPlugin extends Plugin {
       sourceViewClass: isEdit ? sourceViewClass : undefined,
       livePreview: isEdit ? this.isLivePreview() : undefined,
       listLines: isEdit ? listLines : undefined,
-      metadataContainerDisplay: isEdit ? metadataDisplay : undefined,
+      metadataContainerDisplay: metadataDisplay,
       h1OffsetTop: h1OffsetTop,
       h1TopInContent: h1TopInContent,
-      cmContentChildren: cmContentChildren,
-      topChain: isEdit ? topChain : undefined,
+      contentChildren: contentChildren,
+      topChain: topChain,
       container: style(container, [
         "font-family",
         "font-size",
@@ -1062,7 +1058,7 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     "metadataContainerDisplay",
     "h1OffsetTop",
     "h1TopInContent",
-    "cmContentChildren",
+    "contentChildren",
     "topChain",
   ]) {
     const probe = sample[key];
