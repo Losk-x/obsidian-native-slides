@@ -646,6 +646,15 @@ export default class NativeSlidesPlugin extends Plugin {
       isEdit ? ".markdown-source-view.mod-cm6 table" : ".markdown-reading-view table",
       isEdit ? ".cm-line table" : ".markdown-reading-view .markdown-preview-view table",
     ]);
+    const img = pick([
+      isEdit ? ".markdown-source-view.mod-cm6 img" : ".markdown-reading-view img",
+      isEdit ? ".cm-line img" : ".markdown-reading-view .markdown-preview-view img",
+    ]);
+    const hr = pick([
+      isEdit ? ".markdown-source-view.mod-cm6 hr" : ".markdown-reading-view hr",
+      isEdit ? ".cm-line hr" : ".markdown-reading-view .markdown-preview-view hr",
+      isEdit ? ".cm-hr" : ".markdown-preview-view hr",
+    ]);
 
     // Structure probes (edit view only): the source-view class list
     // (confirms the Live Preview marker class) and unique element tags
@@ -738,6 +747,8 @@ export default class NativeSlidesPlugin extends Plugin {
         "border-radius",
       ]),
       table: style(table, ["font-size", "line-height", "width", "border-collapse"]),
+      image: style(img, ["display", "margin-left", "margin-right", "max-width", "width"]),
+      horizontalRule: style(hr, ["margin-top", "margin-bottom", "border-top-width", "height"]),
       cssVariables: {
         "--font-text": cssVar("--font-text"),
         "--line-height-normal": cssVar("--line-height-normal"),
@@ -776,7 +787,7 @@ export default class NativeSlidesPlugin extends Plugin {
     const scroller = view.contentEl.querySelector<HTMLElement>(".cm-scroller");
     if (!scroller || scroller.scrollHeight - scroller.clientHeight <= 0) return base;
 
-    const pending = ["codeBlock", "blockquote", "table"];
+    const pending = ["codeBlock", "blockquote", "table", "image", "horizontalRule"];
     const capture = (): void => {
       const s = this.sampleStyles();
       if (!s) return;
@@ -791,18 +802,23 @@ export default class NativeSlidesPlugin extends Plugin {
     capture(); // the initial viewport may already contain a target
     // CM6's scrollHeight is an estimate (virtual rendering) that gets
     // updated while scrolling — recompute the range at every step.
-    for (let i = 1; i <= 12 && pending.length > 0; i++) {
+    // The sweep always runs to the end (no early exit) so the user
+    // sees the full scroll and bottom elements are always reached.
+    for (let i = 1; i <= 8; i++) {
       const max = scroller.scrollHeight - scroller.clientHeight;
-      scroller.scrollTop = max > 0 ? (max * i) / 12 : 0;
+      scroller.scrollTop = max > 0 ? (max * i) / 8 : 0;
       await new Promise((resolve) => setTimeout(resolve, 250));
       capture();
     }
-    // Explicitly reach the TRUE bottom (the estimate may fall short)
-    // and sample there; repeat once because height updates after render.
-    for (let pass = 0; pass < 2 && pending.length > 0; pass++) {
+    // Explicitly reach the TRUE bottom (the estimate may fall short):
+    // keep setting scrollTop = scrollHeight until it stops moving.
+    let prevTop = -1;
+    for (let pass = 0; pass < 8; pass++) {
       scroller.scrollTop = scroller.scrollHeight;
-      await new Promise((resolve) => setTimeout(resolve, 250));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       capture();
+      if (scroller.scrollTop === prevTop) break;
+      prevTop = scroller.scrollTop;
     }
     scroller.scrollTop = 0;
     return base;
@@ -966,6 +982,8 @@ function diffDumps(
     "blockquote",
     "inlineCode",
     "table",
+    "image",
+    "horizontalRule",
   ];
   for (const section of sections) {
     const e = (edit[section] ?? {}) as Record<string, string>;
