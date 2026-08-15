@@ -33,7 +33,8 @@
 - A **settings tab** toggles the ◀ ▶ buttons, the page number, and auto-fullscreen.
 - **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
 - **WYSIWYG**: for deck (card) notes, the in-note properties panel is **always hidden** in Live Preview — the same look as reading view. Properties are edited in the right-sidebar **Properties** view (auto-opened the first time a deck note is activated in a session) or in Source mode. Toggleable in settings.
-- **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation and _Create Next Slide_ for deck authoring — all rebindable under _Settings → Hotkeys_.
+- **WYSIWYG mode** (_deck notes only_): an explicit mode (command **Toggle WYSIWYG Mode**, default hotkey `Mod+Shift+W`, a bottom-bar button, or the settings toggle) that unifies typography between edit and reading views — the mode switch ships first, with the tab-bar symmetry and typography alignment following in later phases.
+- **Commands**: _Toggle Properties Bar_ and _Pause/Resume Auto Fullscreen_ (both persist), plus _Previous Page / Next Page_ for deck navigation, _Create Next Slide_ for deck authoring, and _Toggle WYSIWYG Mode_ — all rebindable under _Settings → Hotkeys_.
 
 ## Overview page with an embedded Base view
 

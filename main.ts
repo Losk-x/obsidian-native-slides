@@ -27,6 +27,10 @@
  *   7. "Create Next Slide" command: creates a new slide right after the
  *      current one (name-collision aware), rewires the `deck` properties of
  *      both notes, and opens the new note in edit mode.
+ *   8. "Toggle WYSIWYG Mode" (command + hotkey + bottom-bar button, deck
+ *      notes only): switches to unified edit/reading typography — later
+ *      phases add the tab-bar symmetry and the typography CSS scoped
+ *      under body.native-slides-wysiwyg.
  *
  * The deck usually starts from an overview note that embeds an Obsidian Base
  * view (core "Bases" plugin) filtering notes that link to the overview page:
@@ -61,6 +65,8 @@ interface NativeSlidesSettings {
   autoFullscreen: boolean;
   /** Hide a folded properties panel completely in Live Preview for deck notes */
   hideCardPropertiesInEdit: boolean;
+  /** WYSIWYG mode (unified edit/reading typography) — deck notes only */
+  wysiwygMode: boolean;
 }
 
 const DEFAULT_SETTINGS: NativeSlidesSettings = {
@@ -69,6 +75,7 @@ const DEFAULT_SETTINGS: NativeSlidesSettings = {
   barHidden: false,
   autoFullscreen: true,
   hideCardPropertiesInEdit: true,
+  wysiwygMode: false,
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
@@ -163,6 +170,20 @@ export default class NativeSlidesPlugin extends Plugin {
         return true;
       },
     });
+    // 3e. Toggle WYSIWYG mode — unified edit/reading typography (deck notes only)
+    this.addCommand({
+      id: "ns-toggle-wysiwyg",
+      name: "Toggle WYSIWYG Mode",
+      hotkeys: [{ modifiers: ["Mod", "Shift"], key: "W" }],
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (!file) return false;
+        const fm = this.frontmatterOf(file);
+        if (fm === null || !(DECK_KEY in fm)) return false;
+        if (!checking) this.toggleWysiwyg();
+        return true;
+      },
+    });
 
     // ── 4. Esc exits OS fullscreen → leave reading view as well ─────────
     // Keeps internal state in sync when the user presses Esc; also switches
@@ -196,6 +217,7 @@ export default class NativeSlidesPlugin extends Plugin {
     // Leave OS fullscreen and drop the fullscreen class so no UI residue remains
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
     document.body.classList.remove("native-slides-fullscreen");
+    document.body.classList.remove("native-slides-wysiwyg");
   }
 
   // ── Settings ──────────────────────────────────────────────────────────
@@ -384,6 +406,9 @@ export default class NativeSlidesPlugin extends Plugin {
       "native-slides-card",
       isCard && this.settings.hideCardPropertiesInEdit,
     );
+    // WYSIWYG mode body class — unified edit/reading typography CSS
+    // (deck notes only; the typography rules land in later phases)
+    document.body.classList.toggle("native-slides-wysiwyg", isCard && this.settings.wysiwygMode);
 
     // WYSIWYG: once per session, open the right-sidebar Properties view when a
     // card note is activated in edit mode — a gentle hint that its (hidden)
@@ -448,6 +473,16 @@ export default class NativeSlidesPlugin extends Plugin {
       this.bar.appendChild(warn);
     }
 
+    // ── Bottom-right: WYSIWYG mode toggle (deck notes only) ──
+    if (isCard) {
+      const btn = document.createElement("button");
+      btn.className = "native-slides-wysiwyg-btn" + (this.settings.wysiwygMode ? " is-active" : "");
+      btn.textContent = this.settings.wysiwygMode ? "WYSIWYG: On" : "WYSIWYG: Off";
+      btn.title = "Toggle WYSIWYG mode — unified typography between edit and reading";
+      btn.addEventListener("click", () => this.toggleWysiwyg());
+      this.bar.appendChild(btn);
+    }
+
     // ── Bottom-right: auto-computed page number ──
     if (this.settings.showPageNumber && deck) {
       const page = document.createElement("span");
@@ -492,6 +527,13 @@ export default class NativeSlidesPlugin extends Plugin {
     } else if (document.fullscreenElement) {
       document.exitFullscreen?.().catch(() => {});
     }
+  }
+
+  /** Toggle the WYSIWYG mode (persisted; only reachable on deck notes) */
+  private toggleWysiwyg(): void {
+    this.settings.wysiwygMode = !this.settings.wysiwygMode;
+    void this.saveSettings();
+    this.refresh();
   }
 }
 
@@ -554,6 +596,19 @@ class NativeSlidesSettingTab extends PluginSettingTab {
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.hideCardPropertiesInEdit).onChange(async (value) => {
           this.plugin.settings.hideCardPropertiesInEdit = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName("WYSIWYG mode (deck notes)")
+      .setDesc(
+        "Unified typography between edit and reading views for deck notes (tab bar hides in reading; the bottom bar takes its place). Toggle from the command palette, the Mod+Shift+W hotkey, or the bottom-bar button.",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.wysiwygMode).onChange(async (value) => {
+          this.plugin.settings.wysiwygMode = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
         }),
