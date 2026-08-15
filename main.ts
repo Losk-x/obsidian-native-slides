@@ -755,10 +755,33 @@ export default class NativeSlidesPlugin extends Plugin {
                 cls: (el as HTMLElement).className || el.tagName.toLowerCase(),
                 display: cs.display,
                 height: Math.round(el.getBoundingClientRect().height),
+                marginTop: cs.marginTop,
+                paddingTop: cs.paddingTop,
+                marginBottom: cs.marginBottom,
+                paddingBottom: cs.paddingBottom,
               };
             });
         })()
       : undefined;
+    // Container chain probe: from .cm-content up to the view-content,
+    // each wrapper's padding/margin — locates the leftover vertical
+    // offset between edit and reading content areas.
+    const topChain = (() => {
+      const cc = contentEl.querySelector<HTMLElement>(".cm-content");
+      if (!cc) return undefined;
+      const parts: { cls: string; padTop: string; marTop: string }[] = [];
+      let node: HTMLElement | null = cc;
+      while (node && node !== contentEl && node !== document.body) {
+        const cs = getComputedStyle(node);
+        parts.push({
+          cls: node.className || node.tagName.toLowerCase(),
+          padTop: cs.paddingTop,
+          marTop: cs.marginTop,
+        });
+        node = node.parentElement;
+      }
+      return parts;
+    })();
 
     const dump = {
       mode: isEdit ? "edit (Live Preview)" : "reading",
@@ -772,6 +795,7 @@ export default class NativeSlidesPlugin extends Plugin {
       h1OffsetTop: h1OffsetTop,
       h1TopInContent: h1TopInContent,
       cmContentChildren: cmContentChildren,
+      topChain: isEdit ? topChain : undefined,
       container: style(container, [
         "font-family",
         "font-size",
@@ -1039,6 +1063,7 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     "h1OffsetTop",
     "h1TopInContent",
     "cmContentChildren",
+    "topChain",
   ]) {
     const probe = sample[key];
     if (probe === undefined || probe === null) continue;
