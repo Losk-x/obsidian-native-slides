@@ -183,3 +183,16 @@ body.native-slides-mode
   margin-left: auto;
   margin-right: auto;
 }
+
+/* ── 8. Slides mode: one screen = one card ─────────────────
+   The Live Preview's scroll container clips to exactly one viewport: no
+   scrollbar, content beyond the fold is clipped. The container is viewport-
+   height and overflow:hidden is declarative, so the clip boundary re-syncs
+   automatically on window resize and theme/CSS changes (no JS). Obsidian's
+   native editor bottom padding keeps the last line clear of the bar. */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-scroller {
+  overflow: hidden;
+}
