@@ -234,3 +234,17 @@ body.native-slides-wysiwyg
   padding-left: calc(var(--list-indent) - 0.375em);
   text-indent: 0;
 }
+
+/* ── 7c. Images: standalone image lines are centered in both views ──
+   (a standalone image = the only child of its line/paragraph) */
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6
+  .cm-line:has(> img),
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-reading-view
+  .markdown-preview-view
+  p:has(> img) {
+  text-align: center;
+}
