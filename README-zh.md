@@ -33,12 +33,13 @@
   - 点底栏左侧 ◀ ▶ 按钮翻页，或用 **上一页 / 下一页** 命令
     （默认快捷键 `Cmd/Ctrl+Shift+←/→`，可在 **设置 → 快捷键** 重新绑定）。
     两个箭头始终显示；无法移动的那一个（第一页的 ◀、最后一页的 ▶）为浅灰色禁用态。
+  - **Create Next Slide 命令**：在当前笔记之后创建一张新幻灯片——新文件命名为 `<当前名>-next`（重名自动追加 `-2`、`-3`），两张笔记的 `deck` 属性自动改写，新笔记以编辑模式打开，可直接输入内容。若当前笔记的第二个 `deck` 链接指向不存在的笔记，则直接创建那个声明的笔记（顺带消除 ⚠ 警告）；在概览页上执行则插入一张新的**第一页**。不适用（无 deck / 无法插入）时命令在面板中置灰。
   - 翻页后仍停留在阅读模式，沉浸式全屏体验不中断。
 
 - **设置页**：可开关 ◀ ▶ 按钮、页号显示与自动全屏。
 - **断链警告**：`deck` 链接指向不存在的笔记时，底栏显示 ⚠ 警告标签，方便作者发现笔误（该链只会终止或排除，不会报错）。
 - **WYSIWYG**：对 deck（卡片）笔记，实时预览中的笔记内属性面板**始终隐藏**——与阅读模式观感一致。属性改在右侧栏 **Properties** 面板编辑（会话内首次激活 deck 笔记时自动打开）或源码模式。可在设置中开关。
-- **命令**：_Toggle Properties Bar_ 与 _Pause/Resume Auto Fullscreen_（均持久化），以及套件翻页的 _Previous Page / Next Page_——都可在 _设置 → 快捷键_ 重新绑定。
+- **命令**：_Toggle Properties Bar_ 与 _Pause/Resume Auto Fullscreen_（均持久化），套件翻页的 _Previous Page / Next Page_，以及建页用的 _Create Next Slide_——都可在 _设置 → 快捷键_ 重新绑定。
 
 ## 概览页与内置 Base 视图
 
@@ -80,17 +81,18 @@ views:
 
 ## 工作原理
 
-| 部分                         | 原理                                                                                                                                                           |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 隐藏状态栏                   | `styles.css`：`.status-bar { display: none !important; }`                                                                                                      |
-| 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                |
-| 空底栏隐藏                   | `refresh()` 无可显示属性（除 `deck`/`position` 外的 frontmatter 为空）时不渲染内容；套件页仍显示导航与页号                                                     |     |
-| 全屏阅读模式                 | `refresh()` 检测到阅读模式即给 `body` 加 `native-slides-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏 |
-| Esc 退出全屏 + 阅读模式      | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发）                   |
-| 套件解析                     | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                      |
-| 页号                         | 链中的位置：索引 0 = "Overview"，放映页 = "Page N"；不需要存储 `page-number`                                                                                   |
-| PPT 翻页                     | `navigate()` 沿链步进，用 `workspace.openLinkText` 打开，保持阅读模式                                                                                          |
-| 设置                         | `PluginSettingTab` + `loadData/saveData` 持久化开关；快捷键走 Obsidian 原生命令系统                                                                            |
+| 部分                         | 原理                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 隐藏状态栏                   | `styles.css`：`.status-bar { display: none !important; }`                                                                                                           |
+| 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                     |
+| 空底栏隐藏                   | `refresh()` 无可显示属性（除 `deck`/`position` 外的 frontmatter 为空）时不渲染内容；套件页仍显示导航与页号                                                          |     |
+| 全屏阅读模式                 | `refresh()` 检测到阅读模式即给 `body` 加 `native-slides-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏      |
+| Esc 退出全屏 + 阅读模式      | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发）                        |
+| 套件解析                     | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                           |
+| 页号                         | 链中的位置：索引 0 = "Overview"，放映页 = "Page N"；不需要存储 `page-number`                                                                                        |
+| PPT 翻页                     | `navigate()` 沿链步进，用 `workspace.openLinkText` 打开，保持阅读模式                                                                                               |
+| Create Next Slide            | `planCreateNext()`（纯逻辑核心）算出新文件名、新笔记的 `deck` 链接与改写方案；命令用 `vault.create` + `fileManager.processFrontMatter` 执行，并在编辑模式打开新笔记 |
+| 设置                         | `PluginSettingTab` + `loadData/saveData` 持久化开关；快捷键走 Obsidian 原生命令系统                                                                                 |
 
 ## 开发
 

@@ -6,6 +6,6 @@ deck: ["[[overview]]"]
 
 This is the last page — its `deck` has only **one link** (the overview page), so the ▶ button is shown **disabled (light gray)**.
 
-**Add a new page?** Copy this file, point its `deck` at the overview + the next slide, and update the previous slide's second link.
+**Add a new page?** Run the **Create Next Slide** command (command palette) — a new slide `slide-3-next.md` is created after this one, both `deck` properties are rewired automatically, and the new note opens in edit mode.
 
 - Overview ◀ Slide 1 ◀ Slide 2 ◀ Slide 3

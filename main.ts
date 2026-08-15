@@ -24,6 +24,9 @@
  *      Page" commands are registered (default hotkeys Mod+Shift+← / Mod+Shift+→,
  *      rebindable under Settings → Hotkeys).
  *   6. A settings tab toggles the ◀ ▶ buttons and the page number.
+ *   7. "Create Next Slide" command: creates a new slide right after the
+ *      current one (name-collision aware), rewires the `deck` properties of
+ *      both notes, and opens the new note in edit mode.
  *
  * The deck usually starts from an overview note that embeds an Obsidian Base
  * view (core "Bases" plugin) filtering notes that link to the overview page:
@@ -42,8 +45,9 @@
  *   .frontmatter returns the parsed properties, updated automatically on save.
  */
 
-import { Plugin, MarkdownView, TFile, PluginSettingTab, Setting } from "obsidian";
-import { computeDeck, extractLinks, formatValue, type DeckInfo } from "./src/deck";
+import { MarkdownView, Notice, Plugin, PluginSettingTab, Setting, TFile } from "obsidian";
+import { planCreateNext, type CreateNextResult } from "./src/createNext";
+import { computeDeck, extractLinks, extractRawLinks, formatValue, type DeckInfo } from "./src/deck";
 
 /** Plugin settings */
 interface NativeSlidesSettings {
@@ -145,6 +149,20 @@ export default class NativeSlidesPlugin extends Plugin {
       hotkeys: [{ modifiers: ["Mod", "Shift"], key: "ArrowRight" }],
       callback: () => this.navigate("next"),
     });
+    // 3d. Create Next Slide — new slide after the current one (deck notes only)
+    this.addCommand({
+      id: "ns-create-next",
+      name: "Create Next Slide",
+      // Greyed out in the palette unless the active note can take a next slide
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveFile();
+        if (!file) return false;
+        const plan = this.planCreateNext(file);
+        if (!plan) return false;
+        if (!checking) void this.executeCreateNext(file, plan);
+        return true;
+      },
+    });
 
     // ── 4. Esc exits OS fullscreen → leave reading view as well ─────────
     // Keeps internal state in sync when the user presses Esc; also switches
@@ -214,6 +232,86 @@ export default class NativeSlidesPlugin extends Plugin {
     const fm = this.frontmatterOf(file);
     const names = fm ? extractLinks(fm[DECK_KEY]) : [];
     return names.filter((name) => !this.app.metadataCache.getFirstLinkpathDest(name, file.path));
+  }
+
+  // ── Create Next Slide ────────────────────────────────────────────────
+
+  /**
+   * Plan a "Create Next Slide" run for the active note, or null when the
+   * note cannot take a next slide (no usable `deck` property).
+   *
+   * Slides on the chain insert/append after the current note; the overview
+   * page inserts a new first page; an off-chain note with a resolvable
+   * overview link still gets its declared missing next note created.
+   */
+  private planCreateNext(file: TFile): CreateNextResult | null {
+    const fm = this.frontmatterOf(file);
+    const raw = fm ? extractRawLinks(fm[DECK_KEY]) : [];
+    if (raw.length === 0) return null;
+
+    const deck = this.computeDeck(file);
+    const existingNames = new Set(this.app.vault.getMarkdownFiles().map((f) => f.basename));
+
+    if (deck) {
+      // Overview insertion needs the old first page's back link to the
+      // overview (its own frontmatter only links forward).
+      let overviewBackLink: string | undefined;
+      if (deck.index === 0) {
+        const oldFirst = deck.chain[1] ? this.app.vault.getAbstractFileByPath(deck.chain[1]) : null;
+        if (oldFirst instanceof TFile) {
+          const f2 = this.frontmatterOf(oldFirst);
+          overviewBackLink = f2 ? extractRawLinks(f2[DECK_KEY])[0] : undefined;
+        }
+      }
+      return planCreateNext({
+        currentName: file.basename,
+        currentLinks: raw,
+        isOverview: deck.index === 0,
+        overviewBackLink,
+        existingNames,
+      });
+    }
+
+    // Off-chain note: still create its declared missing next note when the
+    // overview link resolves (the ⚠ broken-link warning disappears).
+    const overviewName = raw.length >= 2 ? extractLinks(raw[0])[0] : null;
+    if (overviewName && this.app.metadataCache.getFirstLinkpathDest(overviewName, file.path)) {
+      return planCreateNext({
+        currentName: file.basename,
+        currentLinks: raw,
+        isOverview: false,
+        existingNames,
+      });
+    }
+    return null;
+  }
+
+  /** Apply a plan: create the note, rewire `deck` properties, open it */
+  private async executeCreateNext(file: TFile, plan: CreateNextResult): Promise<void> {
+    const dir = file.parent?.path ? file.parent.path + "/" : "";
+    const newPath = `${dir}${plan.newName}.md`;
+    const frontmatter = plan.newDeckLinks.map((link) => JSON.stringify(link)).join(", ");
+    const content = `---\ndeck: [${frontmatter}]\n---\n`;
+
+    let newFile: TFile;
+    try {
+      newFile = await this.app.vault.create(newPath, content);
+    } catch (error) {
+      new Notice(`Native Slides: could not create "${plan.newName}.md" (${String(error)})`);
+      return;
+    }
+
+    // Rewire the current note's `deck` (keeps all other properties intact)
+    for (const rewrite of plan.rewrites) {
+      if (rewrite.name !== file.basename) continue; // in practice always the current note
+      await this.app.fileManager.processFrontMatter(file, (fm) => {
+        fm[DECK_KEY] = rewrite.deck;
+      });
+    }
+
+    // Open the new note in the current pane, edit mode (Live Preview)
+    const leaf = this.app.workspace.getLeaf(false);
+    await leaf.openFile(newFile, { state: { mode: "source" } });
   }
 
   /** Open the built-in "Properties view: Show file properties" panel */

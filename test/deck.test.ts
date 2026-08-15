@@ -4,6 +4,7 @@ import {
   computeDeck,
   extractLinkText,
   extractLinks,
+  extractRawLinks,
   formatValue,
 } from "../src/deck";
 
@@ -39,6 +40,43 @@ describe("extractLinks", () => {
 
   it("honors a custom max", () => {
     expect(extractLinks(["[[a]]", "[[b]]"], 1)).toEqual(["a"]);
+  });
+});
+
+// ── extractRawLinks ───────────────────────────────────────────────────────
+
+describe("extractRawLinks", () => {
+  it("returns the raw link strings exactly as written", () => {
+    expect(extractRawLinks(["[[overview]]", "[[slide-2|alias]]"])).toEqual([
+      "[[overview]]",
+      "[[slide-2|alias]]",
+    ]);
+  });
+
+  it("accepts a single string", () => {
+    expect(extractRawLinks("[[slide-2]]")).toEqual(["[[slide-2]]"]);
+  });
+
+  it("flattens nested arrays from unquoted [[x]] values", () => {
+    expect(extractRawLinks([["overview"], ["slide-2"]])).toEqual(["overview", "slide-2"]);
+  });
+
+  it("trims whitespace and drops empty strings", () => {
+    expect(extractRawLinks(["  [[slide-2]]  ", "", "  "])).toEqual(["[[slide-2]]"]);
+  });
+
+  it("skips non-string entries", () => {
+    expect(extractRawLinks([42, "[[a]]", { x: 1 }])).toEqual(["[[a]]"]);
+  });
+
+  it("caps at MAX_DECK_LINKS", () => {
+    expect(extractRawLinks(["[[a]]", "[[b]]", "[[c]]"])).toEqual(["[[a]]", "[[b]]"]);
+  });
+
+  it("returns [] for null/undefined/empty", () => {
+    expect(extractRawLinks(null)).toEqual([]);
+    expect(extractRawLinks(undefined)).toEqual([]);
+    expect(extractRawLinks("")).toEqual([]);
   });
 });
 
