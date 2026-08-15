@@ -642,6 +642,10 @@ export default class NativeSlidesPlugin extends Plugin {
         ? ".markdown-source-view.mod-cm6 .cm-inline-code"
         : ".markdown-reading-view .markdown-preview-view code",
     ]);
+    const table = pick([
+      isEdit ? ".markdown-source-view.mod-cm6 table" : ".markdown-reading-view table",
+      isEdit ? ".cm-line table" : ".markdown-reading-view .markdown-preview-view table",
+    ]);
 
     // Structure probes (edit view only): the source-view class list
     // (confirms the Live Preview marker class) and unique element tags
@@ -733,6 +737,7 @@ export default class NativeSlidesPlugin extends Plugin {
         "background-color",
         "border-radius",
       ]),
+      table: style(table, ["font-size", "line-height", "width", "border-collapse"]),
       cssVariables: {
         "--font-text": cssVar("--font-text"),
         "--line-height-normal": cssVar("--line-height-normal"),
@@ -758,6 +763,40 @@ export default class NativeSlidesPlugin extends Plugin {
   }
 
   /**
+   * Sample the current view, then (edit views only) auto-scroll through
+   * the document to capture elements CodeMirror's virtual rendering
+   * keeps out of the DOM (code blocks, quotes, tables) — no manual
+   * scrolling needed. The scroller ends back at the top.
+   */
+  private async sampleStylesScrolled(): Promise<Record<string, unknown> | null> {
+    const base = this.sampleStyles();
+    if (!base) return null;
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    if (!view || view.getMode() !== "source") return base;
+    const scroller = view.contentEl.querySelector<HTMLElement>(".cm-scroller");
+    if (!scroller) return base;
+    const max = scroller.scrollHeight - scroller.clientHeight;
+    if (max <= 0) return base;
+
+    const pending = ["codeBlock", "blockquote", "table"];
+    for (let i = 1; i <= 10 && pending.length > 0; i++) {
+      scroller.scrollTop = (max * i) / 10;
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const s = this.sampleStyles();
+      if (!s) continue;
+      for (const key of [...pending]) {
+        const section = s[key] as Record<string, string> | undefined;
+        if (section && !("(missing)" in section)) {
+          (base as Record<string, unknown>)[key] = section;
+          pending.splice(pending.indexOf(key), 1);
+        }
+      }
+    }
+    scroller.scrollTop = 0;
+    return base;
+  }
+
+  /**
    * Debug typography: samples the current view, flips to the other mode
    * (edit ↔ reading) and samples again, computes a diff, then writes
    * everything to .native-slides-debug.json in the vault root — the
@@ -771,7 +810,7 @@ export default class NativeSlidesPlugin extends Plugin {
     }
     const startMode = view.getMode();
     if (startMode !== "source" && startMode !== "preview") return;
-    const first = this.sampleStyles();
+    const first = await this.sampleStylesScrolled();
     if (!first) return;
 
     // Flip to the other mode (auto-fullscreen would disturb sampling)
@@ -781,7 +820,7 @@ export default class NativeSlidesPlugin extends Plugin {
     state.state = { ...state.state, mode: startMode === "preview" ? "source" : "preview" };
     await view.leaf.setViewState(state, { focus: false });
     await new Promise((resolve) => setTimeout(resolve, 800));
-    const second = this.sampleStyles();
+    const second = await this.sampleStylesScrolled();
     if (!second) {
       this.settings.autoFullscreen = savedFullscreen;
       return;
@@ -914,6 +953,7 @@ function diffDumps(
     "codeBlock",
     "blockquote",
     "inlineCode",
+    "table",
   ];
   for (const section of sections) {
     const e = (edit[section] ?? {}) as Record<string, string>;
