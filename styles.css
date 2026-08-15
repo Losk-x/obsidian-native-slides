@@ -180,12 +180,46 @@ body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-
   padding-bottom: var(--native-slides-tabbar-height, 38px) !important;
 }
 
-/* ── 7. WYSIWYG minimal style intervention ───────────────────
-   Principle: keep Obsidian's default typography in both views —
-   edit and reading already look nearly identical, and other themes /
-   plugins may restyle text, formulas and code blocks. Only standalone
-   image lines are centered (they differ per view). The ns-debug-styles
-   command remains available for future measurement. */
+/* ── 7. WYSIWYG geometry alignment (edit = reference) ───────
+   Aligns the two views' GEOMETRY (margins, padding, indentation,
+   type metrics) while leaving decoration (backgrounds, borders,
+   colors) untouched so themes and plugins stay compatible.
+   Measured via ns-debug-styles (2026-08):
+   • block rhythm: edit separates blocks with a 24px blank line
+     (line-height) vs reading's 16px margins → reading uses 1.5rem
+   • list indent: edit hangs the marker (0/23px) while reading
+     starts at 30px → edit list lines use the same start, no hanging
+   • code blocks: edit renders at --code-size (14px) vs reading
+     16px → reading uses --code-size too
+   Decorations (inline-code background, quote border) intentionally
+   stay per-view; standalone image lines are centered (7c). */
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-reading-view
+  .markdown-preview-view
+  :is(p, h1, h2, h3, h4, h5, h6, ul, ol, pre, blockquote, table, hr) {
+  margin-top: 0;
+  margin-bottom: 1.5rem; /* 24px — one edit-view blank line */
+}
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6
+  .HyperMD-list-line {
+  /* !important: Obsidian styles list lines with a higher priority */
+  padding-left: calc(var(--list-indent) - 0.375em) !important;
+  text-indent: 0 !important;
+}
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-reading-view
+  .markdown-preview-view
+  pre {
+  font-size: var(--code-size, 0.875em);
+  line-height: 1.5;
+}
+
+/* ── 7c. Images: standalone image lines are centered in both views ──
+   (a standalone image = the only child of its line/paragraph) */
 body.native-slides-wysiwyg
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6
