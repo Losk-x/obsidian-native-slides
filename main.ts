@@ -30,7 +30,7 @@ import { formatValue } from "./src/deck";
 import { activeFrontmatter, currentMode, frontmatterOf, isLivePreview } from "./src/mode";
 import { NativeSlidesSettingTab } from "./src/settings";
 import { DECK_KEY, DEFAULT_SETTINGS, type NativeSlidesSettings } from "./src/types";
-import { clearChildren, lockScroller, unlockScroller } from "./src/utils";
+import { clearChildren } from "./src/utils";
 
 export default class NativeSlidesPlugin extends Plugin {
   /** The properties bar DOM element */
@@ -52,8 +52,6 @@ export default class NativeSlidesPlugin extends Plugin {
   private lastKey = "";
   /** Last measured tab-bar height (px) — cached while the bar is hidden */
   private tabBarHeight = 0;
-  /** Editor scroller currently pinned to one screen (null when unpinned) */
-  private pinnedScroller: HTMLElement | null = null;
 
   async onload(): Promise<void> {
     await this.loadSettings();
@@ -91,7 +89,28 @@ export default class NativeSlidesPlugin extends Plugin {
     // ── 3. Commands ─────────────────────────────────────────────────────
     registerCommands(this);
 
-    // ── 4. Create the bar and do the first render ───────────────────────
+    // ── 4. Pin the Slides editor to one screen ───────────────────────────
+    // CSS `overflow: hidden` blocks the wheel, but native drag-select
+    // autoscroll and CodeMirror's programmatic scrollIntoView still move the
+    // scroller. This capture-phase listener resets any scroll inside the
+    // active markdown view back to the top while Slides mode is active.
+    this.registerDomEvent(
+      document,
+      "scroll",
+      (evt) => {
+        if (!document.body.classList.contains("native-slides-mode")) return;
+        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+        if (!view) return;
+        const el = evt.target;
+        if (el instanceof HTMLElement && view.contentEl.contains(el)) {
+          if (el.scrollTop !== 0) el.scrollTop = 0;
+          if (el.scrollLeft !== 0) el.scrollLeft = 0;
+        }
+      },
+      { capture: true },
+    );
+
+    // ── 5. Create the bar and do the first render ───────────────────────
     this.bar = createBar();
     document.body.appendChild(this.bar);
     this.refresh();
@@ -100,10 +119,6 @@ export default class NativeSlidesPlugin extends Plugin {
   onunload(): void {
     this.bar?.remove();
     this.bar = null;
-    if (this.pinnedScroller) {
-      unlockScroller(this.pinnedScroller);
-      this.pinnedScroller = null;
-    }
     document.body.classList.remove("native-slides-mode");
   }
 
@@ -174,24 +189,6 @@ export default class NativeSlidesPlugin extends Plugin {
     }
   }
 
-  /**
-   * Pin (or unpin) the active editor's scroller so Slides mode is exactly one
-   * screen: no manual scroll and no CodeMirror programmatic scrollIntoView
-   * (edit / drag-select). Unpinned when leaving Slides mode so native modes
-   * scroll normally.
-   */
-  private syncScrollerPin(slides: boolean): void {
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    const scroller = slides
-      ? (view?.contentEl.querySelector<HTMLElement>(".cm-scroller") ?? null)
-      : null;
-    if (scroller === this.pinnedScroller) return;
-
-    if (this.pinnedScroller) unlockScroller(this.pinnedScroller);
-    if (scroller) lockScroller(scroller);
-    this.pinnedScroller = scroller;
-  }
-
   // ── PPT navigation ────────────────────────────────────────────────────
 
   /** Move one step back/forward along the deck chain (entering Slides mode as needed) */
@@ -230,7 +227,6 @@ export default class NativeSlidesPlugin extends Plugin {
     // Slides mode is active only while actually in the editable Live Preview
     const slides = this.slidesMode && isCard && livePreviewNow;
     document.body.classList.toggle("native-slides-mode", slides);
-    this.syncScrollerPin(slides);
 
     const barVisible = slides && !this.settings.barHidden;
     if (!barVisible) {
