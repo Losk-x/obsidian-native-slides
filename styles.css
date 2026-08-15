@@ -37,6 +37,14 @@ body.native-slides-fullscreen .workspace-split.mod-root .view-header {
   display: none !important;
 }
 
+/* ── 3b. WYSIWYG reading view: hide the top tab bar ────────
+   In edit view the tab bar stays visible (it switches tabs); in WYSIWYG
+   reading view it hides and the bottom bar takes its height, so the
+   content area height is identical in both modes. */
+body.native-slides-wysiwyg-reading .workspace-tabs.mod-top .workspace-tab-header-container {
+  display: none !important;
+}
+
 /* ── 4. The properties bar: takes over the status bar spot ── */
 .native-slides-bar {
   position: fixed;
@@ -152,4 +160,17 @@ body.native-slides-fullscreen .workspace-split.mod-root .view-header {
 .native-slides-wysiwyg-btn.is-active {
   background: var(--interactive-accent, #7c5cff);
   color: var(--text-on-accent, #fff);
+}
+
+/* ── 6c. WYSIWYG layout symmetry ────────────────────────────
+   In WYSIWYG mode the bottom bar matches the top tab bar's height
+   (measured at runtime → --native-slides-tabbar-height), and reading
+   view pads the active pane's scroll content by the same amount so
+   the last line is never hidden behind the bar and the visible
+   content height matches edit view (tab bar ↔ bottom bar). */
+body.native-slides-wysiwyg .native-slides-bar {
+  height: var(--native-slides-tabbar-height, 38px);
+}
+body.native-slides-wysiwyg-reading .workspace-leaf.mod-active > .view-content {
+  padding-bottom: var(--native-slides-tabbar-height, 38px);
 }

@@ -28,9 +28,12 @@
  *      current one (name-collision aware), rewires the `deck` properties of
  *      both notes, and opens the new note in edit mode.
  *   8. "Toggle WYSIWYG Mode" (command + hotkey + bottom-bar button, deck
- *      notes only): switches to unified edit/reading typography — later
- *      phases add the tab-bar symmetry and the typography CSS scoped
- *      under body.native-slides-wysiwyg.
+ *      notes only): switches to unified edit/reading typography — the
+ *      bottom bar also shows in edit view, reading view hides the top
+ *      tab bar while the bar matches its measured height (so switching
+ *      modes does not change the content-area height), and typography
+ *      alignment CSS follows. All rules are scoped under
+ *      body.native-slides-wysiwyg.
  *
  * The deck usually starts from an overview note that embeds an Obsidian Base
  * view (core "Bases" plugin) filtering notes that link to the overview page:
@@ -90,6 +93,8 @@ export default class NativeSlidesPlugin extends Plugin {
   private lastKey = "";
   /** Whether the right-sidebar Properties view was auto-opened this session */
   private sidebarOpenedThisSession = false;
+  /** Last measured tab-bar height (px) — cached while the bar is hidden */
+  private tabBarHeight = 0;
   /** Plugin settings */
   settings: NativeSlidesSettings = { ...DEFAULT_SETTINGS };
 
@@ -218,6 +223,7 @@ export default class NativeSlidesPlugin extends Plugin {
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
     document.body.classList.remove("native-slides-fullscreen");
     document.body.classList.remove("native-slides-wysiwyg");
+    document.body.classList.remove("native-slides-wysiwyg-reading");
   }
 
   // ── Settings ──────────────────────────────────────────────────────────
@@ -408,7 +414,13 @@ export default class NativeSlidesPlugin extends Plugin {
     );
     // WYSIWYG mode body class — unified edit/reading typography CSS
     // (deck notes only; the typography rules land in later phases)
-    document.body.classList.toggle("native-slides-wysiwyg", isCard && this.settings.wysiwygMode);
+    const wysiwyg = isCard && this.settings.wysiwygMode;
+    document.body.classList.toggle("native-slides-wysiwyg", wysiwyg);
+    // WYSIWYG + reading view: the tab bar hides and the bottom bar takes
+    // its height — keep the measured height fresh (edit mode measures it,
+    // reading mode reuses the cached value).
+    this.syncTabBarHeight();
+    document.body.classList.toggle("native-slides-wysiwyg-reading", wysiwyg && mode === "preview");
 
     // WYSIWYG: once per session, open the right-sidebar Properties view when a
     // card note is activated in edit mode — a gentle hint that its (hidden)
@@ -517,6 +529,22 @@ export default class NativeSlidesPlugin extends Plugin {
     btn.disabled = disabled;
     if (!disabled) btn.addEventListener("click", onClick);
     return btn;
+  }
+
+  /**
+   * Measure the top tab bar and expose its height as the CSS variable
+   * --native-slides-tabbar-height. The bar is hidden in WYSIWYG reading
+   * view, so the last measured value is cached and reused there.
+   */
+  private syncTabBarHeight(): void {
+    const tabBar = document.querySelector<HTMLElement>(
+      ".workspace-tabs.mod-top .workspace-tab-header-container",
+    );
+    if (tabBar && tabBar.offsetHeight > 0) this.tabBarHeight = tabBar.offsetHeight;
+    document.documentElement.style.setProperty(
+      "--native-slides-tabbar-height",
+      `${this.tabBarHeight}px`,
+    );
   }
 
   /** Sync the fullscreen state: add the class + request OS fullscreen, or restore */
