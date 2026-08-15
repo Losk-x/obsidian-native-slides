@@ -1,4 +1,4 @@
-# read-props-bar — Reading-View Properties Bar
+# Native Slides — Reading-View Properties Bar
 
 **English** | [简体中文](README-zh.md)
 
@@ -50,15 +50,15 @@ Enable the core plugin if the view does not render: _Settings → Core plugins �
 
 ## Example vault
 
-The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, a minimal `.obsidian/` configuration, and a plugin folder `example-vault/.obsidian/plugins/read-props-bar/` whose files (`manifest.json`, `main.js`, `styles.css`) are **symlinks to the repository root** — so the example vault always runs the current build.
+The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian vault you open to try the plugin. It contains `overview.md`, `welcome.md`, `slide-2.md`, `slide-3.md`, a minimal `.obsidian/` configuration, and a plugin folder `example-vault/.obsidian/plugins/native-slides/` whose files (`manifest.json`, `main.js`, `styles.css`) are **symlinks to the repository root** — so the example vault always runs the current build.
 
-> Symlinks require filesystem support (macOS/Linux work out of the box; on Windows enable Developer Mode). If symlinks are unavailable, copy `main.js`, `manifest.json`, `styles.css` into `example-vault/.obsidian/plugins/read-props-bar/`.
+> Symlinks require filesystem support (macOS/Linux work out of the box; on Windows enable Developer Mode). If symlinks are unavailable, copy `main.js`, `manifest.json`, `styles.css` into `example-vault/.obsidian/plugins/native-slides/`.
 
 ## Getting started
 
 1. Open the example vault: Obsidian → _Open another vault_ → select the `example-vault/` directory inside this repo.
 2. Allow community plugins: _Settings → Community plugins → Turn off Safe mode_ (one-time, manual).
-3. Enable **Read-View Properties Bar** under _Settings → Community plugins_.
+3. Enable **Native Slides** under _Settings → Community plugins_.
 4. (For the overview page) Enable the core **Bases** plugin: _Settings → Core plugins → Bases_.
 
 Open `welcome.md` and press `Cmd/Ctrl+E` to switch to reading view — the bottom bar shows the properties, ◀ ▶ buttons and "Page 1". Press `Cmd/Ctrl+Shift+→` to go to slide 2.
@@ -72,7 +72,7 @@ Demo deck: `overview.md` → `welcome.md` → `slide-2.md` → `slide-3.md`.
 | Hide the status bar                              | `styles.css`: `.status-bar { display: none !important; }`                                                                                                                              |
 | Hide the in-note properties panel (reading view) | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                                        |
 | Hide the bar when empty                          | `refresh()` renders nothing when there are no displayable properties (frontmatter beyond `deck`/`position`); deck pages still show navigation + page number                            |     |
-| Fullscreen reading mode                          | `refresh()` adds `rv-props-fullscreen` to `body` when in reading view; CSS hides ribbon / sidebars / tab bar / `.view-header`; `requestFullscreen()` tries OS fullscreen               |
+| Fullscreen reading mode                          | `refresh()` adds `native-slides-fullscreen` to `body` when in reading view; CSS hides ribbon / sidebars / tab bar / `.view-header`; `requestFullscreen()` tries OS fullscreen          |
 | Esc exits fullscreen + reading view              | `fullscreenchange` handler: when the OS leaves fullscreen while we were fullscreen, call `view.setMode("source")` (guarded so our own `exitFullscreen()` never re-triggers it)         |
 | Deck resolution                                  | `computeDeck()` reads `deck` (≤ 2 links) → resolves the overview and the first page → walks the chain via each slide's second link (cycle-guarded) → returns the chain + current index |
 | Page number                                      | position in the chain: index 0 = "Overview", slides = "Page N"; no stored `page-number` property                                                                                       |
@@ -102,7 +102,7 @@ Rebuild on change, then reload manually:
 npm run dev        # watch main.ts, rebuild main.js on change
 ```
 
-After editing `main.ts`, reload the plugin in Obsidian: open the command palette with `Cmd/Ctrl+P`, search for **Reload app without saving**, and run it (it has no default hotkey). Alternatively, disable/re-enable **Read-View Properties Bar** under _Settings → Community plugins_.
+After editing `main.ts`, reload the plugin in Obsidian: open the command palette with `Cmd/Ctrl+P`, search for **Reload app without saving**, and run it (it has no default hotkey). Alternatively, disable/re-enable **Native Slides** under _Settings → Community plugins_.
 
 ## Known limitations
 

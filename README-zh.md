@@ -1,4 +1,4 @@
-# read-props-bar — 阅读模式属性底栏
+# Native Slides — 阅读模式属性底栏
 
 [English](README.md) | **简体中文**
 
@@ -57,15 +57,15 @@ views:
 
 ## 示例库
 
-演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/read-props-bar/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
+演示笔记位于 [`example-vault/`](example-vault/)，这就是要打开的 Obsidian 示例库。它包含 `overview.md`、`welcome.md`、`slide-2.md`、`slide-3.md`、一份最小化的 `.obsidian/` 配置，以及一个插件目录 `example-vault/.obsidian/plugins/native-slides/`，其中的文件（`manifest.json`、`main.js`、`styles.css`）都是**指向仓库根目录的符号链接**——示例库始终运行当前构建。
 
-> 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把 `main.js`、`manifest.json`、`styles.css` 复制到 `example-vault/.obsidian/plugins/read-props-bar/` 即可。
+> 符号链接需要文件系统支持（macOS/Linux 开箱即用；Windows 需开启开发者模式）。若无法使用符号链接，把 `main.js`、`manifest.json`、`styles.css` 复制到 `example-vault/.obsidian/plugins/native-slides/` 即可。
 
 ## 快速开始
 
 1. 打开示例库：Obsidian → 打开其他仓库 → 选择本仓库内的 `example-vault/` 目录；
 2. 允许第三方插件：设置 → 第三方插件 → 关闭"安全模式"（一次性手动操作）；
-3. 在第三方插件列表启用 **Read-View Properties Bar**；
+3. 在第三方插件列表启用 **Native Slides**；
 4. （使用概览页时）启用核心插件 _设置 → 核心插件 → Bases_。
 
 打开 `welcome.md`，按 `Cmd/Ctrl+E` 切到阅读模式——底部即显示属性、◀ ▶ 按钮和
@@ -75,17 +75,17 @@ views:
 
 ## 工作原理
 
-| 部分                         | 原理                                                                                                                                                      |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 隐藏状态栏                   | `styles.css`：`.status-bar { display: none !important; }`                                                                                                 |
-| 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }`                                                                                           |
-| 空底栏隐藏                   | `refresh()` 无可显示属性（除 `deck`/`position` 外的 frontmatter 为空）时不渲染内容；套件页仍显示导航与页号                                                |     |
-| 全屏阅读模式                 | `refresh()` 检测到阅读模式即给 `body` 加 `rv-props-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏 |
-| Esc 退出全屏 + 阅读模式      | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发）              |
-| 套件解析                     | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                 |
-| 页号                         | 链中的位置：索引 0 = "Overview"，放映页 = "Page N"；不需要存储 `page-number`                                                                              |
-| PPT 翻页                     | `navigate()` 沿链步进，用 `workspace.openLinkText` 打开，保持阅读模式                                                                                     |
-| 设置                         | `PluginSettingTab` + `loadData/saveData` 持久化开关；快捷键走 Obsidian 原生命令系统                                                                       |
+| 部分                         | 原理                                                                                                                                                           |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 隐藏状态栏                   | `styles.css`：`.status-bar { display: none !important; }`                                                                                                      |
+| 隐藏顶部属性面板（阅读模式） | `.markdown-reading-view .metadata-container { display: none; }`                                                                                                |
+| 空底栏隐藏                   | `refresh()` 无可显示属性（除 `deck`/`position` 外的 frontmatter 为空）时不渲染内容；套件页仍显示导航与页号                                                     |     |
+| 全屏阅读模式                 | `refresh()` 检测到阅读模式即给 `body` 加 `native-slides-fullscreen` 类（CSS 隐藏丝带/侧边栏/tab 栏/`.view-header`），并调用 `requestFullscreen()` 尝试系统全屏 |
+| Esc 退出全屏 + 阅读模式      | `fullscreenchange` 处理器：系统退出全屏且我们正处全屏时调用 `view.setMode("source")`（有守卫，我们自己调用 `exitFullscreen()` 时不会误触发）                   |
+| 套件解析                     | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                      |
+| 页号                         | 链中的位置：索引 0 = "Overview"，放映页 = "Page N"；不需要存储 `page-number`                                                                                   |
+| PPT 翻页                     | `navigate()` 沿链步进，用 `workspace.openLinkText` 打开，保持阅读模式                                                                                          |
+| 设置                         | `PluginSettingTab` + `loadData/saveData` 持久化开关；快捷键走 Obsidian 原生命令系统                                                                            |
 
 ## 开发
 
@@ -111,7 +111,7 @@ npm run format:check  # 可选：Prettier
 npm run dev        # 监听 main.ts，变更时自动重建 main.js
 ```
 
-编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+P` 打开命令面板，搜索 **Reload app without saving** 并执行（该命令默认没有绑定快捷键）。或者，在 _设置 → 第三方插件_ 里关闭再开启 **Read-View Properties Bar**。
+编辑 `main.ts` 后，在 Obsidian 里重载插件：按 `Cmd/Ctrl+P` 打开命令面板，搜索 **Reload app without saving** 并执行（该命令默认没有绑定快捷键）。或者，在 _设置 → 第三方插件_ 里关闭再开启 **Native Slides**。
 
 ## 已知限制
 

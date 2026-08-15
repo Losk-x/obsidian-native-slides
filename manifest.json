@@ -1,6 +1,6 @@
 {
-  "id": "read-props-bar",
-  "name": "Read-View Properties Bar",
+  "id": "native-slides",
+  "name": "Native Slides",
   "version": "0.1.0",
   "minAppVersion": "1.4.0",
   "description": "Hides the status bar; in reading view, shows the note's properties in a bottom bar with PPT-style deck navigation — one `deck` property (overview + next links) drives prev/next and auto-computed page numbers.",

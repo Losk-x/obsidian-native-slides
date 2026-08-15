@@ -1,5 +1,5 @@
 /**
- * read-props-bar — Reading-view properties bar with PPT-style deck navigation
+ * native-slides — reading-view properties bar with PPT-style deck navigation
  *
  * Features:
  *   1. Hides Obsidian's native status bar and renders a "properties bar" at the
@@ -46,14 +46,14 @@ import { Plugin, MarkdownView, TFile, PluginSettingTab, Setting } from "obsidian
 import { computeDeck, extractLinks, formatValue, type DeckInfo } from "./src/deck";
 
 /** Plugin settings */
-interface ReadPropsBarSettings {
+interface NativeSlidesSettings {
   /** Show ◀ ▶ previous/next buttons on the left of the bar */
   showNavButtons: boolean;
   /** Show the auto-computed page number at the bottom-right of the bar */
   showPageNumber: boolean;
 }
 
-const DEFAULT_SETTINGS: ReadPropsBarSettings = {
+const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showNavButtons: true,
   showPageNumber: true,
 };
@@ -61,7 +61,7 @@ const DEFAULT_SETTINGS: ReadPropsBarSettings = {
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
 const DECK_KEY = "deck";
 
-export default class ReadPropsBarPlugin extends Plugin {
+export default class NativeSlidesPlugin extends Plugin {
   /** The properties bar DOM element */
   private bar: HTMLElement | null = null;
   /** Whether the user manually hid the bar (toggle command) */
@@ -73,11 +73,11 @@ export default class ReadPropsBarPlugin extends Plugin {
   /** Last refresh key ("path|mode") to avoid pointless re-renders */
   private lastKey = "";
   /** Plugin settings */
-  settings: ReadPropsBarSettings = { ...DEFAULT_SETTINGS };
+  settings: NativeSlidesSettings = { ...DEFAULT_SETTINGS };
 
   async onload(): Promise<void> {
     await this.loadSettings();
-    this.addSettingTab(new ReadPropsBarSettingTab(this));
+    this.addSettingTab(new NativeSlidesSettingTab(this));
 
     // ── 1. Refresh on "current note / view changed" events ──────────────
     this.registerEvent(this.app.workspace.on("file-open", () => this.refresh()));
@@ -105,7 +105,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     // ── 3. Commands ─────────────────────────────────────────────────────
     // 3a. Manually show / hide the properties bar
     this.addCommand({
-      id: "toggle-props-bar",
+      id: "ns-toggle-bar",
       name: "Toggle Properties Bar",
       callback: () => {
         this.barHidden = !this.barHidden;
@@ -114,7 +114,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     });
     // 3b. Pause / resume auto-fullscreen in reading view
     this.addCommand({
-      id: "toggle-auto-fullscreen",
+      id: "ns-toggle-fullscreen",
       name: "Pause/Resume Auto Fullscreen",
       callback: () => {
         this.autoFullscreen = !this.autoFullscreen;
@@ -125,13 +125,13 @@ export default class ReadPropsBarPlugin extends Plugin {
     });
     // 3c. Previous / next page (deck navigation, rebindable in Settings → Hotkeys)
     this.addCommand({
-      id: "nav-prev",
+      id: "ns-prev",
       name: "Previous Page",
       hotkeys: [{ modifiers: ["Mod", "Shift"], key: "ArrowLeft" }],
       callback: () => this.navigate("prev"),
     });
     this.addCommand({
-      id: "nav-next",
+      id: "ns-next",
       name: "Next Page",
       hotkeys: [{ modifiers: ["Mod", "Shift"], key: "ArrowRight" }],
       callback: () => this.navigate("next"),
@@ -144,7 +144,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     this.registerDomEvent(document, "fullscreenchange", () => {
       if (!document.fullscreenElement && this.fullscreen) {
         this.fullscreen = false;
-        document.body.classList.remove("rv-props-fullscreen");
+        document.body.classList.remove("native-slides-fullscreen");
         const view = this.app.workspace.getActiveViewOfType(MarkdownView);
         if (view && view.getMode() === "preview") {
           // setMode is not in the public typings but exists at runtime
@@ -155,7 +155,7 @@ export default class ReadPropsBarPlugin extends Plugin {
 
     // ── 5. Create the bar and do the first render ───────────────────────
     this.bar = document.createElement("div");
-    this.bar.className = "rv-props-bar";
+    this.bar.className = "native-slides-bar";
     this.bar.style.display = "none"; // hidden until refresh() decides otherwise
     document.body.appendChild(this.bar);
     this.refresh();
@@ -166,7 +166,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     this.bar = null;
     // Leave OS fullscreen and drop the fullscreen class so no UI residue remains
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-    document.body.classList.remove("rv-props-fullscreen");
+    document.body.classList.remove("native-slides-fullscreen");
   }
 
   // ── Settings ──────────────────────────────────────────────────────────
@@ -259,7 +259,7 @@ export default class ReadPropsBarPlugin extends Plugin {
       const hasPrev = deck.index > 0;
       const hasNext = deck.index < deck.chain.length - 1;
       const nav = document.createElement("div");
-      nav.className = "rv-props-nav";
+      nav.className = "native-slides-nav";
       nav.appendChild(this.navButton("◀", "Previous page", () => this.navigate("prev"), !hasPrev));
       nav.appendChild(this.navButton("▶", "Next page", () => this.navigate("next"), !hasNext));
       this.bar.appendChild(nav);
@@ -272,7 +272,7 @@ export default class ReadPropsBarPlugin extends Plugin {
 
     for (const [key, value] of visible) {
       const span = document.createElement("span");
-      span.className = "rv-props-item";
+      span.className = "native-slides-item";
       const k = document.createElement("strong");
       k.textContent = key;
       span.appendChild(k);
@@ -283,7 +283,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     // ── Bottom-right: auto-computed page number ──
     if (this.settings.showPageNumber && deck) {
       const page = document.createElement("span");
-      page.className = "rv-props-page";
+      page.className = "native-slides-page";
       // chain[0] is the overview note; slides start at index 1 → "Page 1"
       page.textContent = deck.index === 0 ? "Overview" : `Page ${deck.index}`;
       this.bar.appendChild(page);
@@ -302,7 +302,7 @@ export default class ReadPropsBarPlugin extends Plugin {
     disabled = false,
   ): HTMLButtonElement {
     const btn = document.createElement("button");
-    btn.className = "rv-props-nav-btn";
+    btn.className = "native-slides-nav-btn";
     btn.textContent = label;
     btn.title = tip;
     btn.disabled = disabled;
@@ -314,7 +314,7 @@ export default class ReadPropsBarPlugin extends Plugin {
   private syncFullscreen(active: boolean): void {
     if (this.fullscreen === active) return; // nothing to do
     this.fullscreen = active;
-    document.body.classList.toggle("rv-props-fullscreen", active);
+    document.body.classList.toggle("native-slides-fullscreen", active);
 
     // Request OS-level fullscreen when entering (Obsidian runs on Electron and
     // supports the Fullscreen API); failures (e.g. in a plain browser) are
@@ -329,8 +329,8 @@ export default class ReadPropsBarPlugin extends Plugin {
 
 // ── Settings tab ────────────────────────────────────────────────────────
 
-class ReadPropsBarSettingTab extends PluginSettingTab {
-  constructor(private plugin: ReadPropsBarPlugin) {
+class NativeSlidesSettingTab extends PluginSettingTab {
+  constructor(private plugin: NativeSlidesPlugin) {
     super(plugin.app, plugin);
   }
 
