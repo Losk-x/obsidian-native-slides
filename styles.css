@@ -203,3 +203,34 @@ body.native-slides-wysiwyg
   background: var(--scrollbar-thumb-bg, rgba(0, 0, 0, 0.3));
   border-radius: 4px;
 }
+
+/* ── 7b. Alignment tuned from ns-debug-styles dumps (2026-08) ─
+   Measured deltas (default theme) and their fixes:
+   • top margin: edit cm-content padding-top 0px vs reading 32px
+     (--file-margins) → same top margin in edit view
+   • block rhythm: reading p/h1 margins are 16px vs the edit blank
+     line (line-height 24px) → reading blocks use 1.5rem (24px), so
+     one blank line in the note equals one block gap in both views
+   • list indent: edit hangs the marker (0 / text 23px) while reading
+     starts at calc(var(--list-indent) - 0.375em) → edit list lines
+     use the same start without the hanging offset
+   (code/quote/inline-code deltas pending — rerun the dump on a note
+   containing them, e.g. overview.md) */
+body.native-slides-wysiwyg .workspace-leaf.mod-active .markdown-source-view.mod-cm6 .cm-content {
+  padding-top: 32px; /* matches --file-margins top of reading view */
+}
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-reading-view
+  .markdown-preview-view
+  :is(p, h1, h2, h3, h4, h5, h6, ul, ol, pre, blockquote, table, hr) {
+  margin-top: 0;
+  margin-bottom: 1.5rem; /* 24px — one edit-view blank line */
+}
+body.native-slides-wysiwyg
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6
+  .HyperMD-list-line {
+  padding-left: calc(var(--list-indent) - 0.375em);
+  text-indent: 0;
+}

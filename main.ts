@@ -570,7 +570,7 @@ export default class NativeSlidesPlugin extends Plugin {
     const contentEl = view.contentEl;
     const pick = (sel: string): HTMLElement | null => contentEl.querySelector<HTMLElement>(sel);
     const style = (el: HTMLElement | null, props: string[]): Record<string, string> => {
-      if (!el) return {};
+      if (!el) return { "(missing)": "element not in this note" };
       const cs = getComputedStyle(el);
       const out: Record<string, string> = {};
       for (const p of props) {
@@ -705,7 +705,9 @@ export default class NativeSlidesPlugin extends Plugin {
         "\n" +
         JSON.stringify(dump, null, 2),
     );
-    new Notice("Typography dump → Console (Cmd+Opt+I). Run again in the other view and compare.");
+    new Notice(
+      "Typography dump → Console (Cmd+Opt+I). Run again in the other view; for code/quote data, run on a note containing them.",
+    );
   }
 }
 
