@@ -633,9 +633,12 @@ export default class NativeSlidesPlugin extends Plugin {
         : ".markdown-reading-view .markdown-preview-view code",
     ]);
 
-    // Structure probe (edit view only): unique element tags inside the
-    // editor — reveals how cm6 renders code blocks etc. when the usual
-    // selectors do not match.
+    // Structure probes (edit view only): the source-view class list
+    // (confirms the Live Preview marker class) and unique element tags
+    // inside the editor (reveals how cm6 renders code blocks etc. when
+    // the usual selectors do not match).
+    const sourceViewClass =
+      contentEl.querySelector(".markdown-source-view.mod-cm6")?.className ?? "";
     const domTags: string[] = [];
     if (isEdit) {
       const tags = new Set<string>();
@@ -650,6 +653,7 @@ export default class NativeSlidesPlugin extends Plugin {
       // Alignment CSS (rules 7/7b) only applies when WYSIWYG is on
       wysiwygActive: document.body.classList.contains("native-slides-wysiwyg"),
       domTags: isEdit ? domTags : undefined,
+      sourceViewClass: isEdit ? sourceViewClass : undefined,
       container: style(container, [
         "font-family",
         "font-size",
