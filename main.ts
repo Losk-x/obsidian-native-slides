@@ -151,8 +151,10 @@ export default class NativeSlidesPlugin extends Plugin {
         document.body.classList.remove("native-slides-fullscreen");
         const view = this.app.workspace.getActiveViewOfType(MarkdownView);
         if (view && view.getMode() === "preview") {
-          // setMode is not in the public typings but exists at runtime
-          (view as unknown as { setMode: (mode: "source" | "preview") => void }).setMode("source");
+          // Leave reading view via the public view-state API
+          const state = view.leaf.getViewState();
+          state.state = { ...state.state, mode: "source" };
+          void view.leaf.setViewState(state, { focus: false });
         }
       }
     });
