@@ -616,6 +616,7 @@ export default class NativeSlidesPlugin extends Plugin {
       isEdit
         ? ".markdown-source-view.mod-cm6 pre"
         : ".markdown-reading-view .markdown-preview-view pre",
+      isEdit ? ".markdown-source-view.mod-cm6 .cm-editing pre" : ".markdown-preview-view pre",
       isEdit ? ".markdown-source-view.mod-cm6 .HyperMD-codeblock" : ".markdown-preview-view pre",
     ]);
     const quote = pick([
@@ -631,10 +632,23 @@ export default class NativeSlidesPlugin extends Plugin {
         : ".markdown-reading-view .markdown-preview-view code",
     ]);
 
+    // Structure probe (edit view only): unique element tags inside the
+    // editor — reveals how cm6 renders code blocks etc. when the usual
+    // selectors do not match.
+    const domTags: string[] = [];
+    if (isEdit) {
+      const tags = new Set<string>();
+      contentEl
+        .querySelectorAll(".markdown-source-view.mod-cm6 *")
+        .forEach((el) => tags.add(el.tagName.toLowerCase()));
+      domTags.push(...tags);
+    }
+
     const dump = {
       mode: isEdit ? "edit (Live Preview)" : "reading",
       // Alignment CSS (rules 7/7b) only applies when WYSIWYG is on
       wysiwygActive: document.body.classList.contains("native-slides-wysiwyg"),
+      domTags: isEdit ? domTags : undefined,
       container: style(container, [
         "font-family",
         "font-size",
@@ -720,9 +734,10 @@ export default class NativeSlidesPlugin extends Plugin {
         "\n" +
         JSON.stringify(dump, null, 2),
     );
-    new Notice(
-      "Typography dump → Console (Cmd+Opt+I). Run again in the other view; for code/quote data, run on a note containing them.",
-    );
+    const wysHint = document.body.classList.contains("native-slides-wysiwyg")
+      ? "WYSIWYG is ON — alignment rules active."
+      : "WYSIWYG is OFF — alignment rules NOT active. On a deck note, toggle it on (Mod+Shift+E) and rerun.";
+    new Notice("Typography dump → Console (Cmd+Opt+I). " + wysHint);
   }
 }
 
