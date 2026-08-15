@@ -127,3 +127,29 @@ body.native-slides-fullscreen .workspace-split.mod-root .view-header {
   color: var(--text-faint);
   font-variant-numeric: tabular-nums;
 }
+
+/* ── 6b. WYSIWYG mode toggle button (right of the bar) ────── */
+.native-slides-wysiwyg-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--radius-s, 4px);
+  background: var(--background-secondary-alt);
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+.native-slides-wysiwyg-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+.native-slides-wysiwyg-btn.is-active {
+  background: var(--interactive-accent, #7c5cff);
+  color: var(--text-on-accent, #fff);
+}

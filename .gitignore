@@ -148,6 +148,7 @@ vite.config.ts.timestamp-*
 **/.obsidian/workspace-state.json
 **/.obsidian/appearance.json
 **/.obsidian/app.json
+**/.obsidian/hotkeys.json
 **/.obsidian/plugins/*/data.json
 .npm-cache/
 

@@ -11,6 +11,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 ### Added
 
 - **Create Next Slide** command: creates a new slide right after the current one — the file is named `<current>-next` (collision-aware: `-2`, `-3`, …), both `deck` properties are rewired automatically, and the new note opens in edit mode. If the current note's second `deck` link points to a missing note, that exact note is created instead (fixing the ⚠ warning); on the overview page it inserts a new first page. The command is greyed out for notes that cannot take a next slide.
+- **WYSIWYG mode** (deck notes only): explicit mode switch — command `Toggle WYSIWYG Mode` (default hotkey `Mod+Shift+E`), bottom-bar button, or settings toggle (default off). When on, the bottom bar also shows in edit view, and toggling from reading view jumps into the WYSIWYG edit view. The tab-bar symmetry and typography alignment land in later phases.
 
 ### Changed
 
