@@ -207,14 +207,14 @@ body.native-slides-mode
   .cm-scroller {
   background: var(--background-secondary);
   padding-top: 40px;
-  padding-bottom: 0;
+  padding-bottom: 0 !important;
 }
 body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-sizer {
-  min-height: auto;
-  padding-bottom: 0;
+  min-height: 0 !important;
+  padding-bottom: 0 !important;
   max-width: none;
 }
 body.native-slides-mode
