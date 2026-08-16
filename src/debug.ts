@@ -297,6 +297,9 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       fontWeight: cs.fontWeight,
       fontVariant: cs.fontVariant,
       color: cs.color,
+      letterSpacing: cs.letterSpacing,
+      textTransform: cs.textTransform,
+      wordSpacing: cs.wordSpacing,
     };
   })();
 
@@ -339,11 +342,15 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       "text-align",
     ]),
     h1: style(h1, [
+      "font-family",
       "font-size",
       "line-height",
       "font-weight",
       "font-variant",
       "color",
+      "letter-spacing",
+      "text-transform",
+      "word-spacing",
       "margin-top",
       "margin-bottom",
       "text-align",
