@@ -300,6 +300,11 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       letterSpacing: cs.letterSpacing,
       textTransform: cs.textTransform,
       wordSpacing: cs.wordSpacing,
+      fontKerning: cs.fontKerning,
+      fontFeatureSettings: cs.fontFeatureSettings,
+      fontVariantNumeric: cs.fontVariantNumeric,
+      fontVariantLigatures: cs.fontVariantLigatures,
+      fontVariantCaps: cs.fontVariantCaps,
     };
   })();
 
@@ -351,6 +356,11 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       "letter-spacing",
       "text-transform",
       "word-spacing",
+      "font-kerning",
+      "font-feature-settings",
+      "font-variant-numeric",
+      "font-variant-ligatures",
+      "font-variant-caps",
       "margin-top",
       "margin-bottom",
       "text-align",
