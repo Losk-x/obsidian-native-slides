@@ -3,14 +3,14 @@
    ============================================================ */
 
 /* ── 1. Hide the native status bar in Slides mode ───────────
-   The bottom bar takes the status bar's spot; native modes keep
+   The slides bar takes the status bar's spot; native modes keep
    Obsidian's default status bar untouched. */
 body.native-slides-mode .status-bar {
   display: none !important;
 }
 
 /* ── 2. Slides mode: hide in-note properties in Live Preview ──
-   Properties already live in the bottom bar, so the panel would be
+   Properties already live in the slides bar, so the panel would be
    redundant. Scoped to the active pane + Live Preview; Source mode
    keeps its native properties, and reading view is never touched. */
 body.native-slides-mode
@@ -22,7 +22,7 @@ body.native-slides-mode
 
 /* ── 3. Slides mode: immersive layout ─────────────────────
    Hides the ribbon, sidebars and the top tab bar so the card fills
-   the window; the bottom bar takes the tab bar's height (measured
+   the window; the slides bar takes the tab bar's height (measured
    at runtime → --native-slides-tabbar-height). */
 body.native-slides-mode .workspace-ribbon,
 body.native-slides-mode .workspace-split.mod-left-split,
@@ -31,7 +31,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   display: none !important;
 }
 
-/* ── 4. The properties bar: takes over the status bar spot ── */
+/* ── 4. The slides bar: takes over the status bar spot ── */
 .native-slides-bar {
   position: fixed;
   left: 0;
@@ -79,7 +79,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   flex-shrink: 0;
 }
 
-/* ── 5. Navigation buttons (left of the bar) ───────────────── */
+/* ── 5. Navigation buttons (left of the slides bar) ─────────── */
 .native-slides-nav {
   display: inline-flex;
   gap: 4px;
@@ -122,34 +122,8 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 6b. Slides mode button (right of the bar) ────── */
-.native-slides-mode-btn {
-  all: unset;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 20px;
-  padding: 0 8px;
-  border-radius: var(--radius-s, 4px);
-  background: var(--background-secondary-alt);
-  color: var(--text-muted);
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  user-select: none;
-  flex-shrink: 0;
-}
-.native-slides-mode-btn:hover {
-  background: var(--background-modifier-hover);
-  color: var(--text-normal);
-}
-.native-slides-mode-btn.is-active {
-  background: var(--interactive-accent, #7c5cff);
-  color: var(--text-on-accent, #fff);
-}
-
 /* ── 6c. Slides layout symmetry ────────────────────────────
-   The bottom bar matches the top tab bar's height (measured at runtime
+   The slides bar matches the top tab bar's height (measured at runtime
    → --native-slides-tabbar-height). */
 body.native-slides-mode .native-slides-bar {
   height: var(--native-slides-tabbar-height, 38px);
@@ -189,7 +163,7 @@ body.native-slides-mode
    scrollbar, content beyond the fold is clipped. The container is viewport-
    height and overflow:hidden is declarative, so the clip boundary re-syncs
    automatically on window resize and theme/CSS changes (no JS). Obsidian's
-   native editor bottom padding keeps the last line clear of the bar. */
+   native editor bottom padding keeps the last line clear of the slides bar. */
 body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview

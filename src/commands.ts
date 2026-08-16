@@ -5,10 +5,10 @@ import { DECK_KEY } from "./types";
 
 /** Register every command; the debug command is dev-build only. */
 export function registerCommands(plugin: NativeSlidesPlugin): void {
-  // Toggle the properties bar (within Slides mode)
+  // Toggle the slides bar (within Slides mode)
   plugin.addCommand({
     id: "ns-toggle-bar",
-    name: "Toggle Properties Bar",
+    name: "Toggle Slides Bar",
     callback: async () => {
       plugin.settings.barHidden = !plugin.settings.barHidden;
       await plugin.saveSettings();

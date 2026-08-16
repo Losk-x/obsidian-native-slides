@@ -1,4 +1,4 @@
-/** Create the bar DOM element (hidden until refresh() shows it) */
+/** Create the slides bar DOM element (hidden until refresh() shows it) */
 export function createBar(): HTMLElement {
   const bar = document.createElement("div");
   bar.className = "native-slides-bar";
@@ -25,7 +25,7 @@ export function navButton(
 /**
  * Measure the top tab bar and expose its height as the CSS variable
  * --native-slides-tabbar-height, returning the (possibly updated) cached
- * value. The bar is hidden in Slides mode, so the last measured
+ * value. The slides bar is hidden in Slides mode, so the last measured
  * value is reused there.
  */
 export function syncTabBarHeight(cached: number): number {

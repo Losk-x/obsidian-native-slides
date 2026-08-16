@@ -1,10 +1,10 @@
 /** Plugin settings */
 export interface NativeSlidesSettings {
-  /** Show ◀ ▶ previous/next buttons on the left of the bar */
+  /** Show ◀ ▶ previous/next buttons on the left of the slides bar */
   showNavButtons: boolean;
-  /** Show the auto-computed page number at the bottom-right of the bar */
+  /** Show the auto-computed page number at the bottom-right of the slides bar */
   showPageNumber: boolean;
-  /** Whether the user manually hid the bar (toggle command) */
+  /** Whether the user manually hid the slides bar (toggle command) */
   barHidden: boolean;
   /** Auto-enter Slides mode when opening a deck note (default off) */
   autoEnterSlides: boolean;

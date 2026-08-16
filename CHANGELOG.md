@@ -17,6 +17,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ### Changed
 
+- Slides bar polish: removed the redundant "Slides: On" chip (the bar's presence already implies Slides mode) and renamed the bar to **slides bar** (the `Toggle Properties Bar` command is now `Toggle Slides Bar`).
 - Bottom bar: the "No properties" placeholder is removed — deck pages (frontmatter with only the reserved `deck` key) show just the nav buttons and page number, and the bar hides entirely when there is nothing to display.
 - Navigation: the ◀ ▶ arrows are always both shown inside a deck; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
 - Settings: the bar-hidden and auto-fullscreen toggles are now persisted (previously reset on reload); auto-fullscreen is also exposed in the settings tab.
