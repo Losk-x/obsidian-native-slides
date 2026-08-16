@@ -215,8 +215,9 @@ body.native-slides-mode
   max-width: min(90%, 880px);
   margin-left: auto;
   margin-right: auto;
+  min-height: 0; /* wrap the content so the card has a visible bottom edge */
   padding: 40px 48px;
   background: var(--background-primary);
-  border: 1px dashed var(--background-modifier-border);
+  border: 2px dashed var(--text-muted);
   border-radius: var(--radius-s);
 }
