@@ -266,6 +266,16 @@ body.native-slides-mode
   font-weight: var(--h1-weight, 700);
   font-variant: var(--h1-variant, normal);
   color: var(--h1-color, inherit);
-  letter-spacing: var(--native-slides-title-letter-spacing, normal);
   margin: 0;
+}
+/* ── 9c. Unify the body H1 letter-spacing with the title ────
+   Themes often tighten heading letter-spacing (here -0.015em); the generated
+   ::before title can't inherit it cleanly, so instead we relax the body H1 to
+   `normal` in Slides mode. Both then render with the same spacing (digits and
+   punctuation included). */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-header-1 {
+  letter-spacing: normal !important;
 }
