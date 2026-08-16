@@ -58,6 +58,8 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     "metadataContainerDisplay",
     "h1OffsetTop",
     "h1TopInContent",
+    "h1LeftInContent",
+    "title",
     "contentChildren",
     "topChain",
   ]) {
@@ -234,6 +236,10 @@ function sampleStyles(app: App): Record<string, unknown> | null {
     if (!h1 || !anchor) return undefined;
     return Math.round(h1.getBoundingClientRect().top - anchor.getBoundingClientRect().top);
   })();
+  const h1LeftInContent = (() => {
+    if (!h1 || !anchor) return undefined;
+    return Math.round(h1.getBoundingClientRect().left - anchor.getBoundingClientRect().left);
+  })();
   const contentChildren = (() => {
     if (!anchor) return undefined;
     return Array.from(anchor.children)
@@ -270,6 +276,38 @@ function sampleStyles(app: App): Record<string, unknown> | null {
     return parts;
   })();
 
+  // Title probe: the generated ::before in Slides mode (when a title is
+  // configured). Captures its computed style so we can diff it against the
+  // body H1 (.cm-header-1) and align them exactly.
+  const titleBefore = (() => {
+    if (!isEdit) return undefined;
+    const content = contentEl.querySelector<HTMLElement>(".cm-content");
+    if (!content || !content.hasAttribute("data-slides-title")) return undefined;
+    const cs = getComputedStyle(content, "::before");
+    return {
+      content: cs.content,
+      display: cs.display,
+      position: cs.position,
+      top: cs.top,
+      left: cs.left,
+      paddingTop: cs.paddingTop,
+      fontFamily: cs.fontFamily,
+      fontSize: cs.fontSize,
+      lineHeight: cs.lineHeight,
+      fontWeight: cs.fontWeight,
+      fontVariant: cs.fontVariant,
+      color: cs.color,
+      letterSpacing: cs.letterSpacing,
+      textTransform: cs.textTransform,
+      wordSpacing: cs.wordSpacing,
+      fontKerning: cs.fontKerning,
+      fontFeatureSettings: cs.fontFeatureSettings,
+      fontVariantNumeric: cs.fontVariantNumeric,
+      fontVariantLigatures: cs.fontVariantLigatures,
+      fontVariantCaps: cs.fontVariantCaps,
+    };
+  })();
+
   const dump = {
     mode: isEdit ? "edit (Live Preview)" : "reading",
     // Slides styling only applies when Slides mode is on
@@ -281,8 +319,10 @@ function sampleStyles(app: App): Record<string, unknown> | null {
     metadataContainerDisplay: metadataDisplay,
     h1OffsetTop: h1OffsetTop,
     h1TopInContent: h1TopInContent,
+    h1LeftInContent: h1LeftInContent,
     contentChildren: contentChildren,
     topChain: topChain,
+    title: titleBefore,
     container: style(container, [
       "font-family",
       "font-size",
@@ -307,9 +347,20 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       "text-align",
     ]),
     h1: style(h1, [
+      "font-family",
       "font-size",
       "line-height",
       "font-weight",
+      "font-variant",
+      "color",
+      "letter-spacing",
+      "text-transform",
+      "word-spacing",
+      "font-kerning",
+      "font-feature-settings",
+      "font-variant-numeric",
+      "font-variant-ligatures",
+      "font-variant-caps",
       "margin-top",
       "margin-bottom",
       "text-align",
@@ -359,6 +410,9 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       "--line-height-normal": cssVar("--line-height-normal"),
       "--h1-size": cssVar("--h1-size"),
       "--h1-line-height": cssVar("--h1-line-height"),
+      "--h1-weight": cssVar("--h1-weight"),
+      "--h1-variant": cssVar("--h1-variant"),
+      "--h1-color": cssVar("--h1-color"),
       "--h1-margin-top": cssVar("--h1-margin-top"),
       "--h1-margin-bottom": cssVar("--h1-margin-bottom"),
       "--p-spacing": cssVar("--p-spacing"),

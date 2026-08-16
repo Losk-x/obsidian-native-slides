@@ -195,8 +195,8 @@ body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-content {
-  width: 75vw;
-  max-width: 75vw;
+  width: 80vw;
+  max-width: 80vw;
   flex-grow: 0;
   margin-left: auto;
   margin-right: auto;
@@ -233,10 +233,51 @@ body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .inline-title {
-  max-width: 75vw;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 40px;
-  padding-right: 40px;
-  box-sizing: border-box;
+  display: none; /* nothing appears outside the card */
+}
+/* ── 9b. Title inside the card ────────────────────────────
+   When a title source is configured, it renders as an H1 at the top of the
+   card. The title is absolutely positioned and its height (heading spacing +
+   line) is reserved via .cm-content's padding-top, so CodeMirror's height
+   map (which reads the content's padding-top) stays aligned and clicks below
+   the title land on the right lines. It reuses the body H1's own metrics
+   (--h1-font/--h1-size/--h1-line-height/--h1-weight/--h1-variant/--h1-color)
+   and --p-spacing so it matches a real H1 pixel-for-pixel. */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content[data-slides-title] {
+  position: relative;
+  padding-top: calc(
+    20px + var(--p-spacing, 1rem) + var(--h1-line-height, 1.3) * var(--h1-size, 2em)
+  ) !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content[data-slides-title]::before {
+  content: attr(data-slides-title);
+  position: absolute;
+  top: 20px;
+  left: 40px;
+  right: 40px;
+  padding-top: var(--p-spacing, 1rem);
+  font-family: var(--h1-font, inherit);
+  font-size: var(--h1-size, 2em);
+  line-height: var(--h1-line-height, 1.3);
+  font-weight: var(--h1-weight, 700);
+  font-variant: var(--h1-variant, normal);
+  color: var(--h1-color, inherit);
+  margin: 0;
+}
+/* ── 9c. Unify the body H1 letter-spacing with the title ────
+   Themes often tighten heading letter-spacing (here -0.015em); the generated
+   ::before title can't inherit it cleanly, so instead we relax the body H1 to
+   `normal` in Slides mode. Both then render with the same spacing (digits and
+   punctuation included). */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-header-1 {
+  letter-spacing: normal !important;
 }

@@ -141,6 +141,38 @@ export default class NativeSlidesPlugin extends Plugin {
     return fm !== null && DECK_KEY in fm;
   }
 
+  /**
+   * Render the card title (an H1 inside the card) per the `slidesTitle`
+   * setting, via the `.cm-content` data-slides-title attribute — the CSS
+   * ::before pseudo-element renders it. "" (default) shows nothing;
+   * "filename" uses the file name; any other value names a frontmatter
+   * property. The file name (inline title) outside the card is always hidden
+   * by CSS in Slides mode.
+   */
+  private updateInlineTitle(slides: boolean): void {
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const file = this.app.workspace.getActiveFile();
+    const content = view?.contentEl.querySelector<HTMLElement>(".cm-content");
+    if (!content || !file) return;
+
+    let text: string | null = null;
+    if (slides) {
+      const src = this.settings.slidesTitle.trim();
+      if (src === "filename") {
+        text = file.basename;
+      } else if (src) {
+        const fm = frontmatterOf(this.app, file);
+        const v = fm?.[src];
+        if (v != null) {
+          text = typeof v === "string" ? v : Array.isArray(v) ? v.join(", ") : String(v);
+        }
+      }
+    }
+
+    if (text) content.setAttribute("data-slides-title", text);
+    else content.removeAttribute("data-slides-title");
+  }
+
   /** Enter Slides mode: record the exit state and force the Live Preview */
   private async enterSlides(): Promise<void> {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -227,6 +259,7 @@ export default class NativeSlidesPlugin extends Plugin {
     // Slides mode is active only while actually in the editable Live Preview
     const slides = this.slidesMode && isCard && livePreviewNow;
     document.body.classList.toggle("native-slides-mode", slides);
+    this.updateInlineTitle(slides);
 
     const barVisible = slides && !this.settings.barHidden;
     if (!barVisible) {
