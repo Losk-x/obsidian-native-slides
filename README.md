@@ -10,7 +10,7 @@
 
 ## Features
 
-- **Slides mode** (_deck notes only_): an immersive, editable card view — "one screen = one card". Enter with the **Toggle Slides Mode** command (default hotkey `Mod+Shift+E`); the ribbon, sidebars and tab bar hide, the editor **auto-fits to a single screen** (content scales proportionally to fill it — no scrolling), and a bottom bar shows the note's properties, ◀ ▶ navigation and the auto-computed page number. Exiting restores the view you came from (Source / Live Preview / Reading).
+- **Slides mode** (_deck notes only_): an immersive, editable card view — "one screen = one card". Enter with the **Toggle Slides Mode** command (default hotkey `Mod+Shift+E`); the ribbon, sidebars and tab bar hide, the editor **scales proportionally with the window** to stay within one screen (resizing or changing Obsidian zoom scales it; content past one screen shrinks to fit, then clips beyond a minimum), and a bottom bar shows the note's properties, ◀ ▶ navigation and the auto-computed page number. Exiting restores the view you came from (Source / Live Preview / Reading).
 - **Native modes stay untouched**: Source mode, the default Live Preview and Reading view keep Obsidian's default behaviour — no status-bar hiding, no bottom bar, no fullscreen, no styling. Slides mode is the plugin's only surface, so it coexists cleanly with other plugins that also modify the reading view.
 - **PPT-style deck navigation** with **one reserved frontmatter property, `deck`** (up to two markdown links):
 

@@ -158,6 +158,7 @@ export default class NativeSlidesPlugin extends Plugin {
       await view.leaf.setViewState(next, { focus: false });
     }
     this.slidesMode = true;
+    this.fitter.calibrate();
     this.refresh();
   }
 
