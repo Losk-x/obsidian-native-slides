@@ -120,6 +120,7 @@ export default class NativeSlidesPlugin extends Plugin {
     this.bar?.remove();
     this.bar = null;
     document.body.classList.remove("native-slides-mode");
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
   }
 
   // ── Settings ──────────────────────────────────────────────────────────
@@ -154,12 +155,16 @@ export default class NativeSlidesPlugin extends Plugin {
       await view.leaf.setViewState(next, { focus: false });
     }
     this.slidesMode = true;
+    if (this.settings.autoFullscreen) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    }
     this.refresh();
   }
 
   /** Exit Slides mode: restore the view mode recorded at entry */
   private exitSlides(): void {
     this.slidesMode = false;
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
     if (view) {
       const state = view.leaf.getViewState();

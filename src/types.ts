@@ -8,6 +8,8 @@ export interface NativeSlidesSettings {
   barHidden: boolean;
   /** Auto-enter Slides mode when opening a deck note (default off) */
   autoEnterSlides: boolean;
+  /** Auto-enter OS fullscreen when entering Slides mode (default on) */
+  autoFullscreen: boolean;
 }
 
 export const DEFAULT_SETTINGS: NativeSlidesSettings = {
@@ -15,6 +17,7 @@ export const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showPageNumber: true,
   barHidden: false,
   autoEnterSlides: false,
+  autoFullscreen: true,
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */

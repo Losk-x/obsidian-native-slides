@@ -52,6 +52,19 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Auto-enter fullscreen in Slides mode")
+      .setDesc(
+        "Enter OS fullscreen when entering Slides mode. Leave off to stay in the current window.",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.autoFullscreen).onChange(async (value) => {
+          this.plugin.settings.autoFullscreen = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        }),
+      );
+
+    new Setting(containerEl)
       .setName("Navigation hotkeys")
       .setDesc(
         "Default: Previous Page Mod+Shift+←, Next Page Mod+Shift+→. Rebind under Settings → Hotkeys.",
