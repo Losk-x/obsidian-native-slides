@@ -144,8 +144,8 @@ export default class NativeSlidesPlugin extends Plugin {
   /**
    * Render the card title (an H1 inside the card) per the `slidesTitle`
    * setting, via the `.cm-content` data-slides-title attribute — the CSS
-   * ::before pseudo-element renders it. "none" (default) shows nothing;
-   * "filename" uses the file name; "title" uses the `title` frontmatter
+   * ::before pseudo-element renders it. "" (default) shows nothing;
+   * "filename" uses the file name; any other value names a frontmatter
    * property. The file name (inline title) outside the card is always hidden
    * by CSS in Slides mode.
    */
@@ -157,11 +157,15 @@ export default class NativeSlidesPlugin extends Plugin {
 
     let text: string | null = null;
     if (slides) {
-      if (this.settings.slidesTitle === "filename") {
+      const src = this.settings.slidesTitle.trim();
+      if (src === "filename") {
         text = file.basename;
-      } else if (this.settings.slidesTitle === "title") {
+      } else if (src) {
         const fm = frontmatterOf(this.app, file);
-        text = typeof fm?.title === "string" ? fm.title : null;
+        const v = fm?.[src];
+        if (v != null) {
+          text = typeof v === "string" ? v : Array.isArray(v) ? v.join(", ") : String(v);
+        }
       }
     }
 
