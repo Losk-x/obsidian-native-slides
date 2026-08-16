@@ -4,44 +4,28 @@ import { App, MarkdownView } from "obsidian";
 const MIN_SCALE = 0.6;
 
 /**
- * Scale the active editor's content so the card fits one screen, using CSS
- * `zoom` (layout-affecting, so CodeMirror's caret / selection / hit-testing
+ * Scale the active editor's content down so the card fits one screen, using
+ * CSS `zoom` (layout-affecting, so CodeMirror's caret / selection / input
  * stay consistent — the same mechanism Obsidian's own app zoom uses).
  *
- * The scale is anchored to a **reference viewport** captured when Slides mode
- * is entered: `scale = refScale * (viewportH / refViewportH)`. So dragging
- * the window or changing Obsidian zoom scales the card proportionally (both
- * up and down), while adding/removing text does NOT re-scale it — unless the
- * content overflows the current scaled viewport, in which case it shrinks to
- * fit, down to MIN_SCALE (below that the `overflow: hidden` rule clips it).
+ * The scale is **shrink-only**: `scale = min(1, viewport / content)`, so
+ * content that fits is left at its natural size (adding text does not shrink
+ * it), and content that overflows shrinks to fit, down to MIN_SCALE (below
+ * that the `overflow: hidden` rule clips it).
+ *
+ * Obsidian's own zoom (Cmd/Ctrl+=/-) is left untouched: it scales the whole
+ * app natively, so the card grows/shrinks with it. We detect "window resize"
+ * vs "zoom" via `window.outerHeight/Width` (physical, unaffected by CSS zoom)
+ * and only re-fit on a real resize or a content change.
  */
 export class SlidesFitter {
   private observer: ResizeObserver;
   private target: HTMLElement | null = null;
-  private refViewportH = 0;
-  private refViewportW = 0;
-  private refScale = 1;
+  private lastOuterH = 0;
+  private lastOuterW = 0;
 
   constructor(private app: App) {
-    this.observer = new ResizeObserver(() => this.apply());
-  }
-
-  /**
-   * Recalibrate on entering Slides mode: lock the reference viewport and the
-   * scale that fits the current content, then fit. Called once per entry so
-   * later viewport changes scale proportionally from this reference.
-   */
-  calibrate(): void {
-    const els = this.elements();
-    if (!els) return;
-    const { scroller, content } = els;
-    this.refViewportH = scroller.clientHeight;
-    this.refViewportW = scroller.clientWidth;
-    const { contentH, contentW } = this.measure(scroller, content);
-    if (contentH <= 0 || contentW <= 0) return;
-    const fit = Math.min(this.refViewportH / contentH, this.refViewportW / contentW);
-    this.refScale = Math.min(1, Math.max(MIN_SCALE, fit));
-    this.apply();
+    this.observer = new ResizeObserver(() => this.onResize());
   }
 
   /** Attach the observer to the current scroller (if changed) and fit. */
@@ -51,6 +35,8 @@ export class SlidesFitter {
       if (this.target) this.observer.unobserve(this.target);
       this.target = scroller;
       if (scroller) this.observer.observe(scroller);
+      this.lastOuterH = window.outerHeight;
+      this.lastOuterW = window.outerWidth;
     }
     this.apply();
   }
@@ -61,28 +47,36 @@ export class SlidesFitter {
       this.observer.unobserve(this.target);
       this.target = null;
     }
-    this.setZoom("");
+    const content = this.elements()?.content;
+    if (content) content.style.zoom = "";
   }
 
-  /** Re-measure and re-apply the fit zoom. */
-  apply(): void {
+  /** A real window resize (not Obsidian zoom) → re-fit. */
+  private onResize(): void {
+    if (window.outerHeight === this.lastOuterH && window.outerWidth === this.lastOuterW) {
+      return; // Obsidian zoom or internal layout — let it scale natively
+    }
+    this.lastOuterH = window.outerHeight;
+    this.lastOuterW = window.outerWidth;
+    this.apply();
+  }
+
+  /** Measure the content and apply the shrink-to-fit zoom. */
+  private apply(): void {
     const els = this.elements();
     if (!els) return;
     const { scroller, content } = els;
 
-    const { contentH, contentW } = this.measure(scroller, content);
+    content.style.zoom = "1"; // measure at natural (unscaled) size
+    const contentH = scroller.scrollHeight;
+    const contentW = content.offsetWidth;
     const viewportH = scroller.clientHeight;
     const viewportW = scroller.clientWidth;
+
     if (contentH <= 0 || contentW <= 0 || viewportH <= 0 || viewportW <= 0) return;
-    if (this.refViewportH <= 0) this.refViewportH = viewportH;
-    if (this.refViewportW <= 0) this.refViewportW = viewportW;
 
-    // Proportional to the reference viewport (bidirectional grow/shrink).
-    const vpScale = this.refScale * (viewportH / this.refViewportH);
-    // Scale required so the content fits (both axes).
     const needed = Math.min(viewportH / contentH, viewportW / contentW);
-
-    const scale = needed < vpScale ? Math.max(MIN_SCALE, needed) : vpScale;
+    const scale = Math.min(1, Math.max(MIN_SCALE, needed));
     content.style.zoom = String(scale);
   }
 
@@ -95,24 +89,5 @@ export class SlidesFitter {
 
   private scroller(): HTMLElement | null {
     return this.elements()?.scroller ?? null;
-  }
-
-  /** Measure the natural (unscaled) content size. */
-  private measure(
-    scroller: HTMLElement,
-    content: HTMLElement,
-  ): { contentH: number; contentW: number } {
-    content.style.zoom = "1";
-    const prevMinHeight = content.style.minHeight;
-    content.style.minHeight = "0";
-    const contentH = scroller.scrollHeight;
-    const contentW = content.offsetWidth;
-    content.style.minHeight = prevMinHeight;
-    return { contentH, contentW };
-  }
-
-  private setZoom(value: string): void {
-    const content = this.elements()?.content;
-    if (content) content.style.zoom = value;
   }
 }
