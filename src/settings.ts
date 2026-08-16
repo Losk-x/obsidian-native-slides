@@ -52,6 +52,22 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Slides title")
+      .setDesc("What to show as the card title in Slides mode.")
+      .addDropdown((dd) =>
+        dd
+          .addOption("none", "None — hide the file name")
+          .addOption("filename", "File name")
+          .addOption("title", "Title property")
+          .setValue(this.plugin.settings.slidesTitle)
+          .onChange(async (value) => {
+            this.plugin.settings.slidesTitle = value as "none" | "filename" | "title";
+            await this.plugin.saveSettings();
+            this.plugin.refresh();
+          }),
+      );
+
+    new Setting(containerEl)
       .setName("Navigation hotkeys")
       .setDesc(
         "Default: Previous Page Mod+Shift+←, Next Page Mod+Shift+→. Rebind under Settings → Hotkeys.",

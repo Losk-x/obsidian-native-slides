@@ -142,9 +142,11 @@ export default class NativeSlidesPlugin extends Plugin {
   }
 
   /**
-   * Show the note's first H1 as the inline title in Slides mode, falling back
-   * to the file name (Obsidian's default) when there is no H1. Outside Slides
-   * mode the title is reset to the file name.
+   * Show the card title in Slides mode per the `slidesTitle` setting:
+   * - "none" (default): hide the file name, show the content as-is.
+   * - "filename": show the file name as the title.
+   * - "title": show the `title` frontmatter property as the title.
+   * Outside Slides mode the title is reset to Obsidian's default (file name).
    */
   private updateInlineTitle(slides: boolean): void {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -152,13 +154,26 @@ export default class NativeSlidesPlugin extends Plugin {
     const titleEl = view?.contentEl.querySelector<HTMLElement>(".inline-title");
     if (!titleEl || !file) return;
 
-    let text = file.basename;
-    if (slides) {
-      const headings = this.app.metadataCache.getFileCache(file)?.headings ?? [];
-      const h1 = headings.find((h) => h.level === 1);
-      if (h1) text = h1.heading;
+    if (!slides) {
+      titleEl.style.display = "";
+      titleEl.textContent = file.basename;
+      return;
     }
-    if (titleEl.textContent !== text) titleEl.textContent = text;
+
+    let text: string | null = null;
+    if (this.settings.slidesTitle === "filename") {
+      text = file.basename;
+    } else if (this.settings.slidesTitle === "title") {
+      const fm = frontmatterOf(this.app, file);
+      text = typeof fm?.title === "string" ? fm.title : null;
+    }
+
+    if (text === null) {
+      titleEl.style.display = "none";
+    } else {
+      titleEl.style.display = "";
+      titleEl.textContent = text;
+    }
   }
 
   /** Enter Slides mode: record the exit state and force the Live Preview */
