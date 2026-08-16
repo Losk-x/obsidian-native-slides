@@ -27,6 +27,7 @@ import { createBar, navButton, syncTabBarHeight } from "./src/bar";
 import { registerCommands } from "./src/commands";
 import { DeckService } from "./src/deck-service";
 import { formatValue } from "./src/deck";
+import { SlidesFitter } from "./src/fit";
 import { activeFrontmatter, currentMode, frontmatterOf, isLivePreview } from "./src/mode";
 import { NativeSlidesSettingTab } from "./src/settings";
 import { DECK_KEY, DEFAULT_SETTINGS, type NativeSlidesSettings } from "./src/types";
@@ -52,10 +53,13 @@ export default class NativeSlidesPlugin extends Plugin {
   private lastKey = "";
   /** Last measured tab-bar height (px) — cached while the bar is hidden */
   private tabBarHeight = 0;
+  /** Scales the active editor's content to fit one screen (Slides mode) */
+  private fitter!: SlidesFitter;
 
   async onload(): Promise<void> {
     await this.loadSettings();
     this.deckService = new DeckService(this.app);
+    this.fitter = new SlidesFitter(this.app);
     this.addSettingTab(new NativeSlidesSettingTab(this));
 
     // ── 1. Refresh on "current note / view changed" events ──────────────
@@ -227,6 +231,8 @@ export default class NativeSlidesPlugin extends Plugin {
     // Slides mode is active only while actually in the editable Live Preview
     const slides = this.slidesMode && isCard && livePreviewNow;
     document.body.classList.toggle("native-slides-mode", slides);
+    if (slides) this.fitter.fit();
+    else this.fitter.reset();
 
     const barVisible = slides && !this.settings.barHidden;
     if (!barVisible) {
