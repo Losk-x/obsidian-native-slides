@@ -53,15 +53,15 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Slides title")
-      .setDesc("What to show as the card title in Slides mode.")
-      .addDropdown((dd) =>
-        dd
-          .addOption("none", "None — hide the file name")
-          .addOption("filename", "File name")
-          .addOption("title", "Title property")
+      .setDesc(
+        "Frontmatter property to show as the card title (H1). Leave empty for none; type `filename` to use the file name.",
+      )
+      .addText((text) =>
+        text
+          .setPlaceholder("e.g. title")
           .setValue(this.plugin.settings.slidesTitle)
           .onChange(async (value) => {
-            this.plugin.settings.slidesTitle = value as "none" | "filename" | "title";
+            this.plugin.settings.slidesTitle = value;
             await this.plugin.saveSettings();
             this.plugin.refresh();
           }),

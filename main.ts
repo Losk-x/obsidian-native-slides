@@ -143,11 +143,10 @@ export default class NativeSlidesPlugin extends Plugin {
 
   /**
    * Render the card title (an H1 inside the card) per the `slidesTitle`
-   * setting, via the `.cm-content` data-slides-title attribute — the CSS
-   * ::before pseudo-element renders it. "none" (default) shows nothing;
-   * "filename" uses the file name; "title" uses the `title` frontmatter
-   * property. The file name (inline title) outside the card is always hidden
-   * by CSS in Slides mode.
+   * setting. "" (default) shows nothing; "filename" uses the file name; any
+   * other value names a frontmatter property. The title is injected as a real
+   * DOM element (selectable, and CodeMirror-safe) and re-synced on refresh.
+   * The file name (inline title) outside the card is always hidden by CSS.
    */
   private updateInlineTitle(slides: boolean): void {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -157,16 +156,30 @@ export default class NativeSlidesPlugin extends Plugin {
 
     let text: string | null = null;
     if (slides) {
-      if (this.settings.slidesTitle === "filename") {
+      const src = this.settings.slidesTitle.trim();
+      if (src === "filename") {
         text = file.basename;
-      } else if (this.settings.slidesTitle === "title") {
+      } else if (src) {
         const fm = frontmatterOf(this.app, file);
-        text = typeof fm?.title === "string" ? fm.title : null;
+        const v = fm?.[src];
+        if (v != null) {
+          text = typeof v === "string" ? v : Array.isArray(v) ? v.join(", ") : String(v);
+        }
       }
     }
 
-    if (text) content.setAttribute("data-slides-title", text);
-    else content.removeAttribute("data-slides-title");
+    const existing = content.querySelector<HTMLElement>(":scope > .native-slides-title");
+    if (text) {
+      let el = existing;
+      if (!el) {
+        el = document.createElement("div");
+        el.className = "native-slides-title";
+        content.prepend(el);
+      }
+      if (el.textContent !== text) el.textContent = text;
+    } else if (existing) {
+      existing.remove();
+    }
   }
 
   /** Enter Slides mode: record the exit state and force the Live Preview */
