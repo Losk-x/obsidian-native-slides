@@ -15,7 +15,7 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Show Previous/Next buttons")
       .setDesc(
-        "Show ◀ ▶ buttons on the left of the bar when the note belongs to a deck (has a `deck` property)",
+        "Show ◀ ▶ buttons on the left of the slides bar when the note belongs to a deck (has a `deck` property)",
       )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showNavButtons).onChange(async (value) => {

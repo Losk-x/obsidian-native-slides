@@ -3,15 +3,15 @@
 **English** | [简体中文](README-zh.md)
 
 > An Obsidian plugin that turns deck notes into **Slides**: an immersive,
-> editable (Live Preview) "one screen = one card" view with a bottom bar for
+> editable (Live Preview) "one screen = one card" view with a slides bar for
 > properties and PPT-style navigation — driven by a single frontmatter property.
 
 **Design principles** — zero intrusion into note content, minimal properties footprint (a single `deck` key), no persistence beyond configuration, and efficient, idiomatic code. See [docs/design.md](docs/design.md).
 
 ## Features
 
-- **Slides mode** (_deck notes only_): an immersive, editable card view — "one screen = one card". Enter with the **Toggle Slides Mode** command (default hotkey `Mod+Shift+E`); the ribbon, sidebars and tab bar hide, the slide content sits in a **centered card** (rounded corners + shadow, theme-adaptive), the editor **clips to a single screen** (no scrolling — content beyond the fold is clipped), and a bottom bar shows the note's properties, ◀ ▶ navigation and the auto-computed page number. Exiting restores the view you came from (Source / Live Preview / Reading).
-- **Native modes stay untouched**: Source mode, the default Live Preview and Reading view keep Obsidian's default behaviour — no status-bar hiding, no bottom bar, no fullscreen, no styling. Slides mode is the plugin's only surface, so it coexists cleanly with other plugins that also modify the reading view.
+- **Slides mode** (_deck notes only_): an immersive, editable card view — "one screen = one card". Enter with the **Toggle Slides Mode** command (default hotkey `Mod+Shift+E`); the ribbon, sidebars and tab bar hide, the slide content sits in a **centered card** (rounded corners + shadow, theme-adaptive), the editor **clips to a single screen** (no scrolling — content beyond the fold is clipped), and a slides bar shows the note's properties, ◀ ▶ navigation and the auto-computed page number. Exiting restores the view you came from (Source / Live Preview / Reading).
+- **Native modes stay untouched**: Source mode, the default Live Preview and Reading view keep Obsidian's default behaviour — no status-bar hiding, no slides bar, no fullscreen, no styling. Slides mode is the plugin's only surface, so it coexists cleanly with other plugins that also modify the reading view.
 - **PPT-style deck navigation** with **one reserved frontmatter property, `deck`** (up to two markdown links):
 
   ```yaml
@@ -25,13 +25,13 @@
   ```
 
   - **Page numbers are auto-computed** by walking the link chain (overview → slide 1 → slide 2 → …), so no `page-number` property is needed. The overview page shows "Overview", slides show "Page N".
-  - Flip pages with the ◀ ▶ buttons in the bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Pressing them from a native mode enters Slides mode and flips. Both arrows are always shown; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
+  - Flip pages with the ◀ ▶ buttons in the slides bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Pressing them from a native mode enters Slides mode and flips. Both arrows are always shown; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
   - **Create Next Slide** command: creates a new slide right after the current one — the file is named `<current>-next` (collision-aware: `-2`, `-3`, …), both `deck` properties are rewired automatically, and the new note opens ready for content. If the current note's second `deck` link points to a missing note, that exact note is created instead (fixing the ⚠ warning); on the overview page it inserts a new first page. Greyed out for notes that cannot take a next slide.
 
 - **Auto-enter Slides mode** (settings, default off): open deck notes straight into Slides mode; leave off to enter manually.
 - A **settings tab** toggles the ◀ ▶ buttons, the page number, and auto-enter.
-- **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
-- **Commands**: _Toggle Slides Mode_ (`Mod+Shift+E`), _Previous Page / Next Page_, _Create Next Slide_, and _Toggle Properties Bar_ — all rebindable under _Settings → Hotkeys_.
+- **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the slides bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
+- **Commands**: _Toggle Slides Mode_ (`Mod+Shift+E`), _Previous Page / Next Page_, _Create Next Slide_, and _Toggle Slides Bar_ — all rebindable under _Settings → Hotkeys_.
 
 ## Overview page with an embedded Base view
 
@@ -65,7 +65,7 @@ The demo notes live in [`example-vault/`](example-vault/), which is the Obsidian
 3. Enable **Native Slides** under _Settings → Community plugins_.
 4. (For the overview page) Enable the core **Bases** plugin: _Settings → Core plugins → Bases_.
 
-Open `welcome.md` and press `Cmd/Ctrl+Shift+E` to enter Slides mode — the bottom bar shows the properties, ◀ ▶ buttons and "Page 1". Press `Cmd/Ctrl+Shift+→` to go to slide 2.
+Open `welcome.md` and press `Cmd/Ctrl+Shift+E` to enter Slides mode — the slides bar shows the properties, ◀ ▶ buttons and "Page 1". Press `Cmd/Ctrl+Shift+→` to go to slide 2.
 
 Demo deck: `overview.md` → `welcome.md` → `slide-2.md` → `slide-3.md`.
 
@@ -74,8 +74,8 @@ Demo deck: `overview.md` → `welcome.md` → `slide-2.md` → `slide-3.md`.
 | Piece                             | Mechanism                                                                                                                                                                                                                   |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Hide the status bar (Slides mode) | `body.native-slides-mode .status-bar { display: none }` — native modes keep Obsidian's default status bar                                                                                                                   |
-| Immersive layout (Slides mode)    | `body.native-slides-mode` hides the ribbon / sidebars / tab bar; the bottom bar takes the tab bar's measured height (`--native-slides-tabbar-height`)                                                                       |
-| Hide in-note properties           | `.markdown-source-view.mod-cm6.is-live-preview .metadata-container { display: none }` — properties live in the bottom bar instead                                                                                           |
+| Immersive layout (Slides mode)    | `body.native-slides-mode` hides the ribbon / sidebars / tab bar; the slides bar takes the tab bar's measured height (`--native-slides-tabbar-height`)                                                                       |
+| Hide in-note properties           | `.markdown-source-view.mod-cm6.is-live-preview .metadata-container { display: none }` — properties live in the slides bar instead                                                                                           |
 | Deck resolution                   | `computeDeck()` reads `deck` (≤ 2 links) → resolves the overview and the first page → walks the chain via each slide's second link (cycle-guarded) → returns the chain + current index                                      |
 | Page number                       | position in the chain: index 0 = "Overview", slides = "Page N"; no stored `page-number` property                                                                                                                            |
 | PPT navigation                    | `navigate()` steps along the chain and opens via `workspace.openLinkText`; it enters Slides mode first when invoked from a native mode                                                                                      |
@@ -123,7 +123,7 @@ The source is split into `src/` modules (`types`, `mode`, `deck-service`, `bar`,
 - **Desktop only** — the plugin targets the Obsidian desktop app; mobile is not supported.
 - Slides mode applies only to **deck notes** (notes with a `deck` property); all other notes are left fully native.
 - Properties come from **frontmatter** (the `---` YAML block at the top); inline `key:: value` properties are not read.
-- `deck` is a **reserved key name**; the `position` key is also reserved and hidden from the bar (it can be used by other tools without cluttering the bar).
+- `deck` is a **reserved key name**; the `position` key is also reserved and hidden from the slides bar (it can be used by other tools without cluttering the bar).
 - The default hotkeys shadow the editor's "select to line start/end" shortcuts in edit view; remove them in **Settings → Hotkeys** if you don't need page navigation.
 - Quote link values in YAML (`deck: ["[[slide-2]]"]`) — unquoted `[[...]]` becomes a nested YAML array (the plugin tolerates it, but quoting is the correct form).
 - The deck chain must not contain cycles; a broken link simply ends (or excludes) the chain.

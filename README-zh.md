@@ -3,14 +3,14 @@
 [English](README.md) | **简体中文**
 
 > 一个 Obsidian 插件：把 deck 笔记变成 **Slides**——沉浸式、可编辑（Live Preview）的
-> "一屏一卡"视图，底部属性栏提供属性展示与 PPT 式翻页——由一个 frontmatter 属性驱动。
+> "一屏一卡"视图，slides 栏提供属性展示与 PPT 式翻页——由一个 frontmatter 属性驱动。
 
 **设计原则** —— 对笔记内容零侵入、对 properties 最小侵入（仅 `deck` 一个属性）、不持久化配置以外的不必要内容、实现高效且代码规范优美。详见 [docs/design-zh.md](docs/design-zh.md)。
 
 ## 功能特性
 
-- **Slides 模式**（仅 deck 笔记）：沉浸式、可编辑的卡片视图——"一屏一卡"。用 **Toggle Slides Mode** 命令（默认快捷键 `Mod+Shift+E`）进入；丝带、左右侧边栏与 tab 栏隐藏，幻灯片内容位于**居中卡片**（圆角 + 阴影，主题自适应）内，编辑器**裁切到单屏**（不滚动——超出折叠的内容被裁掉），底部属性栏显示笔记属性、◀ ▶ 翻页与自动页号。退出时还原进入前的视图（Source / Live Preview / Reading）。
-- **原生模式保持不动**：Source 模式、默认 Live Preview 与阅读视图都保持 Obsidian 默认行为——不隐藏状态栏、不加底栏、不全屏、不改样式。Slides 模式是插件的唯一界面，因此可与其它也会修改阅读视图的插件和平共处。
+- **Slides 模式**（仅 deck 笔记）：沉浸式、可编辑的卡片视图——"一屏一卡"。用 **Toggle Slides Mode** 命令（默认快捷键 `Mod+Shift+E`）进入；丝带、左右侧边栏与 tab 栏隐藏，幻灯片内容位于**居中卡片**（圆角 + 阴影，主题自适应）内，编辑器**裁切到单屏**（不滚动——超出折叠的内容被裁掉），slides 栏显示笔记属性、◀ ▶ 翻页与自动页号。退出时还原进入前的视图（Source / Live Preview / Reading）。
+- **原生模式保持不动**：Source 模式、默认 Live Preview 与阅读视图都保持 Obsidian 默认行为——不隐藏状态栏、不加 slides 栏、不全屏、不改样式。Slides 模式是插件的唯一界面，因此可与其它也会修改阅读视图的插件和平共处。
 - **PPT 式翻页**，只用一个保留属性 **`deck`**（最多两个 markdown 链接）：
 
   ```yaml
@@ -24,13 +24,13 @@
   ```
 
   - **页号自动计算**：沿链接链（概览 → 第 1 页 → 第 2 页 → …）编号，无需再写 `page-number` 属性。概览页显示 "Overview"，放映页显示 "Page N"。
-  - 点底栏 ◀ ▶ 按钮翻页，或用 **上一页 / 下一页** 命令（默认快捷键 `Cmd/Ctrl+Shift+←/→`，可在 **设置 → 快捷键** 重新绑定）。在原生模式按下也会自动进入 Slides 并翻页。两个箭头始终显示；无法移动的那一个（第一页的 ◀、最后一页的 ▶）为浅灰色禁用态。
+  - 点 slides 栏 ◀ ▶ 按钮翻页，或用 **上一页 / 下一页** 命令（默认快捷键 `Cmd/Ctrl+Shift+←/→`，可在 **设置 → 快捷键** 重新绑定）。在原生模式按下也会自动进入 Slides 并翻页。两个箭头始终显示；无法移动的那一个（第一页的 ◀、最后一页的 ▶）为浅灰色禁用态。
   - **Create Next Slide 命令**：在当前笔记之后创建一张新幻灯片——新文件命名为 `<当前名>-next`（重名自动追加 `-2`、`-3`），两张笔记的 `deck` 属性自动改写，新笔记以编辑模式打开，可直接输入内容。若当前笔记的第二个 `deck` 链接指向不存在的笔记，则直接创建那个声明的笔记（顺带消除 ⚠ 警告）；在概览页上执行则插入一张新的**第一页**。不适用时命令在面板中置灰。
 
 - **自动进入 Slides 模式**（设置项，默认关）：打开 deck 笔记直接进入 Slides；关闭则手动进入。
 - **设置页**：可开关 ◀ ▶ 按钮、页号显示与自动进入。
-- **断链警告**：`deck` 链接指向不存在的笔记时，底栏显示 ⚠ 警告标签，方便作者发现笔误（该链只会终止或排除，不会报错）。
-- **命令**：_Toggle Slides Mode_（`Mod+Shift+E`）、_Previous Page / Next Page_、_Create Next Slide_、_Toggle Properties Bar_——都可在 _设置 → 快捷键_ 重新绑定。
+- **断链警告**：`deck` 链接指向不存在的笔记时，slides 栏显示 ⚠ 警告标签，方便作者发现笔误（该链只会终止或排除，不会报错）。
+- **命令**：_Toggle Slides Mode_（`Mod+Shift+E`）、_Previous Page / Next Page_、_Create Next Slide_、_Toggle Slides Bar_——都可在 _设置 → 快捷键_ 重新绑定。
 
 ## 概览页与内置 Base 视图
 
@@ -73,8 +73,8 @@ views:
 | 部分                      | 原理                                                                                                                                                                |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 隐藏状态栏（Slides 模式） | `body.native-slides-mode .status-bar { display: none }`——原生模式保留 Obsidian 默认状态栏                                                                           |
-| 沉浸布局（Slides 模式）   | `body.native-slides-mode` 隐藏丝带/侧边栏/tab 栏；底栏高度对齐 tab bar 实测高度（`--native-slides-tabbar-height`）                                                  |
-| 隐藏笔记内属性面板        | `.markdown-source-view.mod-cm6.is-live-preview .metadata-container { display: none }`——属性改由底栏展示                                                             |
+| 沉浸布局（Slides 模式）   | `body.native-slides-mode` 隐藏丝带/侧边栏/tab 栏；slides 栏高度对齐 tab bar 实测高度（`--native-slides-tabbar-height`）                                             |
+| 隐藏笔记内属性面板        | `.markdown-source-view.mod-cm6.is-live-preview .metadata-container { display: none }`——属性改由 slides 栏展示                                                       |
 | 套件解析                  | `computeDeck()` 读取 `deck`（≤ 2 个链接）→ 解析概览页与第一页 → 沿每页第二个链接走链（有防环保护）→ 返回完整链 + 当前索引                                           |
 | 页号                      | 链中的位置：索引 0 = "Overview"，放映页 = "Page N"；不需要存储 `page-number`                                                                                        |
 | PPT 翻页                  | `navigate()` 沿链步进，用 `workspace.openLinkText` 打开；从原生模式触发时会先进入 Slides 模式                                                                       |
@@ -123,7 +123,7 @@ npm run dev        # 监听 main.ts，变更时自动重建 main.js
 - **仅桌面端**——插件面向 Obsidian 桌面应用；暂不支持移动端。
 - Slides 模式仅作用于 **deck 笔记**（带 `deck` 属性的笔记）；其它笔记保持完全原生。
 - 属性来源是 **frontmatter**（笔记开头的 `---` YAML 块）；正文中的 `key:: value` 内联属性暂不读取。
-- `deck` 是**保留属性名**；`position` 键同样保留且不在底栏显示（可留给其它工具使用，不会挤占底栏）。
+- `deck` 是**保留属性名**；`position` 键同样保留且不在 slides 栏显示（可留给其它工具使用，不会挤占 slides 栏）。
 - 默认快捷键会占用编辑模式下"选择到行首/行尾"的按键；不需要翻页快捷键可在 设置 → 快捷键 中移除。
 - YAML 里链接建议**加引号**（`deck: ["[[slide-2]]"]`）——不加引号 `[[...]]` 会被 YAML 解析成嵌套数组（插件能兼容，但规范写法更稳）。
 - 套件链不能有环；某条链接失效只会终止（或排除）该链，不会报错。

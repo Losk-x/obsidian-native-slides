@@ -4,10 +4,10 @@
  * One reserved frontmatter key, `deck` (up to two markdown links), drives
  * prev/next navigation and auto-computed page numbers. A deck note can be
  * entered into **Slides mode** — an immersive, editable (Live Preview) view
- * with a bottom bar showing properties, navigation and the page number.
+ * with a slides bar showing properties, navigation and the page number.
  *
  * Native Obsidian modes (Source / default Live Preview / Reading view) are
- * left completely untouched: no status-bar hiding, no bottom bar, no
+ * left completely untouched: no status-bar hiding, no slides bar, no
  * fullscreen, no styling. Slides mode is the plugin's only surface.
  *
  * This file is the entry point and a thin orchestration layer; the logic
@@ -33,7 +33,7 @@ import { DECK_KEY, DEFAULT_SETTINGS, type NativeSlidesSettings } from "./src/typ
 import { clearChildren } from "./src/utils";
 
 export default class NativeSlidesPlugin extends Plugin {
-  /** The properties bar DOM element */
+  /** The slides bar DOM element */
   bar: HTMLElement | null = null;
   /** Deck chain resolution + "create next slide" glue */
   deckService!: DeckService;
@@ -50,7 +50,7 @@ export default class NativeSlidesPlugin extends Plugin {
   private autoEnteredPath = "";
   /** Last refresh key ("path|mode") to avoid pointless re-renders */
   private lastKey = "";
-  /** Last measured tab-bar height (px) — cached while the bar is hidden */
+  /** Last measured tab-bar height (px) — cached while the slides bar is hidden */
   private tabBarHeight = 0;
 
   async onload(): Promise<void> {
@@ -110,7 +110,7 @@ export default class NativeSlidesPlugin extends Plugin {
       { capture: true },
     );
 
-    // ── 5. Create the bar and do the first render ───────────────────────
+    // ── 5. Create the slides bar and do the first render ────────────────
     this.bar = createBar();
     document.body.appendChild(this.bar);
     this.refresh();
@@ -205,7 +205,7 @@ export default class NativeSlidesPlugin extends Plugin {
 
   // ── Bar rendering ─────────────────────────────────────────────────────
 
-  /** Decide what the bar shows, then re-render it */
+  /** Decide what the slides bar shows, then re-render it */
   refresh(): void {
     if (!this.bar) return;
 
@@ -276,14 +276,6 @@ export default class NativeSlidesPlugin extends Plugin {
       this.bar.appendChild(warn);
     }
 
-    // ── Bottom-right: exit Slides mode (deck notes only) ──
-    const btn = document.createElement("button");
-    btn.className = "native-slides-mode-btn is-active";
-    btn.textContent = "Slides: On";
-    btn.title = "Exit Slides mode (back to your previous view)";
-    btn.addEventListener("click", () => this.toggleSlides());
-    this.bar.appendChild(btn);
-
     // ── Bottom-right: auto-computed page number ──
     if (this.settings.showPageNumber && deck) {
       const page = document.createElement("span");
@@ -293,7 +285,7 @@ export default class NativeSlidesPlugin extends Plugin {
       this.bar.appendChild(page);
     }
 
-    // Hide the bar entirely when it has nothing to display (no properties,
+    // Hide the slides bar entirely when it has nothing to display (no properties,
     // and not part of a deck)
     this.bar.style.display = this.bar.childElementCount === 0 ? "none" : "";
   }
