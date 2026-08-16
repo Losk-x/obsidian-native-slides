@@ -58,6 +58,7 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     "metadataContainerDisplay",
     "h1OffsetTop",
     "h1TopInContent",
+    "h1LeftInContent",
     "contentChildren",
     "topChain",
   ]) {
@@ -234,6 +235,10 @@ function sampleStyles(app: App): Record<string, unknown> | null {
     if (!h1 || !anchor) return undefined;
     return Math.round(h1.getBoundingClientRect().top - anchor.getBoundingClientRect().top);
   })();
+  const h1LeftInContent = (() => {
+    if (!h1 || !anchor) return undefined;
+    return Math.round(h1.getBoundingClientRect().left - anchor.getBoundingClientRect().left);
+  })();
   const contentChildren = (() => {
     if (!anchor) return undefined;
     return Array.from(anchor.children)
@@ -281,6 +286,7 @@ function sampleStyles(app: App): Record<string, unknown> | null {
     metadataContainerDisplay: metadataDisplay,
     h1OffsetTop: h1OffsetTop,
     h1TopInContent: h1TopInContent,
+    h1LeftInContent: h1LeftInContent,
     contentChildren: contentChildren,
     topChain: topChain,
     container: style(container, [
@@ -310,6 +316,8 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       "font-size",
       "line-height",
       "font-weight",
+      "font-variant",
+      "color",
       "margin-top",
       "margin-bottom",
       "text-align",
@@ -359,6 +367,9 @@ function sampleStyles(app: App): Record<string, unknown> | null {
       "--line-height-normal": cssVar("--line-height-normal"),
       "--h1-size": cssVar("--h1-size"),
       "--h1-line-height": cssVar("--h1-line-height"),
+      "--h1-weight": cssVar("--h1-weight"),
+      "--h1-variant": cssVar("--h1-variant"),
+      "--h1-color": cssVar("--h1-color"),
       "--h1-margin-top": cssVar("--h1-margin-top"),
       "--h1-margin-bottom": cssVar("--h1-margin-bottom"),
       "--p-spacing": cssVar("--p-spacing"),
