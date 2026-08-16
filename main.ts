@@ -142,38 +142,31 @@ export default class NativeSlidesPlugin extends Plugin {
   }
 
   /**
-   * Show the card title in Slides mode per the `slidesTitle` setting:
-   * - "none" (default): hide the file name, show the content as-is.
-   * - "filename": show the file name as the title.
-   * - "title": show the `title` frontmatter property as the title.
-   * Outside Slides mode the title is reset to Obsidian's default (file name).
+   * Render the card title (an H1 inside the card) per the `slidesTitle`
+   * setting, via the `.cm-content` data-slides-title attribute — the CSS
+   * ::before pseudo-element renders it. "none" (default) shows nothing;
+   * "filename" uses the file name; "title" uses the `title` frontmatter
+   * property. The file name (inline title) outside the card is always hidden
+   * by CSS in Slides mode.
    */
   private updateInlineTitle(slides: boolean): void {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
     const file = this.app.workspace.getActiveFile();
-    const titleEl = view?.contentEl.querySelector<HTMLElement>(".inline-title");
-    if (!titleEl || !file) return;
-
-    if (!slides) {
-      titleEl.style.display = "";
-      titleEl.textContent = file.basename;
-      return;
-    }
+    const content = view?.contentEl.querySelector<HTMLElement>(".cm-content");
+    if (!content || !file) return;
 
     let text: string | null = null;
-    if (this.settings.slidesTitle === "filename") {
-      text = file.basename;
-    } else if (this.settings.slidesTitle === "title") {
-      const fm = frontmatterOf(this.app, file);
-      text = typeof fm?.title === "string" ? fm.title : null;
+    if (slides) {
+      if (this.settings.slidesTitle === "filename") {
+        text = file.basename;
+      } else if (this.settings.slidesTitle === "title") {
+        const fm = frontmatterOf(this.app, file);
+        text = typeof fm?.title === "string" ? fm.title : null;
+      }
     }
 
-    if (text === null) {
-      titleEl.style.display = "none";
-    } else {
-      titleEl.style.display = "";
-      titleEl.textContent = text;
-    }
+    if (text) content.setAttribute("data-slides-title", text);
+    else content.removeAttribute("data-slides-title");
   }
 
   /** Enter Slides mode: record the exit state and force the Live Preview */
