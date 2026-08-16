@@ -141,6 +141,26 @@ export default class NativeSlidesPlugin extends Plugin {
     return fm !== null && DECK_KEY in fm;
   }
 
+  /**
+   * Show the note's first H1 as the inline title in Slides mode, falling back
+   * to the file name (Obsidian's default) when there is no H1. Outside Slides
+   * mode the title is reset to the file name.
+   */
+  private updateInlineTitle(slides: boolean): void {
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const file = this.app.workspace.getActiveFile();
+    const titleEl = view?.contentEl.querySelector<HTMLElement>(".inline-title");
+    if (!titleEl || !file) return;
+
+    let text = file.basename;
+    if (slides) {
+      const headings = this.app.metadataCache.getFileCache(file)?.headings ?? [];
+      const h1 = headings.find((h) => h.level === 1);
+      if (h1) text = h1.heading;
+    }
+    if (titleEl.textContent !== text) titleEl.textContent = text;
+  }
+
   /** Enter Slides mode: record the exit state and force the Live Preview */
   private async enterSlides(): Promise<void> {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -227,6 +247,7 @@ export default class NativeSlidesPlugin extends Plugin {
     // Slides mode is active only while actually in the editable Live Preview
     const slides = this.slidesMode && isCard && livePreviewNow;
     document.body.classList.toggle("native-slides-mode", slides);
+    this.updateInlineTitle(slides);
 
     const barVisible = slides && !this.settings.barHidden;
     if (!barVisible) {
