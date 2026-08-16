@@ -169,6 +169,12 @@ export default class NativeSlidesPlugin extends Plugin {
       }
     }
 
+    // Match the title's letter-spacing to the body H1 — themes tighten
+    // heading letter-spacing (e.g. -0.015em), which a ::before does not inherit.
+    const h1 = view?.contentEl.querySelector<HTMLElement>(".cm-header-1");
+    const letterSpacing = h1 ? getComputedStyle(h1).letterSpacing : "normal";
+    content.style.setProperty("--native-slides-title-letter-spacing", letterSpacing);
+
     if (text) content.setAttribute("data-slides-title", text);
     else content.removeAttribute("data-slides-title");
   }

@@ -266,5 +266,6 @@ body.native-slides-mode
   font-weight: var(--h1-weight, 700);
   font-variant: var(--h1-variant, normal);
   color: var(--h1-color, inherit);
+  letter-spacing: var(--native-slides-title-letter-spacing, normal);
   margin: 0;
 }
