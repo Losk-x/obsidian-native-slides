@@ -59,6 +59,7 @@ function mergeSample(target: Record<string, unknown>, sample: Record<string, unk
     "h1OffsetTop",
     "h1TopInContent",
     "h1LeftInContent",
+    "title",
     "contentChildren",
     "topChain",
   ]) {
@@ -275,6 +276,30 @@ function sampleStyles(app: App): Record<string, unknown> | null {
     return parts;
   })();
 
+  // Title probe: the generated ::before in Slides mode (when a title is
+  // configured). Captures its computed style so we can diff it against the
+  // body H1 (.cm-header-1) and align them exactly.
+  const titleBefore = (() => {
+    if (!isEdit) return undefined;
+    const content = contentEl.querySelector<HTMLElement>(".cm-content");
+    if (!content || !content.hasAttribute("data-slides-title")) return undefined;
+    const cs = getComputedStyle(content, "::before");
+    return {
+      content: cs.content,
+      display: cs.display,
+      position: cs.position,
+      top: cs.top,
+      left: cs.left,
+      paddingTop: cs.paddingTop,
+      fontFamily: cs.fontFamily,
+      fontSize: cs.fontSize,
+      lineHeight: cs.lineHeight,
+      fontWeight: cs.fontWeight,
+      fontVariant: cs.fontVariant,
+      color: cs.color,
+    };
+  })();
+
   const dump = {
     mode: isEdit ? "edit (Live Preview)" : "reading",
     // Slides styling only applies when Slides mode is on
@@ -289,6 +314,7 @@ function sampleStyles(app: App): Record<string, unknown> | null {
     h1LeftInContent: h1LeftInContent,
     contentChildren: contentChildren,
     topChain: topChain,
+    title: titleBefore,
     container: style(container, [
       "font-family",
       "font-size",
