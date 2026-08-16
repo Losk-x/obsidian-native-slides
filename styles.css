@@ -249,5 +249,5 @@ body.native-slides-mode
   font-weight: var(--h1-weight, 600);
   font-variant: var(--h1-variant, normal);
   color: var(--h1-color, inherit);
-  margin: 0 0 0.6em;
+  margin: 0;
 }
