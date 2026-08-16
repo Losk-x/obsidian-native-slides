@@ -143,10 +143,11 @@ export default class NativeSlidesPlugin extends Plugin {
 
   /**
    * Render the card title (an H1 inside the card) per the `slidesTitle`
-   * setting. "" (default) shows nothing; "filename" uses the file name; any
-   * other value names a frontmatter property. The title is injected as a real
-   * DOM element (selectable, and CodeMirror-safe) and re-synced on refresh.
-   * The file name (inline title) outside the card is always hidden by CSS.
+   * setting, via the `.cm-content` data-slides-title attribute — the CSS
+   * ::before pseudo-element renders it. "none" (default) shows nothing;
+   * "filename" uses the file name; "title" uses the `title` frontmatter
+   * property. The file name (inline title) outside the card is always hidden
+   * by CSS in Slides mode.
    */
   private updateInlineTitle(slides: boolean): void {
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -156,30 +157,16 @@ export default class NativeSlidesPlugin extends Plugin {
 
     let text: string | null = null;
     if (slides) {
-      const src = this.settings.slidesTitle.trim();
-      if (src === "filename") {
+      if (this.settings.slidesTitle === "filename") {
         text = file.basename;
-      } else if (src) {
+      } else if (this.settings.slidesTitle === "title") {
         const fm = frontmatterOf(this.app, file);
-        const v = fm?.[src];
-        if (v != null) {
-          text = typeof v === "string" ? v : Array.isArray(v) ? v.join(", ") : String(v);
-        }
+        text = typeof fm?.title === "string" ? fm.title : null;
       }
     }
 
-    const existing = content.querySelector<HTMLElement>(":scope > .native-slides-title");
-    if (text) {
-      let el = existing;
-      if (!el) {
-        el = document.createElement("div");
-        el.className = "native-slides-title";
-        content.prepend(el);
-      }
-      if (el.textContent !== text) el.textContent = text;
-    } else if (existing) {
-      existing.remove();
-    }
+    if (text) content.setAttribute("data-slides-title", text);
+    else content.removeAttribute("data-slides-title");
   }
 
   /** Enter Slides mode: record the exit state and force the Live Preview */
