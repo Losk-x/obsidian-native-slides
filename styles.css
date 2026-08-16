@@ -248,3 +248,9 @@ body.native-slides-mode
     right top;
   background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
 }
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line {
+  max-width: none; /* let the text fill the card width */
+}
