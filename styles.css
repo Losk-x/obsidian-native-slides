@@ -222,7 +222,8 @@ body.native-slides-mode
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-content {
   width: 75vw;
-  max-width: none;
+  max-width: 75vw;
+  flex-grow: 0;
   margin-left: auto;
   margin-right: auto;
   min-height: 0 !important; /* wrap content → visible bottom edge */
