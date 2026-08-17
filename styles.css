@@ -241,6 +241,8 @@ body.native-slides-mode
   /* Shared slide typography (tuned on the Lecture (jyy) template, applied to
      all of them). No font-size lock: every metric is em-based, so the whole
      layout scales as one piece with Obsidian's editor font size. */
+  --ns-pad-y: 0.5em;
+  --ns-pad-x: 1em;
   --h1-size: 1.4em;
   --h1-weight: 700;
   --h1-line-height: 1.43;
