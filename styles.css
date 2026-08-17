@@ -663,3 +663,17 @@ body.native-slides-mode.native-slides-theme-lecture
   .cm-content {
   flex: 1 0 auto;
 }
+/* The card title (::before) inherits the H1 font size (1.4em), so the em-based
+   --ns-* variables resolve larger there than on the card itself — the title
+   would sink and the bottom rule drift below its reserved space. Divide the
+   title scale back out so both contexts agree. */
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content[data-slides-title]::before {
+  top: calc(var(--ns-pad-y) / 1.4);
+  left: calc(var(--ns-pad-x) / 1.4);
+  right: calc(var(--ns-pad-x) / 1.4);
+  padding-top: calc(var(--ns-title-spacing) / 1.4);
+  padding-bottom: calc(var(--ns-title-rule-pad) / 1.4);
+}
