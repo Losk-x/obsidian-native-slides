@@ -11,6 +11,7 @@ export const SLIDES_THEMES: readonly SlidesTheme[] = [
   { id: "minimal", label: "Minimal" },
   { id: "accent", label: "Accent edge" },
   { id: "glass", label: "Frosted glass" },
+  { id: "lecture", label: "Lecture (wiki)" },
 ];
 
 /** Plugin settings */

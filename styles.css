@@ -353,3 +353,47 @@ body.native-slides-mode.native-slides-theme-glass
   .cm-content {
   backdrop-filter: blur(14px);
 }
+
+/* 10f. Lecture — reading-note look after jyywiki.cn's prose layout:
+   a narrow centered column, sharp page edges, bold headings, generous
+   paragraph spacing and disc-list indentation. All metrics come from the
+   wiki's Tailwind Typography values (h1 2.25em/800, h2 1.5em/700,
+   h3 1.25em/600, p 1.25em, list indent 1.625em, code 0.875em/600). */
+body.native-slides-mode.native-slides-theme-lecture {
+  --ns-card-radius: 0;
+  --ns-card-border: 1px solid var(--background-modifier-border);
+  --ns-card-shadow: none;
+  --ns-bar-bg: var(--background-primary);
+  --ns-bar-border: 1px solid var(--background-modifier-border);
+}
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  width: min(80vw, 68ch);
+  max-width: min(80vw, 68ch);
+  --h1-size: 2.25em;
+  --h1-weight: 800;
+  --h1-line-height: 1.15;
+  --h2-size: 1.5em;
+  --h2-weight: 700;
+  --h3-size: 1.25em;
+  --h3-weight: 600;
+  --p-spacing: 1.25em;
+  --list-indent: 1.625em;
+  --code-size: 0.875em;
+}
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-inline-code {
+  font-weight: 600;
+}
+/* Disc-style bullets: mute the source marker so the list reads like prose */
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-formatting-list {
+  color: var(--text-faint);
+}
