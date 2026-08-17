@@ -365,30 +365,35 @@ body.native-slides-mode.native-slides-theme-glass
 }
 
 /* 10f. Lecture — pixel-matched to the slideshow cards on jyywiki.cn
-   (measured from https://jyywiki.cn/OS/2026/lect1.md): 600px card, ~1px slate
-   border, 6px radius, Tailwind "shadow-md", padding 8px/16px, h1 22.4px/700
-   (1.4em) with a 1px bottom rule + 8px padding, h2 18px/600 (1.125em),
-   body 16px, disc lists with 8px-per-level indent and 4px item margins
-   (≈ line-height 1.75 on list lines), blockquote = plain left indent. */
+   (measured from https://jyywiki.cn/OS/2026/lect1.md): 37.5em card (600px on
+   the wiki's 16px base), ~1px slate border, 0.375em radius, Tailwind
+   "shadow-md", padding 0.5em/1em, h1 1.4em/700 with a 1px bottom rule +
+   0.5em padding, h2 1.125em/600, disc lists with a constant marker-to-text
+   gap, blockquote = plain left indent. All metrics are em-based and there is
+   no font-size lock, so the card follows Obsidian's editor font size and the
+   whole layout scales as one piece (Obsidian's zoom caps at ~173%). */
 body.native-slides-mode.native-slides-theme-lecture {
-  --ns-card-radius: 6px;
+  --ns-card-radius: 0.375em;
   --ns-card-border: 1px solid color-mix(in srgb, var(--text-muted) 45%, transparent);
   --ns-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --ns-pad-y: 8px;
-  --ns-pad-x: 16px;
+  --ns-pad-y: 0.5em;
+  --ns-pad-x: 1em;
   --ns-bar-bg: var(--background-primary);
   --ns-bar-border: 1px solid var(--background-modifier-border);
   --ns-title-rule: 1px solid var(--background-modifier-border);
-  --ns-title-rule-pad: 8px;
-  --ns-title-rule-h: 9px; /* 8px padding + 1px border, keeps CM aligned */
+  --ns-title-rule-pad: 0.5em;
+  --ns-title-rule-h: 0.5625em; /* 0.5em padding + ~1px border, keeps CM aligned */
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-content {
-  width: min(80vw, 600px);
-  max-width: min(80vw, 600px);
-  font-size: 16px; /* jyywiki baseline; all em metrics below resolve to px */
+  width: min(80vw, 37.5em); /* 600px at the wiki's 16px baseline */
+  max-width: min(80vw, 37.5em);
+  /* No font-size lock: the card follows Obsidian's editor font size and
+     every metric below is em-based, so the whole layout scales as one piece
+     (Obsidian's zoom caps at ~173%; the font-size setting goes further).
+     At a 16px base this resolves to the jyywiki pixel replication. */
   --h1-size: 1.4em;
   --h1-weight: 700;
   --h1-line-height: 1.43;
@@ -410,29 +415,29 @@ body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-list-line-1 {
-  padding-inline-start: 18.2px !important;
-  text-indent: -18.2px !important;
+  padding-inline-start: 1.1375em !important;
+  text-indent: -1.1375em !important;
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-list-line-2 {
-  padding-inline-start: 38.6px !important;
-  text-indent: -38.6px !important;
+  padding-inline-start: 2.4125em !important;
+  text-indent: -2.4125em !important;
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-list-line-3 {
-  padding-inline-start: 59px !important;
-  text-indent: -59px !important;
+  padding-inline-start: 3.6875em !important;
+  text-indent: -3.6875em !important;
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-list-line-4 {
-  padding-inline-start: 79.4px !important;
-  text-indent: -79.4px !important;
+  padding-inline-start: 4.9625em !important;
+  text-indent: -4.9625em !important;
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
@@ -449,13 +454,13 @@ body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-header-3 {
-  padding-block: 2px;
+  padding-block: 0.125em;
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-header-2 {
-  padding-block: 0 6px; /* flush below the title rule, roomier above the list */
+  padding-block: 0 0.375em; /* flush below the title rule, roomier above the list */
 }
 /* Blank source lines before a heading render as full 24px lines in Live
    Preview, but the wiki separates blocks with near-zero margins; shrink
@@ -472,7 +477,7 @@ body.native-slides-mode.native-slides-theme-lecture
   .markdown-source-view.mod-cm6.is-live-preview
   .HyperMD-header-1 {
   border-bottom: 1px solid var(--background-modifier-border);
-  padding-bottom: 8px;
+  padding-bottom: 0.5em;
 }
 /* Blockquote: jyy renders it as a plain left-indented paragraph
    (1px left border, no background, 26px line-height on 16px text) */
