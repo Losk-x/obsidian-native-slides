@@ -364,14 +364,16 @@ body.native-slides-mode.native-slides-theme-glass
   backdrop-filter: blur(14px);
 }
 
-/* 10f. Lecture — pixel-matched to the slideshow cards on jyywiki.cn
-   (measured from https://jyywiki.cn/OS/2026/lect1.md): 37.5em card (600px on
-   the wiki's 16px base), ~1px slate border, 0.375em radius, Tailwind
-   "shadow-md", padding 0.5em/1em, h1 1.4em/700 with a 1px bottom rule +
-   0.5em padding, h2 1.125em/600, disc lists with a constant marker-to-text
-   gap, blockquote = plain left indent. All metrics are em-based and there is
-   no font-size lock, so the card follows Obsidian's editor font size and the
-   whole layout scales as one piece (Obsidian's zoom caps at ~173%). */
+/* 10f. Lecture — after the slideshow cards on jyywiki.cn
+   (measured from https://jyywiki.cn/OS/2026/lect1.md): bordered card with
+   Tailwind "shadow-md" and 0.5em/1em padding, h1 1.4em/700 with a 1px bottom
+   rule + 0.5em padding, h2 1.125em/600, disc lists with a constant
+   marker-to-text gap and 0.25em item spacing (the wiki's li 4px margins),
+   blockquote = plain left indent. All metrics are em-based with no font-size
+   lock, so the card follows Obsidian's editor font size and the whole layout
+   scales as one piece (Obsidian's zoom caps at ~173%). Unlike the wiki's
+   fixed 600px slide, the card runs 80vw wide and stretches to fill the
+   window height — large-screen reading beats pixel fidelity here. */
 body.native-slides-mode.native-slides-theme-lecture {
   --ns-card-radius: 0.375em;
   --ns-card-border: 1px solid color-mix(in srgb, var(--text-muted) 45%, transparent);
@@ -388,8 +390,8 @@ body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-content {
-  width: min(80vw, 37.5em); /* 600px at the wiki's 16px baseline */
-  max-width: min(80vw, 37.5em);
+  width: 80vw; /* the wiki's 37.5em feels cramped on large screens */
+  max-width: 80vw;
   /* No font-size lock: the card follows Obsidian's editor font size and
      every metric below is em-based, so the whole layout scales as one piece
      (Obsidian's zoom caps at ~173%; the font-size setting goes further).
@@ -403,10 +405,34 @@ body.native-slides-mode.native-slides-theme-lecture
   --h3-size: 1em;
   --h3-weight: 600;
   --p-spacing: 0.5em;
-  --list-spacing: 0px; /* jyy li pitch is a bare 20px line; Obsidian's default
-     0.075em pads each list line +2.4px, making the list run loose */
+  --list-spacing: 0px; /* lecture list gaps come from the margin rules below */
   --ns-title-spacing: 0px; /* the wiki's H1 sits flush under the card edge */
   --code-size: 0.875em;
+}
+/* List item spacing: the wiki's li carries 4px top/bottom margins (collapsed
+   → 4px between rows, 8px where the indent shallows back to the parent).
+   Live Preview lines don't collapse margins, so pad each row ±0.125em
+   (= 2px at the wiki's 16px base → 4px between adjacent rows) and add
+   another 0.125em below the row that precedes a shallower one (= 8px). */
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:has(.cm-formatting-list) {
+  padding-block: 0.125em !important;
+}
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line.HyperMD-list-line-2:has(+ .cm-line.HyperMD-list-line-1),
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line.HyperMD-list-line-3:has(+ .cm-line:not(.HyperMD-list-line-4)):not(:has(+ .cm-line.HyperMD-list-line-3)),
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line.HyperMD-list-line-4:has(+ .cm-line:not(.HyperMD-list-line-4)) {
+  padding-bottom: 0.25em !important;
 }
 /* List geometry: pin every level to the wiki's measured text offsets
    (35 / 55.4 / 75.8 / … px from the card edge, −16.8px content offset).
@@ -607,4 +633,31 @@ body.native-slides-mode.native-slides-theme-lecture
   .cm-content
   .cm-inline-code {
   font-weight: 600;
+}
+/* Lecture screen fill: the card stretches to (almost) the full window —
+   slim outer margins, bottom clears the fixed slides bar — with the content
+   top-aligned inside. Reading a slide should feel like a full page, not a
+   small card adrift in backdrop. */
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-scroller {
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;
+  padding-bottom: calc(var(--native-slides-tabbar-height, 38px) + 12px) !important;
+}
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-sizer {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  flex: 1 0 auto;
 }
