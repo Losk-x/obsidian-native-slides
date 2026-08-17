@@ -3,7 +3,6 @@ deck: ["[[jyy-overview]]"]
 title: 操作系统：定义
 source: https://jyywiki.cn/OS/2026/lect1
 ---
-
 > Operating System: A body of software, in fact, that is responsible for _making it easy to run programs_ (even allowing you to seemingly run many at the same time), allowing programs to share memory, enabling programs to interact with devices, and other fun stuff like that. (OSTEP)
 
 ## 诸多疑点

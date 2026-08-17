@@ -3,7 +3,6 @@ deck: ["[[jyy-overview]]", "[[jyy-os-def]]"]
 title: 舞台已经搭好，去书写你的传奇
 source: https://jyywiki.cn/OS/2026/lect1
 ---
-
 ## 《操作系统》是你的最后一门编程课
 - 能够知道程序**能做什么**、**为什么能做**
     - 为什么能创建窗口？
