@@ -19,6 +19,7 @@ export function registerCommands(plugin: NativeSlidesPlugin): void {
   plugin.addCommand({
     id: "ns-toggle-pointer",
     name: "Toggle Mouse Pointer",
+    hotkeys: [{ modifiers: ["Mod", "Shift"], key: "M" }],
     checkCallback: (checking) => {
       if (!document.body.classList.contains("native-slides-mode")) return false;
       if (!checking) plugin.togglePointer();
