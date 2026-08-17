@@ -148,12 +148,19 @@ body.native-slides-mode
 /* ── 7c. Images: standalone image lines are centered ──
    Only the img element itself is centered (block + auto margins) —
    the line/paragraph text is never affected, so headings or text
-   near images can never be centered by accident. */
+   near images can never be centered by accident. Embeds
+   (![[img]]) are wrapped in an inline .internal-embed span, so the
+   container is made a centered block too. */
 body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-line:has(> img)
-  img {
+  img,
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line
+  .internal-embed:has(img) {
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -533,15 +540,29 @@ body.native-slides-mode.native-slides-theme-lecture
   line-height: 1.25;
 }
 /* Disc bullets: the wiki renders real disc markers while Live Preview shows
-   the source dash, so hide the dash on inactive lines and draw a filled dot
-   on the line itself, 8px left of each level's text start (the raw marker
+   the source dash, so fully suppress the marker span and all of its
+   pseudo-elements on inactive lines (color: transparent alone leaves a
+   second bullet from .list-bullet::after) and draw a filled dot on the
+   line itself, 8px left of each level's text start (the raw marker
    returns on the active line for editing) */
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-line:not(.cm-active)
-  .list-bullet {
-  color: transparent;
+  .list-bullet,
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:not(.cm-active)
+  .list-bullet::before,
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:not(.cm-active)
+  .list-bullet::after {
+  display: none !important;
+  content: none !important;
+  visibility: hidden !important;
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
