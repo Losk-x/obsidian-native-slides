@@ -68,6 +68,14 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   );
 }
 
+/* Presentation pointer hiding: every cursor in the window disappears
+   (toggled by the Toggle Mouse Pointer command; the body class is cleared
+   automatically outside Slides mode). */
+body.native-slides-pointer-hidden,
+body.native-slides-pointer-hidden * {
+  cursor: none !important;
+}
+
 /* A single property chip */
 .native-slides-item {
   display: inline-flex;

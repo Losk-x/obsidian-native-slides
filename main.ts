@@ -52,6 +52,8 @@ export default class NativeSlidesPlugin extends Plugin {
   private lastKey = "";
   /** Last measured tab-bar height (px) — cached while the slides bar is hidden */
   private tabBarHeight = 0;
+  /** Whether the mouse pointer is hidden for presenting (session state) */
+  pointerHidden = false;
 
   async onload(): Promise<void> {
     await this.loadSettings();
@@ -120,6 +122,7 @@ export default class NativeSlidesPlugin extends Plugin {
     this.bar?.remove();
     this.bar = null;
     document.body.classList.remove("native-slides-mode");
+    document.body.classList.remove("native-slides-pointer-hidden");
     this.removeThemeClasses();
   }
 
@@ -163,6 +166,29 @@ export default class NativeSlidesPlugin extends Plugin {
       if (c.startsWith("native-slides-theme-") && c !== cls) document.body.classList.remove(c);
     }
     document.body.classList.add(cls);
+  }
+
+  /**
+   * Toggle hiding the mouse pointer window-wide for presenting. Hiding also
+   * parks focus (blurs the editor, so the caret disappears); showing leaves
+   * focus parked — click slide content to resume editing.
+   */
+  togglePointer(): void {
+    this.pointerHidden = !this.pointerHidden;
+    if (this.pointerHidden) {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && active !== document.body) active.blur();
+    }
+    this.refresh();
+  }
+
+  /**
+   * Keep the `native-slides-pointer-hidden` body class in sync with the
+   * presenting state — styles.css turns every cursor invisible while set.
+   * Leaving Slides mode always restores the pointer.
+   */
+  private syncPointerClass(slides: boolean): void {
+    document.body.classList.toggle("native-slides-pointer-hidden", slides && this.pointerHidden);
   }
 
   /**
@@ -284,6 +310,8 @@ export default class NativeSlidesPlugin extends Plugin {
     // Slides mode is active only while actually in the editable Live Preview
     const slides = this.slidesMode && isCard && livePreviewNow;
     document.body.classList.toggle("native-slides-mode", slides);
+    if (!slides) this.pointerHidden = false; // leaving Slides restores the pointer
+    this.syncPointerClass(slides);
     this.updateInlineTitle(slides);
 
     const barVisible = slides && !this.settings.barHidden;

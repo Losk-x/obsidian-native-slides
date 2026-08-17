@@ -28,11 +28,11 @@
   - Flip pages with the ◀ ▶ buttons in the slides bar, or with the **Previous Page / Next Page** commands (default hotkeys `Cmd/Ctrl+Shift+←/→`, rebindable under **Settings → Hotkeys**). Pressing them from a native mode enters Slides mode and flips. Both arrows are always shown; the one that cannot move (first page's ◀, last page's ▶) is disabled and light gray.
   - **Create Next Slide** command: creates a new slide right after the current one — the file is named `<current>-next` (collision-aware: `-2`, `-3`, …), both `deck` properties are rewired automatically, and the new note opens ready for content. If the current note's second `deck` link points to a missing note, that exact note is created instead (fixing the ⚠ warning); on the overview page it inserts a new first page. Greyed out for notes that cannot take a next slide.
 
-- **Presenting without a blinking caret**: click the slides bar to move focus out of the editor — the caret disappears while you talk; click any slide content to resume editing.
+- **Presenting without a blinking caret**: click the slides bar to move focus out of the editor — the caret disappears while you talk; click any slide content to resume editing. The **Toggle Mouse Pointer** command goes one step further and hides the mouse pointer window-wide (focus parked too); run it again to restore, and leaving Slides mode always restores it.
 - **Auto-enter Slides mode** (settings, default off): open deck notes straight into Slides mode; leave off to enter manually.
 - A **settings tab** picks the style template and toggles the ◀ ▶ buttons, the page number, and auto-enter.
 - **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the slides bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
-- **Commands**: _Toggle Slides Mode_ (`Mod+Shift+E`), _Previous Page / Next Page_, _Create Next Slide_, and _Toggle Slides Bar_ — all rebindable under _Settings → Hotkeys_.
+- **Commands**: _Toggle Slides Mode_ (`Mod+Shift+E`), _Previous Page / Next Page_, _Create Next Slide_, _Toggle Mouse Pointer_, and _Toggle Slides Bar_ — all rebindable under _Settings → Hotkeys_.
 
 ## Overview page with an embedded Base view
 
