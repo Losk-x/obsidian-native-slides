@@ -398,6 +398,8 @@ body.native-slides-mode.native-slides-theme-lecture
   --h3-size: 1em;
   --h3-weight: 600;
   --p-spacing: 0.5em;
+  --list-spacing: 0px; /* jyy li pitch is a bare 20px line; Obsidian's default
+     0.075em pads each list line +2.4px, making the list run loose */
   --ns-title-spacing: 0px; /* the wiki's H1 sits flush under the card edge */
   --code-size: 0.875em;
 }
