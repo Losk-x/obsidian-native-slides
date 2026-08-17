@@ -29,7 +29,7 @@ import { DeckService } from "./src/deck-service";
 import { formatValue } from "./src/deck";
 import { activeFrontmatter, currentMode, frontmatterOf, isLivePreview } from "./src/mode";
 import { NativeSlidesSettingTab } from "./src/settings";
-import { DECK_KEY, DEFAULT_SETTINGS, type NativeSlidesSettings } from "./src/types";
+import { DECK_KEY, DEFAULT_SETTINGS, SLIDES_THEMES, type NativeSlidesSettings } from "./src/types";
 import { clearChildren } from "./src/utils";
 
 export default class NativeSlidesPlugin extends Plugin {
@@ -120,6 +120,7 @@ export default class NativeSlidesPlugin extends Plugin {
     this.bar?.remove();
     this.bar = null;
     document.body.classList.remove("native-slides-mode");
+    this.removeThemeClasses();
   }
 
   // ── Settings ──────────────────────────────────────────────────────────
@@ -139,6 +140,29 @@ export default class NativeSlidesPlugin extends Plugin {
     if (!file) return false;
     const fm = frontmatterOf(this.app, file);
     return fm !== null && DECK_KEY in fm;
+  }
+
+  /** Remove every `native-slides-theme-*` class from <body> */
+  private removeThemeClasses(): void {
+    for (const cls of Array.from(document.body.classList)) {
+      if (cls.startsWith("native-slides-theme-")) document.body.classList.remove(cls);
+    }
+  }
+
+  /**
+   * Keep the single `native-slides-theme-<id>` body class in sync with the
+   * `slidesTheme` setting — the style templates in styles.css hook off it.
+   * Unknown ids (e.g. after a downgrade) fall back to the default theme.
+   */
+  private applyThemeClass(): void {
+    const id = SLIDES_THEMES.some((t) => t.id === this.settings.slidesTheme)
+      ? this.settings.slidesTheme
+      : DEFAULT_SETTINGS.slidesTheme;
+    const cls = `native-slides-theme-${id}`;
+    for (const c of Array.from(document.body.classList)) {
+      if (c.startsWith("native-slides-theme-") && c !== cls) document.body.classList.remove(c);
+    }
+    document.body.classList.add(cls);
   }
 
   /**
@@ -240,6 +264,7 @@ export default class NativeSlidesPlugin extends Plugin {
   /** Decide what the slides bar shows, then re-render it */
   refresh(): void {
     if (!this.bar) return;
+    this.applyThemeClass();
 
     const file = this.app.workspace.getActiveFile();
     const mode = currentMode(this.app);

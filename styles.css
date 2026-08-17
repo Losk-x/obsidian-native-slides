@@ -44,8 +44,9 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   padding: 0 14px;
   font-size: var(--font-ui-small, 13px);
   color: var(--text-muted);
-  background: var(--background-secondary);
-  border-top: 1px solid var(--background-modifier-border);
+  background: var(--ns-bar-bg, var(--background-secondary));
+  border-top: var(--ns-bar-border, 1px solid var(--background-modifier-border));
+  backdrop-filter: var(--ns-bar-blur, none);
   z-index: var(--layer-status-bar, 100);
   white-space: nowrap;
   overflow-x: auto;
@@ -60,7 +61,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   gap: 4px;
   padding: 1px 8px;
   border-radius: var(--radius-s, 4px);
-  background: var(--background-secondary-alt);
+  background: var(--ns-chip-bg, var(--background-secondary-alt));
   color: var(--text-normal);
   font-size: var(--font-ui-smaller, 12px);
   flex-shrink: 0;
@@ -94,7 +95,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   min-width: 26px;
   padding: 0 6px;
   border-radius: var(--radius-s, 4px);
-  background: var(--background-secondary-alt);
+  background: var(--ns-btn-bg, var(--background-secondary-alt));
   color: var(--text-normal);
   font-size: 12px;
   line-height: 1;
@@ -118,7 +119,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   flex-shrink: 0;
   padding-left: 14px;
   font-size: var(--font-ui-smaller, 12px);
-  color: var(--text-faint);
+  color: var(--ns-page-color, var(--text-faint));
   font-variant-numeric: tabular-nums;
 }
 
@@ -172,14 +173,16 @@ body.native-slides-mode
 }
 
 /* ── 9. Slides mode: card appearance ─────────────────────────
-   The slide content sits in a centered "card": a simple dashed-outline
-   surface (theme variables → light/dark adaptive) over a dimmed backdrop.
-   Top-aligned, readable width, horizontally centered. Geometry only. */
+   The slide content sits in a centered "card" (theme variables → light/dark
+   adaptive) over a dimmed backdrop: top-aligned, readable width, horizontally
+   centered. Geometry lives here; the visual surface (border, background,
+   shadow, backdrop) comes from the --ns-* variables set by the active style
+   template (section 10). */
 body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-scroller {
-  background: var(--background-secondary);
+  background: var(--ns-backdrop, var(--background-secondary));
   padding-top: 40px;
   padding-bottom: 0 !important;
 }
@@ -202,26 +205,10 @@ body.native-slides-mode
   margin-right: auto;
   min-height: 0 !important; /* wrap content → visible bottom edge */
   padding: 20px 40px !important; /* tighter top/bottom */
-  background-color: var(--background-primary);
-  border: none;
-  border-radius: var(--radius-s);
-  /* dashed outline: 2px-thick short dashes (8px on / 8px off) */
-  background-image:
-    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
-    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
-    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%),
-    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%);
-  background-size:
-    16px 2px,
-    16px 2px,
-    2px 16px,
-    2px 16px;
-  background-position:
-    left top,
-    left bottom,
-    left top,
-    right top;
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-color: var(--ns-card-bg, var(--background-primary));
+  border: var(--ns-card-border, none);
+  border-radius: var(--ns-card-radius, var(--radius-s));
+  box-shadow: var(--ns-card-shadow, none);
 }
 body.native-slides-mode
   .workspace-leaf.mod-active
@@ -280,4 +267,89 @@ body.native-slides-mode
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-header-1 {
   letter-spacing: normal !important;
+}
+
+/* ── 10. Style templates (Settings → Style template) ────────
+   Each template is a body class `native-slides-theme-<id>` that overrides
+   the --ns-* variables consumed above; everything stays theme-adaptive
+   (light/dark) because the variables resolve to Obsidian theme variables.
+   Fallbacks in sections 4–9 equal the Dashed look, so Slides mode stays
+   fully styled even before the plugin applies a template class. */
+
+/* 10a. Dashed outline — the classic wireframe look (default) */
+body.native-slides-mode.native-slides-theme-dashed
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  /* dashed outline: 2px-thick short dashes (8px on / 8px off) */
+  background-image:
+    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
+    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
+    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%),
+    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%);
+  background-size:
+    16px 2px,
+    16px 2px,
+    2px 16px,
+    2px 16px;
+  background-position:
+    left top,
+    left bottom,
+    left top,
+    right top;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+}
+
+/* 10b. Paper card — a solid slide with a soft shadow, like a real deck */
+body.native-slides-mode.native-slides-theme-paper {
+  --ns-card-radius: var(--radius-m);
+  --ns-card-border: 1px solid var(--background-modifier-border);
+  --ns-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.16);
+  --ns-bar-bg: var(--background-primary);
+}
+
+/* 10c. Minimal — no card boundary at all; content floats on a flat canvas */
+body.native-slides-mode.native-slides-theme-minimal {
+  --ns-backdrop: var(--background-primary);
+  --ns-card-bg: transparent;
+  --ns-bar-bg: var(--background-primary);
+  --ns-bar-border: 1px solid transparent;
+  --ns-chip-bg: var(--background-secondary);
+  --ns-btn-bg: var(--background-secondary);
+}
+
+/* 10d. Accent edge — a confident accent line on the card top and the bar */
+body.native-slides-mode.native-slides-theme-accent {
+  --ns-card-radius: var(--radius-m);
+  --ns-card-border: 1px solid var(--background-modifier-border);
+  --ns-card-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  --ns-bar-border: 2px solid var(--interactive-accent);
+  --ns-page-color: var(--text-accent);
+}
+body.native-slides-mode.native-slides-theme-accent
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  border-top: 4px solid var(--interactive-accent);
+}
+
+/* 10e. Frosted glass — translucent, blurred surfaces over a tinted backdrop */
+body.native-slides-mode.native-slides-theme-glass {
+  --ns-backdrop: radial-gradient(
+    120% 90% at 85% 0%,
+    color-mix(in srgb, var(--interactive-accent) 10%, var(--background-secondary)),
+    var(--background-secondary) 55%
+  );
+  --ns-card-bg: color-mix(in srgb, var(--background-primary) 72%, transparent);
+  --ns-card-radius: var(--radius-m);
+  --ns-card-border: 1px solid var(--background-modifier-border);
+  --ns-card-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+  --ns-bar-bg: color-mix(in srgb, var(--background-secondary) 80%, transparent);
+  --ns-bar-blur: blur(12px);
+}
+body.native-slides-mode.native-slides-theme-glass
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  backdrop-filter: blur(14px);
 }

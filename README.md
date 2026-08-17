@@ -10,7 +10,7 @@
 
 ## Features
 
-- **Slides mode** (_deck notes only_): an immersive, editable card view — "one screen = one card". Enter with the **Toggle Slides Mode** command (default hotkey `Mod+Shift+E`); the ribbon, sidebars and tab bar hide, the slide content sits in a **centered card** (rounded corners + shadow, theme-adaptive, 80vw wide); the file name is hidden by default, and a **Slides title** setting can show any frontmatter property (or `filename` for the file name) as the card title, the editor **clips to a single screen** (no scrolling — content beyond the fold is clipped), and a slides bar shows the note's properties, ◀ ▶ navigation and the auto-computed page number. Exiting restores the view you came from (Source / Live Preview / Reading).
+- **Slides mode** (_deck notes only_): an immersive, editable card view — "one screen = one card". Enter with the **Toggle Slides Mode** command (default hotkey `Mod+Shift+E`); the ribbon, sidebars and tab bar hide, the slide content sits in a **centered card** (80vw wide, theme-adaptive) whose look you choose from **five built-in style templates** — _Dashed outline_ (default), _Paper card_, _Minimal_, _Accent edge_ and _Frosted glass_ — each restyling the card **and** the slides bar; the file name is hidden by default, and a **Slides title** setting can show any frontmatter property (or `filename` for the file name) as the card title, the editor **clips to a single screen** (no scrolling — content beyond the fold is clipped), and a slides bar shows the note's properties, ◀ ▶ navigation and the auto-computed page number. Exiting restores the view you came from (Source / Live Preview / Reading).
 - **Native modes stay untouched**: Source mode, the default Live Preview and Reading view keep Obsidian's default behaviour — no status-bar hiding, no slides bar, no fullscreen, no styling. Slides mode is the plugin's only surface, so it coexists cleanly with other plugins that also modify the reading view.
 - **PPT-style deck navigation** with **one reserved frontmatter property, `deck`** (up to two markdown links):
 
@@ -29,7 +29,7 @@
   - **Create Next Slide** command: creates a new slide right after the current one — the file is named `<current>-next` (collision-aware: `-2`, `-3`, …), both `deck` properties are rewired automatically, and the new note opens ready for content. If the current note's second `deck` link points to a missing note, that exact note is created instead (fixing the ⚠ warning); on the overview page it inserts a new first page. Greyed out for notes that cannot take a next slide.
 
 - **Auto-enter Slides mode** (settings, default off): open deck notes straight into Slides mode; leave off to enter manually.
-- A **settings tab** toggles the ◀ ▶ buttons, the page number, and auto-enter.
+- A **settings tab** picks the style template and toggles the ◀ ▶ buttons, the page number, and auto-enter.
 - **Broken deck-link warnings**: if a `deck` link points to a note that doesn't exist, the slides bar shows a ⚠ warning chip so authors can spot typos (the chain simply ends or excludes the link).
 - **Commands**: _Toggle Slides Mode_ (`Mod+Shift+E`), _Previous Page / Next Page_, _Create Next Slide_, and _Toggle Slides Bar_ — all rebindable under _Settings → Hotkeys_.
 

@@ -1,5 +1,6 @@
 import { PluginSettingTab, Setting } from "obsidian";
 import type NativeSlidesPlugin from "../main";
+import { SLIDES_THEMES } from "./types";
 
 /** Settings tab: toggles the nav buttons, page number, auto-enter and bar visibility. */
 export class NativeSlidesSettingTab extends PluginSettingTab {
@@ -11,6 +12,20 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "Native Slides · Settings" });
+
+    new Setting(containerEl)
+      .setName("Style template")
+      .setDesc(
+        "Built-in look for the Slides card and slides bar (border, background, shadow, bar styling). Every template adapts to light and dark themes.",
+      )
+      .addDropdown((dropdown) => {
+        for (const t of SLIDES_THEMES) dropdown.addOption(t.id, t.label);
+        dropdown.setValue(this.plugin.settings.slidesTheme).onChange(async (value) => {
+          this.plugin.settings.slidesTheme = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        });
+      });
 
     new Setting(containerEl)
       .setName("Show Previous/Next buttons")
