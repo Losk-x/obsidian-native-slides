@@ -367,7 +367,7 @@ body.native-slides-mode.native-slides-theme-glass
 /* 10f. Lecture — after the slideshow cards on jyywiki.cn
    (measured from https://jyywiki.cn/OS/2026/lect1.md): bordered card with
    Tailwind "shadow-md" and 0.5em/1em padding, h1 1.4em/700 with a 1px bottom
-   rule + 0.5em padding, h2 1.125em/600, disc lists with a constant
+   rule + 0.25em padding, h2 1.125em/600, disc lists with a constant
    marker-to-text gap and 0.25em item spacing (the wiki's li 4px margins),
    blockquote = plain left indent. All metrics are em-based with no font-size
    lock, so the card follows Obsidian's editor font size and the whole layout
@@ -383,8 +383,8 @@ body.native-slides-mode.native-slides-theme-lecture {
   --ns-bar-bg: var(--background-primary);
   --ns-bar-border: 1px solid var(--background-modifier-border);
   --ns-title-rule: 1px solid var(--background-modifier-border);
-  --ns-title-rule-pad: 0.5em;
-  --ns-title-rule-h: 0.5625em; /* 0.5em padding + ~1px border, keeps CM aligned */
+  --ns-title-rule-pad: 0.25em;
+  --ns-title-rule-h: 0.3125em; /* 0.25em padding + ~1px border, keeps CM aligned */
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
