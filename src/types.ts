@@ -6,12 +6,12 @@ export interface SlidesTheme {
 
 /** Built-in style templates for the Slides card + bar (all theme-adaptive) */
 export const SLIDES_THEMES: readonly SlidesTheme[] = [
+  { id: "jyy", label: "Lecture (jyy)" },
   { id: "dashed", label: "Dashed outline" },
   { id: "paper", label: "Paper card" },
   { id: "minimal", label: "Minimal" },
   { id: "accent", label: "Accent edge" },
   { id: "glass", label: "Frosted glass" },
-  { id: "lecture", label: "Lecture (wiki)" },
 ];
 
 /** Plugin settings */
@@ -36,7 +36,7 @@ export const DEFAULT_SETTINGS: NativeSlidesSettings = {
   barHidden: false,
   autoEnterSlides: false,
   slidesTitle: "",
-  slidesTheme: "dashed",
+  slidesTheme: "jyy",
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */
