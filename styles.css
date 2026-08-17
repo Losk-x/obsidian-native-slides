@@ -457,6 +457,15 @@ body.native-slides-mode.native-slides-theme-lecture
   .HyperMD-header-2 {
   padding-block: 0 6px; /* flush below the title rule, roomier above the list */
 }
+/* Blank source lines before a heading render as full 24px lines in Live
+   Preview, but the wiki separates blocks with near-zero margins; shrink
+   empty lines (marked by a bare <br>) preceding an H1/H2 to a sliver */
+body.native-slides-mode.native-slides-theme-lecture
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:has(> br):has(+ .HyperMD-header-1, + .HyperMD-header-2) {
+  line-height: 0.35;
+}
 /* Body H1s get the same bottom rule as the card title (::before) */
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
