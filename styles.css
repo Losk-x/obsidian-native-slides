@@ -541,61 +541,45 @@ body.native-slides-mode.native-slides-theme-lecture
   .cm-line:has(.cm-formatting-list) {
   line-height: 1.25;
 }
-/* Disc bullets: the wiki renders real disc markers while Live Preview shows
-   the source dash, so fully suppress the marker span and all of its
-   pseudo-elements on inactive lines (color: transparent alone leaves a
-   second bullet from .list-bullet::after) and draw a filled dot on the
-   line itself, 8px left of each level's text start (the raw marker
-   returns on the active line for editing) */
+/* Disc bullets: the wiki uses list-style-position: inside, so its disc sits
+   in the marker's own inline box and the disc-to-text gap is identical at
+   every nesting level. Live Preview instead shows the source dash, so make
+   the dash glyph transparent (its box width is preserved, keeping the text
+   position) and paint a filled dot inside the same marker box — anchored to
+   the text, it can never drift per level. Any theme pseudo-elements on the
+   marker are suppressed so no second bullet appears. The raw marker returns
+   on the active line for editing. */
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
-  .cm-line:not(.cm-active)
-  .list-bullet,
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet {
+  position: relative;
+}
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
-  .cm-line:not(.cm-active)
-  .list-bullet::before,
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet
+  .cm-formatting-list {
+  color: transparent !important;
+}
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
-  .cm-line:not(.cm-active)
-  .list-bullet::after {
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet::before {
   display: none !important;
   content: none !important;
-  visibility: hidden !important;
 }
 body.native-slides-mode.native-slides-theme-lecture
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
-  .HyperMD-list-line-1:not(.cm-active):has(.cm-formatting-list-ul)::before {
-  left: 10.2px;
-}
-body.native-slides-mode.native-slides-theme-lecture
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .HyperMD-list-line-2:not(.cm-active):has(.cm-formatting-list-ul)::before {
-  left: 30.6px;
-}
-body.native-slides-mode.native-slides-theme-lecture
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .HyperMD-list-line-3:not(.cm-active):has(.cm-formatting-list-ul)::before {
-  left: 51px;
-}
-body.native-slides-mode.native-slides-theme-lecture
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .HyperMD-list-line-4:not(.cm-active):has(.cm-formatting-list-ul)::before {
-  left: 71.4px;
-}
-body.native-slides-mode.native-slides-theme-lecture
-  .workspace-leaf.mod-active
-  .markdown-source-view.mod-cm6.is-live-preview
-  .HyperMD-list-line:not(.cm-active):has(.cm-formatting-list-ul)::before {
-  content: "";
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet::after {
+  content: "" !important;
   position: absolute;
+  left: 0;
   top: 50%;
   width: 0.38em;
   height: 0.38em;
