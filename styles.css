@@ -153,17 +153,16 @@ body.native-slides-pointer-hidden * {
   right: 0;
   height: 3px;
   cursor: pointer;
-  background: var(--ns-progress-track, var(--background-modifier-border));
   z-index: 1;
-}
-.native-slides-progress:hover {
-  height: 5px;
 }
 .native-slides-progress-fill {
   height: 100%;
   background: var(--ns-progress-fill, var(--interactive-accent));
-  transition: width 0.15s ease;
+  transition: height 0.15s ease;
   pointer-events: none;
+}
+.native-slides-progress:hover .native-slides-progress-fill {
+  height: 5px;
 }
 
 /* ── 6c. Slides layout symmetry ────────────────────────────
