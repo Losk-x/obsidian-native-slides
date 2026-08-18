@@ -145,24 +145,40 @@ body.native-slides-pointer-hidden * {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 6b. Progress indicator (thin clickable line at bar top) ── */
+/* ── 6b. Progress indicator (discrete clickable segments at bar top) ──
+   One segment per slide in the deck chain. Past = semi-transparent accent,
+   current = full accent, future = track colour. Each segment is an
+   independent hover/click target. */
 .native-slides-progress {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  cursor: pointer;
+  display: flex;
+  gap: 2px;
   z-index: 1;
 }
-.native-slides-progress-fill {
-  height: 100%;
-  background: var(--ns-progress-fill, var(--interactive-accent));
-  transition: height 0.15s ease;
-  pointer-events: none;
+.native-slides-progress-seg {
+  flex: 1;
+  height: 3px;
+  cursor: pointer;
+  border-radius: 1px;
+  transition:
+    height 0.15s ease,
+    filter 0.15s ease;
 }
-.native-slides-progress:hover .native-slides-progress-fill {
+.native-slides-progress-seg:hover {
   height: 5px;
+  filter: brightness(1.2);
+}
+.native-slides-progress-seg--past {
+  background: color-mix(in srgb, var(--interactive-accent) 45%, transparent);
+}
+.native-slides-progress-seg--current {
+  background: var(--interactive-accent);
+}
+.native-slides-progress-seg--future {
+  background: var(--ns-progress-track, var(--background-modifier-border));
 }
 
 /* ── 6c. Slides layout symmetry ────────────────────────────

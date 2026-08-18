@@ -383,20 +383,17 @@ export default class NativeSlidesPlugin extends Plugin {
       this.bar.appendChild(page);
     }
 
-    // ── Progress indicator: thin clickable line at the top of the bar ──
+    // ── Progress indicator: discrete clickable segments at bar top ──
     if (this.settings.showProgress && deck && deck.chain.length > 1) {
       const progress = document.createElement("div");
       progress.className = "native-slides-progress";
-      const fill = document.createElement("div");
-      fill.className = "native-slides-progress-fill";
-      fill.style.width = `${(deck.index / (deck.chain.length - 1)) * 100}%`;
-      progress.appendChild(fill);
-      progress.addEventListener("click", (e) => {
-        const rect = progress.getBoundingClientRect();
-        const ratio = (e.clientX - rect.left) / rect.width;
-        const targetIndex = Math.round(ratio * (deck.chain.length - 1));
-        void this.jumpTo(Math.max(0, Math.min(deck.chain.length - 1, targetIndex)));
-      });
+      for (let i = 0; i < deck.chain.length; i++) {
+        const seg = document.createElement("div");
+        const state = i < deck.index ? "past" : i === deck.index ? "current" : "future";
+        seg.className = `native-slides-progress-seg native-slides-progress-seg--${state}`;
+        seg.addEventListener("click", () => void this.jumpTo(i));
+        progress.appendChild(seg);
+      }
       this.bar.appendChild(progress);
     }
 
