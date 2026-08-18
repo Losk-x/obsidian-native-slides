@@ -54,18 +54,10 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   box-sizing: border-box;
 }
 
-/* Presentation parking affordance: the bar takes the plain arrow cursor and
-   brightens slightly on hover, signalling "park the mouse here to hide the
-   caret" (the click handler in bar.ts blurs the editor). */
+/* Presentation parking affordance: the bar takes the plain arrow cursor
+   (the click handler in bar.ts blurs the editor to hide the caret). */
 .native-slides-bar {
   cursor: default;
-}
-.native-slides-bar:hover {
-  background: color-mix(
-    in srgb,
-    var(--ns-bar-bg, var(--background-secondary)) 90%,
-    var(--text-normal)
-  );
 }
 
 /* Presentation pointer hiding: every cursor in the window disappears
@@ -140,9 +132,46 @@ body.native-slides-pointer-hidden * {
   margin-left: auto;
   flex-shrink: 0;
   padding-left: 14px;
-  font-size: var(--font-ui-smaller, 12px);
-  color: var(--ns-page-color, var(--text-faint));
+  padding-right: 6px;
+  font-size: calc(var(--native-slides-tabbar-height, 38px) * 0.42);
+  color: var(--ns-page-color, var(--text-muted));
   font-variant-numeric: tabular-nums;
+}
+
+/* ── 6b. Progress indicator (discrete clickable segments at bar top) ──
+   One segment per slide in the deck chain. Past = semi-transparent accent,
+   current = full accent, future = track colour. Each segment is an
+   independent hover/click target. */
+.native-slides-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 2px;
+  z-index: 1;
+}
+.native-slides-progress-seg {
+  flex: 1;
+  height: 3px;
+  cursor: pointer;
+  border-radius: 1px;
+  transition:
+    height 0.15s ease,
+    filter 0.15s ease;
+}
+.native-slides-progress-seg:hover {
+  height: 5px;
+  filter: brightness(1.2);
+}
+.native-slides-progress-seg--past {
+  background: color-mix(in srgb, var(--interactive-accent) 45%, transparent);
+}
+.native-slides-progress-seg--current {
+  background: var(--interactive-accent);
+}
+.native-slides-progress-seg--future {
+  background: var(--ns-progress-track, var(--background-modifier-border));
 }
 
 /* ── 6c. Slides layout symmetry ────────────────────────────

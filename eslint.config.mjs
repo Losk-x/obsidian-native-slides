@@ -10,6 +10,7 @@ export default tseslint.config(
       "node_modules/**",
       ".npm-cache/**",
       "package-lock.json",
+      "demo-shots/**",
     ],
   },
   js.configs.recommended,

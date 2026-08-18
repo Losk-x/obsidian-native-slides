@@ -8,6 +8,15 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ## [Unreleased]
 
+### Added
+
+- **Deck progress indicator**: discrete clickable segments at the top of the slides bar — one segment per slide in the deck chain. Past segments use semi-transparent accent, current uses full accent, future uses track colour. Each segment is an independent hover/click target to jump to that slide. Toggle under Settings → Show progress bar (default on).
+
+### Changed
+
+- **Page number format**: now shows `N / Total` instead of "Overview" / "Page N". Overview is page 0; content pages start from 1; total excludes the overview page.
+- **Settings defaults**: `pageNumberStyle` now defaults to "none" (progress segments alone give enough context); new `showSlidesBar` master toggle (default on) can hide the entire bar. Page number is now a dropdown: "N / Total", "N", or "None".
+
 ## [0.1.0] - 2026-08-18
 
 ### Added

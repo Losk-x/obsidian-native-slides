@@ -28,6 +28,17 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Show slides bar")
+      .setDesc("Master toggle for the entire slides bar at the bottom of the window")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.showSlidesBar).onChange(async (value) => {
+          this.plugin.settings.showSlidesBar = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        }),
+      );
+
+    new Setting(containerEl)
       .setName("Show Previous/Next buttons")
       .setDesc(
         "Show ◀ ▶ buttons on the left of the slides bar when the note belongs to a deck (has a `deck` property)",
@@ -41,13 +52,33 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Show page number")
+      .setName("Page number style")
       .setDesc(
-        "Auto-computed from the deck chain (overview page shows “Overview”); shown at the bottom-right",
+        'Shown at the bottom-right. "N / Total": overview = page 0, content from 1, total excludes overview. "N": just the current page number. "None": hidden.',
+      )
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions({
+            fraction: "N / Total",
+            current: "N",
+            none: "None",
+          })
+          .setValue(this.plugin.settings.pageNumberStyle)
+          .onChange(async (value) => {
+            this.plugin.settings.pageNumberStyle = value as "fraction" | "current" | "none";
+            await this.plugin.saveSettings();
+            this.plugin.refresh();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName("Show progress bar")
+      .setDesc(
+        "Discrete clickable segments at the top of the slides bar -- one per slide, click to jump",
       )
       .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.showPageNumber).onChange(async (value) => {
-          this.plugin.settings.showPageNumber = value;
+        toggle.setValue(this.plugin.settings.showProgress).onChange(async (value) => {
+          this.plugin.settings.showProgress = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
         }),

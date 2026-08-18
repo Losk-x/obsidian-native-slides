@@ -18,8 +18,12 @@ export const SLIDES_THEMES: readonly SlidesTheme[] = [
 export interface NativeSlidesSettings {
   /** Show ◀ ▶ previous/next buttons on the left of the slides bar */
   showNavButtons: boolean;
-  /** Show the auto-computed page number at the bottom-right of the slides bar */
-  showPageNumber: boolean;
+  /** Page number display style: "fraction" = N / Total, "current" = N, "none" = hidden */
+  pageNumberStyle: "fraction" | "current" | "none";
+  /** Show a thin clickable progress line at the top of the slides bar */
+  showProgress: boolean;
+  /** Show the entire slides bar (master toggle) */
+  showSlidesBar: boolean;
   /** Whether the user manually hid the slides bar (toggle command) */
   barHidden: boolean;
   /** Auto-enter Slides mode when opening a deck note (default off) */
@@ -32,7 +36,9 @@ export interface NativeSlidesSettings {
 
 export const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showNavButtons: true,
-  showPageNumber: true,
+  pageNumberStyle: "none",
+  showProgress: true,
+  showSlidesBar: true,
   barHidden: false,
   autoEnterSlides: false,
   slidesTitle: "",

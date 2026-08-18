@@ -285,6 +285,18 @@ export default class NativeSlidesPlugin extends Plugin {
     void this.app.workspace.openLinkText(target, file.path);
   }
 
+  /** Jump to a specific index in the deck chain (progress bar click) */
+  async jumpTo(index: number): Promise<void> {
+    const file = this.app.workspace.getActiveFile();
+    if (!file) return;
+    const deck = this.deckService.compute(file);
+    if (!deck || index < 0 || index >= deck.chain.length || index === deck.index) return;
+    const target = deck.chain[index];
+    if (!target) return;
+    if (!this.slidesMode) await this.enterSlides();
+    void this.app.workspace.openLinkText(target, file.path);
+  }
+
   // ── Bar rendering ─────────────────────────────────────────────────────
 
   /** Decide what the slides bar shows, then re-render it */
@@ -314,7 +326,7 @@ export default class NativeSlidesPlugin extends Plugin {
     this.syncPointerClass(slides);
     this.updateInlineTitle(slides);
 
-    const barVisible = slides && !this.settings.barHidden;
+    const barVisible = slides && this.settings.showSlidesBar && !this.settings.barHidden;
     if (!barVisible) {
       this.bar.style.display = "none";
       return;
@@ -363,12 +375,29 @@ export default class NativeSlidesPlugin extends Plugin {
     }
 
     // ── Bottom-right: auto-computed page number ──
-    if (this.settings.showPageNumber && deck) {
+    if (this.settings.pageNumberStyle !== "none" && deck) {
       const page = document.createElement("span");
       page.className = "native-slides-page";
-      // chain[0] is the overview note; slides start at index 1 → "Page 1"
-      page.textContent = deck.index === 0 ? "Overview" : `Page ${deck.index}`;
+      // chain[0] is the overview (page 0); content slides start at index 1.
+      // Total = content pages only (excludes overview).
+      const total = deck.chain.length - 1;
+      page.textContent =
+        this.settings.pageNumberStyle === "fraction" ? `${deck.index} / ${total}` : `${deck.index}`;
       this.bar.appendChild(page);
+    }
+
+    // ── Progress indicator: discrete clickable segments at bar top ──
+    if (this.settings.showProgress && deck && deck.chain.length > 1) {
+      const progress = document.createElement("div");
+      progress.className = "native-slides-progress";
+      for (let i = 0; i < deck.chain.length; i++) {
+        const seg = document.createElement("div");
+        const state = i < deck.index ? "past" : i === deck.index ? "current" : "future";
+        seg.className = `native-slides-progress-seg native-slides-progress-seg--${state}`;
+        seg.addEventListener("click", () => void this.jumpTo(i));
+        progress.appendChild(seg);
+      }
+      this.bar.appendChild(progress);
     }
 
     // Hide the slides bar entirely when it has nothing to display (no properties,
