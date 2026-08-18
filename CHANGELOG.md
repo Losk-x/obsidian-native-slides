@@ -8,6 +8,8 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-18
+
 ### Added
 
 - **Style templates**: six built-in looks for the Slides card **and** slides bar — _Lecture (jyy)_ (default, after the slideshow cards of [jyywiki.cn](https://jyywiki.cn) lecture notes: a bordered card with soft shadow that fills the screen, a compact bold title over a thin bottom rule, tight headings, and disc bullets with a constant marker-to-text gap), _Dashed outline_ (the previous default look), _Paper card_ (solid slide with soft shadow), _Minimal_ (no card boundary, flat canvas), _Accent edge_ (accent line on card top and bar) and _Frosted glass_ (translucent, blurred surfaces over a tinted backdrop). Pick one under Settings → Style template; every template adapts to light and dark themes. The example vault ships a small deck (`jyy-overview`) that reproduces two jyywiki slides for side-by-side comparison.
