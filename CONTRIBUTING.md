@@ -5,6 +5,7 @@ Thanks for your interest in contributing! This guide explains how to set up, bui
 ## Development setup
 
 1. **Clone and install**:
+
    ```bash
    git clone https://github.com/l05k/obsidian-native-slides.git
    cd obsidian-native-slides
@@ -12,6 +13,7 @@ Thanks for your interest in contributing! This guide explains how to set up, bui
    ```
 
 2. **Link to your vault** (so Obsidian picks up changes):
+
    ```bash
    # Replace <vault-path> with your vault's plugins directory
    ln -s "$(pwd)/main.js" <vault-path>/.obsidian/plugins/native-slides/main.js
@@ -20,9 +22,11 @@ Thanks for your interest in contributing! This guide explains how to set up, bui
    ```
 
 3. **Build and watch** (auto-rebuild on save):
+
    ```bash
    npm run dev
    ```
+
    After each rebuild, restart Obsidian (or use the Hot-Reload plugin) to pick up `main.js` / `styles.css` changes.
 
 4. **Run checks before committing**:
@@ -51,6 +55,7 @@ Thanks for your interest in contributing! This guide explains how to set up, bui
 ## Reporting issues
 
 Use the issue templates:
+
 - **Bug report**: for crashes, unexpected behavior, or visual glitches.
 - **Feature request**: for new functionality or enhancements.
 
