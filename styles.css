@@ -686,7 +686,9 @@ body.native-slides-mode
   display: flex;
   flex-direction: column;
   padding-top: 12px;
-  padding-bottom: calc(var(--native-slides-tabbar-height, 38px) + 12px) !important;
+  padding-bottom: calc(
+    var(--native-slides-bar-height, var(--native-slides-tabbar-height, 38px)) + 12px
+  ) !important;
 }
 body.native-slides-mode
   .workspace-leaf.mod-active
