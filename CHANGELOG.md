@@ -11,6 +11,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 ### Added
 
 - **Deck progress indicator**: discrete clickable segments at the top of the slides bar — one segment per slide in the deck chain. Past segments use semi-transparent accent, current uses full accent, future uses track colour. Each segment is an independent hover/click target to jump to that slide. Toggle under Settings → Show progress bar (default on).
+- **Escape exits Slides mode**: press Escape to leave Slides mode and return to the previous view. Toggle under Settings → Escape exits Slides mode (default on).
 
 ### Changed
 
