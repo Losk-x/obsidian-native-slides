@@ -43,7 +43,7 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Show page number")
       .setDesc(
-        'Auto-computed from the deck chain (overview page shows "Overview"); shown at the bottom-right',
+        'Page number as "N / Total" (overview = page 0, content pages from 1; total excludes overview); shown at the bottom-right',
       )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showPageNumber).onChange(async (value) => {

@@ -10,7 +10,11 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ### Added
 
-- **Deck progress indicator**: a thin clickable line at the top of the slides bar shows your position in the deck (filled with the accent color). Click anywhere on the line to jump to that slide. Toggle under Settings → Show progress bar (default on).
+- **Deck progress indicator**: discrete clickable segments at the top of the slides bar — one segment per slide in the deck chain. Past segments use semi-transparent accent, current uses full accent, future uses track colour. Each segment is an independent hover/click target to jump to that slide. Toggle under Settings → Show progress bar (default on).
+
+### Changed
+
+- **Page number format**: now shows `N / Total` instead of "Overview" / "Page N". Overview is page 0; content pages start from 1; total excludes the overview page.
 
 ## [0.1.0] - 2026-08-18
 

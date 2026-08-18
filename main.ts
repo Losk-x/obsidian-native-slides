@@ -378,8 +378,10 @@ export default class NativeSlidesPlugin extends Plugin {
     if (this.settings.showPageNumber && deck) {
       const page = document.createElement("span");
       page.className = "native-slides-page";
-      // chain[0] is the overview note; slides start at index 1 → "Page 1"
-      page.textContent = deck.index === 0 ? "Overview" : `Page ${deck.index}`;
+      // chain[0] is the overview (page 0); content slides start at index 1.
+      // Total = content pages only (excludes overview).
+      const total = deck.chain.length - 1;
+      page.textContent = `${deck.index} / ${total}`;
       this.bar.appendChild(page);
     }
 
