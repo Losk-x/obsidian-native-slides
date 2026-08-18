@@ -44,13 +44,36 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   padding: 0 14px;
   font-size: var(--font-ui-small, 13px);
   color: var(--text-muted);
-  background: var(--background-secondary);
-  border-top: 1px solid var(--background-modifier-border);
+  background: var(--ns-bar-bg, var(--background-secondary));
+  border-top: var(--ns-bar-border, 1px solid var(--background-modifier-border));
+  backdrop-filter: var(--ns-bar-blur, none);
   z-index: var(--layer-status-bar, 100);
   white-space: nowrap;
   overflow-x: auto;
   user-select: text;
   box-sizing: border-box;
+}
+
+/* Presentation parking affordance: the bar takes the plain arrow cursor and
+   brightens slightly on hover, signalling "park the mouse here to hide the
+   caret" (the click handler in bar.ts blurs the editor). */
+.native-slides-bar {
+  cursor: default;
+}
+.native-slides-bar:hover {
+  background: color-mix(
+    in srgb,
+    var(--ns-bar-bg, var(--background-secondary)) 90%,
+    var(--text-normal)
+  );
+}
+
+/* Presentation pointer hiding: every cursor in the window disappears
+   (toggled by the Toggle Mouse Pointer command; the body class is cleared
+   automatically outside Slides mode). */
+body.native-slides-pointer-hidden,
+body.native-slides-pointer-hidden * {
+  cursor: none !important;
 }
 
 /* A single property chip */
@@ -60,7 +83,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   gap: 4px;
   padding: 1px 8px;
   border-radius: var(--radius-s, 4px);
-  background: var(--background-secondary-alt);
+  background: var(--ns-chip-bg, var(--background-secondary-alt));
   color: var(--text-normal);
   font-size: var(--font-ui-smaller, 12px);
   flex-shrink: 0;
@@ -94,7 +117,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   min-width: 26px;
   padding: 0 6px;
   border-radius: var(--radius-s, 4px);
-  background: var(--background-secondary-alt);
+  background: var(--ns-btn-bg, var(--background-secondary-alt));
   color: var(--text-normal);
   font-size: 12px;
   line-height: 1;
@@ -118,7 +141,7 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   flex-shrink: 0;
   padding-left: 14px;
   font-size: var(--font-ui-smaller, 12px);
-  color: var(--text-faint);
+  color: var(--ns-page-color, var(--text-faint));
   font-variant-numeric: tabular-nums;
 }
 
@@ -147,12 +170,19 @@ body.native-slides-mode
 /* ── 7c. Images: standalone image lines are centered ──
    Only the img element itself is centered (block + auto margins) —
    the line/paragraph text is never affected, so headings or text
-   near images can never be centered by accident. */
+   near images can never be centered by accident. Embeds
+   (![[img]]) are wrapped in an inline .internal-embed span, so the
+   container is made a centered block too. */
 body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-line:has(> img)
-  img {
+  img,
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line
+  .internal-embed:has(img) {
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -172,14 +202,16 @@ body.native-slides-mode
 }
 
 /* ── 9. Slides mode: card appearance ─────────────────────────
-   The slide content sits in a centered "card": a simple dashed-outline
-   surface (theme variables → light/dark adaptive) over a dimmed backdrop.
-   Top-aligned, readable width, horizontally centered. Geometry only. */
+   The slide content sits in a centered "card" (theme variables → light/dark
+   adaptive) over a dimmed backdrop: top-aligned, readable width, horizontally
+   centered. Geometry lives here; the visual surface (border, background,
+   shadow, backdrop) comes from the --ns-* variables set by the active style
+   template (section 10). */
 body.native-slides-mode
   .workspace-leaf.mod-active
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-scroller {
-  background: var(--background-secondary);
+  background: var(--ns-backdrop, var(--background-secondary));
   padding-top: 40px;
   padding-bottom: 0 !important;
 }
@@ -201,27 +233,28 @@ body.native-slides-mode
   margin-left: auto;
   margin-right: auto;
   min-height: 0 !important; /* wrap content → visible bottom edge */
-  padding: 20px 40px !important; /* tighter top/bottom */
-  background-color: var(--background-primary);
-  border: none;
-  border-radius: var(--radius-s);
-  /* dashed outline: 2px-thick short dashes (8px on / 8px off) */
-  background-image:
-    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
-    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
-    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%),
-    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%);
-  background-size:
-    16px 2px,
-    16px 2px,
-    2px 16px,
-    2px 16px;
-  background-position:
-    left top,
-    left bottom,
-    left top,
-    right top;
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  padding: var(--ns-pad-y, 0.5em) var(--ns-pad-x, 1em) !important;
+  background-color: var(--ns-card-bg, var(--background-primary));
+  border: var(--ns-card-border, none);
+  border-radius: var(--ns-card-radius, var(--radius-s));
+  box-shadow: var(--ns-card-shadow, none);
+  /* Shared slide typography (tuned on the Lecture (jyy) template, applied to
+     all of them). No font-size lock: every metric is em-based, so the whole
+     layout scales as one piece with Obsidian's editor font size. */
+  --ns-pad-y: 0.5em;
+  --ns-pad-x: 1em;
+  --h1-size: 1.4em;
+  --h1-weight: 700;
+  --h1-line-height: 1.43;
+  --h2-size: 1.125em;
+  --h2-weight: 600;
+  --h2-line-height: 1.56;
+  --h3-size: 1em;
+  --h3-weight: 600;
+  --p-spacing: 0.5em;
+  --list-spacing: 0px; /* list gaps come from the padding rules in section 10f */
+  --ns-title-spacing: 0px; /* the card title sits flush under the card edge */
+  --code-size: 0.875em;
 }
 body.native-slides-mode
   .workspace-leaf.mod-active
@@ -249,7 +282,8 @@ body.native-slides-mode
   .cm-content[data-slides-title] {
   position: relative;
   padding-top: calc(
-    20px + var(--p-spacing, 1rem) + var(--h1-line-height, 1.3) * var(--h1-size, 2em)
+    var(--ns-pad-y, 0.5em) + var(--ns-title-spacing, var(--p-spacing, 1rem)) +
+      var(--h1-line-height, 1.3) * var(--h1-size, 2em) + var(--ns-title-rule-h, 0px)
   ) !important;
 }
 body.native-slides-mode
@@ -258,10 +292,10 @@ body.native-slides-mode
   .cm-content[data-slides-title]::before {
   content: attr(data-slides-title);
   position: absolute;
-  top: 20px;
-  left: 40px;
-  right: 40px;
-  padding-top: var(--p-spacing, 1rem);
+  top: var(--ns-pad-y, 0.5em);
+  left: var(--ns-pad-x, 1em);
+  right: var(--ns-pad-x, 1em);
+  padding-top: var(--ns-title-spacing, var(--p-spacing, 1rem));
   font-family: var(--h1-font, inherit);
   font-size: var(--h1-size, 2em);
   line-height: var(--h1-line-height, 1.3);
@@ -269,6 +303,8 @@ body.native-slides-mode
   font-variant: var(--h1-variant, normal);
   color: var(--h1-color, inherit);
   margin: 0;
+  border-bottom: var(--ns-title-rule, none);
+  padding-bottom: var(--ns-title-rule-pad, 0px);
 }
 /* ── 9c. Unify the body H1 letter-spacing with the title ────
    Themes often tighten heading letter-spacing (here -0.015em); the generated
@@ -280,4 +316,374 @@ body.native-slides-mode
   .markdown-source-view.mod-cm6.is-live-preview
   .cm-header-1 {
   letter-spacing: normal !important;
+}
+
+/* ── 10. Style templates (Settings → Style template) ────────
+   Each template is a body class `native-slides-theme-<id>` that overrides
+   the --ns-* variables consumed above; everything stays theme-adaptive
+   (light/dark) because the variables resolve to Obsidian theme variables.
+   Fallbacks in sections 4–9 equal the Dashed look, so Slides mode stays
+   fully styled even before the plugin applies a template class. */
+
+/* 10a. Dashed outline — the classic wireframe look (default) */
+body.native-slides-mode.native-slides-theme-dashed
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  /* dashed outline: 2px-thick short dashes (8px on / 8px off) */
+  background-image:
+    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
+    linear-gradient(90deg, var(--text-muted) 50%, transparent 50%),
+    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%),
+    linear-gradient(0deg, var(--text-muted) 50%, transparent 50%);
+  background-size:
+    16px 2px,
+    16px 2px,
+    2px 16px,
+    2px 16px;
+  background-position:
+    left top,
+    left bottom,
+    left top,
+    right top;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+}
+
+/* 10b. Paper card — a solid slide with a soft shadow, like a real deck */
+body.native-slides-mode.native-slides-theme-paper {
+  --ns-card-radius: var(--radius-m);
+  --ns-card-border: 1px solid var(--background-modifier-border);
+  --ns-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.16);
+  --ns-bar-bg: var(--background-primary);
+}
+
+/* 10c. Minimal — no card boundary at all; content floats on a flat canvas */
+body.native-slides-mode.native-slides-theme-minimal {
+  --ns-backdrop: var(--background-primary);
+  --ns-card-bg: transparent;
+  --ns-bar-bg: var(--background-primary);
+  --ns-bar-border: 1px solid transparent;
+  --ns-chip-bg: var(--background-secondary);
+  --ns-btn-bg: var(--background-secondary);
+}
+
+/* 10d. Accent edge — a confident accent line on the card top and the bar */
+body.native-slides-mode.native-slides-theme-accent {
+  --ns-card-radius: var(--radius-m);
+  --ns-card-border: 1px solid var(--background-modifier-border);
+  --ns-card-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  --ns-bar-border: 2px solid var(--interactive-accent);
+  --ns-page-color: var(--text-accent);
+}
+body.native-slides-mode.native-slides-theme-accent
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  border-top: 4px solid var(--interactive-accent);
+}
+
+/* 10e. Frosted glass — translucent, blurred surfaces over a tinted backdrop */
+body.native-slides-mode.native-slides-theme-glass {
+  --ns-backdrop: radial-gradient(
+    120% 90% at 85% 0%,
+    color-mix(in srgb, var(--interactive-accent) 10%, var(--background-secondary)),
+    var(--background-secondary) 55%
+  );
+  --ns-card-bg: color-mix(in srgb, var(--background-primary) 72%, transparent);
+  --ns-card-radius: var(--radius-m);
+  --ns-card-border: 1px solid var(--background-modifier-border);
+  --ns-card-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+  --ns-bar-bg: color-mix(in srgb, var(--background-secondary) 80%, transparent);
+  --ns-bar-blur: blur(12px);
+}
+body.native-slides-mode.native-slides-theme-glass
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  backdrop-filter: blur(14px);
+}
+
+/* 10f. Lecture (jyy) — surface only, after the slideshow cards on jyywiki.cn
+   (measured from https://jyywiki.cn/OS/2026/lect1.md): ~1px slate border,
+   0.375em radius, Tailwind "shadow-md", and the H1 title's thin bottom rule.
+   The typography + layout that this design introduced (compact headings,
+   disc bullets, list pitch, 80vw full-height card…) now applies to every
+   template — see the base rules in section 9. */
+body.native-slides-mode.native-slides-theme-jyy {
+  --ns-card-radius: 0.375em;
+  --ns-card-border: 1px solid color-mix(in srgb, var(--text-muted) 45%, transparent);
+  --ns-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --ns-bar-bg: var(--background-primary);
+  --ns-bar-border: 1px solid var(--background-modifier-border);
+  --ns-title-rule: 1px solid var(--background-modifier-border);
+  --ns-title-rule-pad: 0.25em;
+  --ns-title-rule-h: 0.3125em; /* 0.25em padding + ~1px border, keeps CM aligned */
+}
+/* List item spacing: the wiki's li carries 4px top/bottom margins (collapsed
+   → 4px between rows, 8px where the indent shallows back to the parent).
+   Live Preview lines don't collapse margins, so pad each row ±0.125em
+   (= 2px at the wiki's 16px base → 4px between adjacent rows) and add
+   another 0.125em below the row that precedes a shallower one (= 8px). */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:has(.cm-formatting-list) {
+  padding-block: 0.125em !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line.HyperMD-list-line-2:has(+ .cm-line.HyperMD-list-line-1),
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line.HyperMD-list-line-3:has(+ .cm-line:not(.HyperMD-list-line-4)):not(
+    :has(+ .cm-line.HyperMD-list-line-3)
+  ),
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line.HyperMD-list-line-4:has(+ .cm-line:not(.HyperMD-list-line-4)) {
+  padding-bottom: 0.25em !important;
+}
+/* List geometry: pin every level to the wiki's measured text offsets
+   (35 / 55.4 / 75.8 / … px from the card edge, −16.8px content offset).
+   !important beats the inline styles Obsidian's layout writes. */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-list-line-1 {
+  padding-inline-start: 1.1375em !important;
+  text-indent: -1.1375em !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-list-line-2 {
+  padding-inline-start: 2.4125em !important;
+  text-indent: -2.4125em !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-list-line-3 {
+  padding-inline-start: 3.6875em !important;
+  text-indent: -3.6875em !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-list-line-4 {
+  padding-inline-start: 4.9625em !important;
+  text-indent: -4.9625em !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-fold-indicator {
+  display: none;
+}
+/* Compact headings: the wiki's h1/h2 carry zero margin */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-header-1,
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-header-3 {
+  padding-block: 0.125em;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-header-2 {
+  padding-block: 0 0.375em; /* flush below the title rule, roomier above the list */
+}
+/* Blank source lines before a heading render as full 24px lines in Live
+   Preview, but the wiki separates blocks with near-zero margins; shrink
+   empty lines (marked by a bare <br>) preceding an H1/H2 to a sliver */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:has(> br):has(+ .HyperMD-header-1, + .HyperMD-header-2) {
+  line-height: 0.35;
+}
+/* Body H1s get the same bottom rule as the card title (::before) */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-header-1 {
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 0.5em;
+}
+/* Blockquote: jyy renders it as a plain left-indented paragraph
+   (1px left border, no background, 26px line-height on 16px text) */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  --blockquote-border-thickness: 1px;
+  --blockquote-border-color: var(--background-modifier-border);
+  --blockquote-background-color: transparent;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .HyperMD-quote {
+  border-inline-start: 1px solid var(--background-modifier-border) !important;
+  border-left: 1px solid var(--background-modifier-border) !important;
+  line-height: 1.625;
+}
+/* The wiki shows plain nested lists (no indent guides) and links without
+   underlines (dark indigo handled by the theme's link color) */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-indent::before {
+  content: none;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-link,
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-url {
+  text-decoration: none !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-link::after,
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-url::after,
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-link::before,
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-underline::after {
+  display: none !important;
+  content: none !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-underline {
+  text-decoration: none;
+}
+/* List item pitch: the wiki's li runs 20px on 16px text (1.25); its 4px
+   item margins land nested lists ~1 line lower, which this also approximates */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:has(.cm-formatting-list) {
+  line-height: 1.25;
+}
+/* Disc bullets: the wiki uses list-style-position: inside, so its disc sits
+   in the marker's own inline box and the disc-to-text gap is identical at
+   every nesting level. Live Preview instead shows the source dash, so make
+   the dash glyph transparent (its box width is preserved, keeping the text
+   position) and paint a filled dot inside the same marker box — anchored to
+   the text, it can never drift per level. Any theme pseudo-elements on the
+   marker are suppressed so no second bullet appears. The raw marker returns
+   on the active line for editing. */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet {
+  position: relative;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet
+  .cm-formatting-list {
+  color: transparent !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet::before {
+  display: none !important;
+  content: none !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-line:not(.cm-active):has(.cm-formatting-list-ul)
+  .list-bullet::after {
+  content: "" !important;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.38em;
+  height: 0.38em;
+  border-radius: 50%;
+  background-color: var(--text-normal);
+  transform: translateY(-50%);
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content
+  .cm-inline-code {
+  font-weight: 600;
+}
+/* JYY screen fill: the card stretches to (almost) the full window —
+   slim outer margins, bottom clears the fixed slides bar — with the content
+   top-aligned inside. Reading a slide should feel like a full page, not a
+   small card adrift in backdrop. */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-scroller {
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;
+  padding-bottom: calc(var(--native-slides-tabbar-height, 38px) + 12px) !important;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-sizer {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content {
+  flex: 1 0 auto;
+}
+/* The card title (::before) inherits the H1 font size (1.4em), so the em-based
+   --ns-* variables resolve larger there than on the card itself — the title
+   would sink and the bottom rule drift below its reserved space. Divide the
+   title scale back out so both contexts agree. */
+body.native-slides-mode
+  .workspace-leaf.mod-active
+  .markdown-source-view.mod-cm6.is-live-preview
+  .cm-content[data-slides-title]::before {
+  top: calc(var(--ns-pad-y) / 1.4);
+  left: calc(var(--ns-pad-x) / 1.4);
+  right: calc(var(--ns-pad-x) / 1.4);
+  padding-top: calc(var(--ns-title-spacing) / 1.4);
+  padding-bottom: calc(var(--ns-title-rule-pad) / 1.4);
 }

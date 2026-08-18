@@ -15,6 +15,17 @@ export function registerCommands(plugin: NativeSlidesPlugin): void {
       plugin.refresh();
     },
   });
+  // Hide / show the mouse pointer window-wide (presenting; Slides mode only)
+  plugin.addCommand({
+    id: "ns-toggle-pointer",
+    name: "Toggle Mouse Pointer",
+    hotkeys: [{ modifiers: ["Mod", "Shift"], key: "M" }],
+    checkCallback: (checking) => {
+      if (!document.body.classList.contains("native-slides-mode")) return false;
+      if (!checking) plugin.togglePointer();
+      return true;
+    },
+  });
   // Previous / next page (deck navigation; entering Slides mode as needed)
   plugin.addCommand({
     id: "ns-prev",

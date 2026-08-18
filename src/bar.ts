@@ -3,6 +3,15 @@ export function createBar(): HTMLElement {
   const bar = document.createElement("div");
   bar.className = "native-slides-bar";
   bar.style.display = "none";
+  bar.title = "Click to park the mouse — hides the editor caret while presenting";
+  // Presentation parking: clicking the bar keeps focus out of the editor so
+  // the blinking caret disappears. preventDefault stops the click from moving
+  // focus or starting a text selection; buttons still receive their click event.
+  bar.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active !== document.body) active.blur();
+  });
   return bar;
 }
 
