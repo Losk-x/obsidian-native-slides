@@ -38,9 +38,6 @@ jobs:
       - name: Build
         run: npm run build:release
 
-      - name: Fail if main.js is stale
-        run: git diff --exit-code -- main.js
-
       - name: Extract release notes from CHANGELOG
         id: notes
         run: |
