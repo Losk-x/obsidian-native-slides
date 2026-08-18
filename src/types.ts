@@ -28,6 +28,8 @@ export interface NativeSlidesSettings {
   barHidden: boolean;
   /** Auto-enter Slides mode when opening a deck note (default off) */
   autoEnterSlides: boolean;
+  /** Press Escape to exit Slides mode (default on) */
+  escExitsSlides: boolean;
   /** Frontmatter property shown as the card title ("" = none, "filename" = file name) */
   slidesTitle: string;
   /** Style template id from SLIDES_THEMES (card + bar appearance) */
@@ -41,6 +43,7 @@ export const DEFAULT_SETTINGS: NativeSlidesSettings = {
   showSlidesBar: true,
   barHidden: false,
   autoEnterSlides: false,
+  escExitsSlides: true,
   slidesTitle: "",
   slidesTheme: "jyy",
 };

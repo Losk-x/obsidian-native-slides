@@ -98,6 +98,16 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Escape exits Slides mode")
+      .setDesc("Press Escape to leave Slides mode and return to the previous view")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.escExitsSlides).onChange(async (value) => {
+          this.plugin.settings.escExitsSlides = value;
+          await this.plugin.saveSettings();
+        }),
+      );
+
+    new Setting(containerEl)
       .setName("Slides title")
       .setDesc(
         "Frontmatter property to show as the card title (H1). Leave empty for none; type `filename` to use the file name.",

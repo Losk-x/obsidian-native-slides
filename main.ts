@@ -112,7 +112,14 @@ export default class NativeSlidesPlugin extends Plugin {
       { capture: true },
     );
 
-    // ── 5. Create the slides bar and do the first render ────────────────
+    // ── 5. Escape key exits Slides mode ─────────────────────────────────
+    this.registerDomEvent(document, "keydown", (evt: KeyboardEvent) => {
+      if (evt.key === "Escape" && this.slidesMode && this.settings.escExitsSlides) {
+        this.exitSlides();
+      }
+    });
+
+    // ── 6. Create the slides bar and do the first render ────────────────
     this.bar = createBar();
     document.body.appendChild(this.bar);
     this.refresh();
