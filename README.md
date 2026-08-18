@@ -132,3 +132,7 @@ The source is split into `src/` modules (`types`, `mode`, `deck-service`, `bar`,
 ## License
 
 Released under the [MIT License](LICENSE). Copyright (c) 2026 Yuanhui Luo.
+
+## Credits
+
+- **Lecture (jyy) style template**: modeled after the slideshow cards of [jyywiki.cn](https://jyywiki.cn) by [Yanyan Jiang](https://jyywiki.cn/). The card geometry (80vw width, soft shadow, thin bottom rule on headings, disc bullets with constant marker-to-text gap, list item spacing) is adapted from Jiang's lecture notes design.

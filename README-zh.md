@@ -132,3 +132,7 @@ npm run dev        # 监听 main.ts，变更时自动重建 main.js
 ## 许可证
 
 本项目基于 [MIT License](LICENSE) 发布。Copyright (c) 2026 Yuanhui Luo。
+
+## 致谢
+
+- **Lecture (jyy) 样式模板**：参考 [jyywiki.cn](https://jyywiki.cn/) 的幻灯片卡片设计，作者 [蒋炎岩（Yanyan Jiang）](https://jyywiki.cn/)。卡片几何（80vw 宽度、柔和阴影、标题底部细线、实心圆点列表、列表项间距）均改编自蒋炎岩的讲义笔记设计。
