@@ -54,18 +54,10 @@ body.native-slides-mode .workspace-tabs.mod-top .workspace-tab-header-container 
   box-sizing: border-box;
 }
 
-/* Presentation parking affordance: the bar takes the plain arrow cursor and
-   brightens slightly on hover, signalling "park the mouse here to hide the
-   caret" (the click handler in bar.ts blurs the editor). */
+/* Presentation parking affordance: the bar takes the plain arrow cursor
+   (the click handler in bar.ts blurs the editor to hide the caret). */
 .native-slides-bar {
   cursor: default;
-}
-.native-slides-bar:hover {
-  background: color-mix(
-    in srgb,
-    var(--ns-bar-bg, var(--background-secondary)) 90%,
-    var(--text-normal)
-  );
 }
 
 /* Presentation pointer hiding: every cursor in the window disappears
