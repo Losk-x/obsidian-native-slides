@@ -132,8 +132,8 @@ body.native-slides-pointer-hidden * {
   margin-left: auto;
   flex-shrink: 0;
   padding-left: 14px;
-  font-size: var(--font-ui-smaller, 12px);
-  color: var(--ns-page-color, var(--text-faint));
+  font-size: clamp(11px, 1.2vw, 16px);
+  color: var(--ns-page-color, var(--text-muted));
   font-variant-numeric: tabular-nums;
 }
 
