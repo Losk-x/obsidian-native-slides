@@ -52,16 +52,23 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Show page number")
+      .setName("Page number style")
       .setDesc(
-        'Page number as "N / Total" (overview = page 0, content pages from 1; total excludes overview); shown at the bottom-right',
+        'Shown at the bottom-right. "N / Total": overview = page 0, content from 1, total excludes overview. "N": just the current page number. "None": hidden.',
       )
-      .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.showPageNumber).onChange(async (value) => {
-          this.plugin.settings.showPageNumber = value;
-          await this.plugin.saveSettings();
-          this.plugin.refresh();
-        }),
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions({
+            fraction: "N / Total",
+            current: "N",
+            none: "None",
+          })
+          .setValue(this.plugin.settings.pageNumberStyle)
+          .onChange(async (value) => {
+            this.plugin.settings.pageNumberStyle = value as "fraction" | "current" | "none";
+            await this.plugin.saveSettings();
+            this.plugin.refresh();
+          }),
       );
 
     new Setting(containerEl)

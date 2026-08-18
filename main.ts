@@ -375,13 +375,14 @@ export default class NativeSlidesPlugin extends Plugin {
     }
 
     // ── Bottom-right: auto-computed page number ──
-    if (this.settings.showPageNumber && deck) {
+    if (this.settings.pageNumberStyle !== "none" && deck) {
       const page = document.createElement("span");
       page.className = "native-slides-page";
       // chain[0] is the overview (page 0); content slides start at index 1.
       // Total = content pages only (excludes overview).
       const total = deck.chain.length - 1;
-      page.textContent = `${deck.index} / ${total}`;
+      page.textContent =
+        this.settings.pageNumberStyle === "fraction" ? `${deck.index} / ${total}` : `${deck.index}`;
       this.bar.appendChild(page);
     }
 
