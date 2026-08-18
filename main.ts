@@ -334,6 +334,12 @@ export default class NativeSlidesPlugin extends Plugin {
     this.updateInlineTitle(slides);
 
     const barVisible = slides && this.settings.showSlidesBar && !this.settings.barHidden;
+    // Update the CSS variable that controls the card's bottom padding.
+    // When the bar is hidden, the card fills the full window height.
+    document.documentElement.style.setProperty(
+      "--native-slides-bar-height",
+      barVisible ? `${this.tabBarHeight}px` : "0px",
+    );
     if (!barVisible) {
       this.bar.style.display = "none";
       return;
