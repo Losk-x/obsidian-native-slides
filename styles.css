@@ -132,7 +132,7 @@ body.native-slides-pointer-hidden * {
   margin-left: auto;
   flex-shrink: 0;
   padding-left: 14px;
-  font-size: clamp(11px, 1.2vw, 16px);
+  font-size: calc(var(--native-slides-tabbar-height, 38px) * 0.42);
   color: var(--ns-page-color, var(--text-muted));
   font-variant-numeric: tabular-nums;
 }
