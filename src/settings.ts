@@ -28,6 +28,17 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Show slides bar")
+      .setDesc("Master toggle for the entire slides bar at the bottom of the window")
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.showSlidesBar).onChange(async (value) => {
+          this.plugin.settings.showSlidesBar = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        }),
+      );
+
+    new Setting(containerEl)
       .setName("Show Previous/Next buttons")
       .setDesc(
         "Show ◀ ▶ buttons on the left of the slides bar when the note belongs to a deck (has a `deck` property)",
@@ -56,7 +67,7 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Show progress bar")
       .setDesc(
-        "Thin clickable line at the top of the slides bar -- click anywhere to jump to that slide",
+        "Discrete clickable segments at the top of the slides bar -- one per slide, click to jump",
       )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showProgress).onChange(async (value) => {

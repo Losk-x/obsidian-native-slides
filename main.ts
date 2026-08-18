@@ -326,7 +326,7 @@ export default class NativeSlidesPlugin extends Plugin {
     this.syncPointerClass(slides);
     this.updateInlineTitle(slides);
 
-    const barVisible = slides && !this.settings.barHidden;
+    const barVisible = slides && this.settings.showSlidesBar && !this.settings.barHidden;
     if (!barVisible) {
       this.bar.style.display = "none";
       return;

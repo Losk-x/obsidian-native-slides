@@ -15,6 +15,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 ### Changed
 
 - **Page number format**: now shows `N / Total` instead of "Overview" / "Page N". Overview is page 0; content pages start from 1; total excludes the overview page.
+- **Settings defaults**: `showPageNumber` now defaults to off (progress segments alone give enough context); new `showSlidesBar` master toggle (default on) can hide the entire bar.
 
 ## [0.1.0] - 2026-08-18
 
