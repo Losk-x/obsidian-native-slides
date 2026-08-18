@@ -285,6 +285,18 @@ export default class NativeSlidesPlugin extends Plugin {
     void this.app.workspace.openLinkText(target, file.path);
   }
 
+  /** Jump to a specific index in the deck chain (progress bar click) */
+  async jumpTo(index: number): Promise<void> {
+    const file = this.app.workspace.getActiveFile();
+    if (!file) return;
+    const deck = this.deckService.compute(file);
+    if (!deck || index < 0 || index >= deck.chain.length || index === deck.index) return;
+    const target = deck.chain[index];
+    if (!target) return;
+    if (!this.slidesMode) await this.enterSlides();
+    void this.app.workspace.openLinkText(target, file.path);
+  }
+
   // ── Bar rendering ─────────────────────────────────────────────────────
 
   /** Decide what the slides bar shows, then re-render it */
@@ -369,6 +381,23 @@ export default class NativeSlidesPlugin extends Plugin {
       // chain[0] is the overview note; slides start at index 1 → "Page 1"
       page.textContent = deck.index === 0 ? "Overview" : `Page ${deck.index}`;
       this.bar.appendChild(page);
+    }
+
+    // ── Progress indicator: thin clickable line at the top of the bar ──
+    if (this.settings.showProgress && deck && deck.chain.length > 1) {
+      const progress = document.createElement("div");
+      progress.className = "native-slides-progress";
+      const fill = document.createElement("div");
+      fill.className = "native-slides-progress-fill";
+      fill.style.width = `${(deck.index / (deck.chain.length - 1)) * 100}%`;
+      progress.appendChild(fill);
+      progress.addEventListener("click", (e) => {
+        const rect = progress.getBoundingClientRect();
+        const ratio = (e.clientX - rect.left) / rect.width;
+        const targetIndex = Math.round(ratio * (deck.chain.length - 1));
+        void this.jumpTo(Math.max(0, Math.min(deck.chain.length - 1, targetIndex)));
+      });
+      this.bar.appendChild(progress);
     }
 
     // Hide the slides bar entirely when it has nothing to display (no properties,

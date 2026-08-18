@@ -43,11 +43,24 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Show page number")
       .setDesc(
-        "Auto-computed from the deck chain (overview page shows “Overview”); shown at the bottom-right",
+        'Auto-computed from the deck chain (overview page shows "Overview"); shown at the bottom-right',
       )
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showPageNumber).onChange(async (value) => {
           this.plugin.settings.showPageNumber = value;
+          await this.plugin.saveSettings();
+          this.plugin.refresh();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName("Show progress bar")
+      .setDesc(
+        "Thin clickable line at the top of the slides bar -- click anywhere to jump to that slide",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.showProgress).onChange(async (value) => {
+          this.plugin.settings.showProgress = value;
           await this.plugin.saveSettings();
           this.plugin.refresh();
         }),

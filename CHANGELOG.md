@@ -8,6 +8,10 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ## [Unreleased]
 
+### Added
+
+- **Deck progress indicator**: a thin clickable line at the top of the slides bar shows your position in the deck (filled with the accent color). Click anywhere on the line to jump to that slide. Toggle under Settings → Show progress bar (default on).
+
 ## [0.1.0] - 2026-08-18
 
 ### Added

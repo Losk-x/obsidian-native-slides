@@ -145,6 +145,27 @@ body.native-slides-pointer-hidden * {
   font-variant-numeric: tabular-nums;
 }
 
+/* ── 6b. Progress indicator (thin clickable line at bar top) ── */
+.native-slides-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  cursor: pointer;
+  background: var(--ns-progress-track, var(--background-modifier-border));
+  z-index: 1;
+}
+.native-slides-progress:hover {
+  height: 5px;
+}
+.native-slides-progress-fill {
+  height: 100%;
+  background: var(--ns-progress-fill, var(--interactive-accent));
+  transition: width 0.15s ease;
+  pointer-events: none;
+}
+
 /* ── 6c. Slides layout symmetry ────────────────────────────
    The slides bar matches the top tab bar's height (measured at runtime
    → --native-slides-tabbar-height). */
