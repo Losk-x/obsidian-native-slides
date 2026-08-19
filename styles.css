@@ -87,6 +87,45 @@ body.native-slides-pointer-hidden * {
   font-weight: 600;
 }
 
+/* ── 4b. Bar properties: configurable columns with draggable dividers ── */
+.native-slides-bar-properties {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-left: 1px solid var(--background-modifier-border);
+  border-right: 1px solid var(--background-modifier-border);
+}
+.native-slides-bar-prop-item {
+  flex-grow: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 10px;
+  color: var(--text-normal);
+  font-size: var(--font-ui-smaller, 12px);
+  line-height: 1.4;
+  text-align: center;
+  border-right: 1px solid var(--background-modifier-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.native-slides-bar-prop-item:last-child {
+  border-right: none;
+}
+.native-slides-bar-divider {
+  flex: 0 0 6px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+}
+
 /* Broken deck-link warning */
 .native-slides-warn {
   color: var(--text-warning, #e5a50a);
