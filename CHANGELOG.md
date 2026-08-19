@@ -8,14 +8,22 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-19
+
 ### Added
 
+- **New Slides Deck command**: one-click creation of a new deck overview note with a Base filter view (shows all slides linking to the overview) and built-in instructions for adding slides via the Create Next Slide command. Run from the command palette: "New slides deck".
 - **Configurable bar properties**: choose which frontmatter properties appear in the slides bar and in what order. Settings → Bar properties accepts a comma-separated list (e.g. `university, short-title, date`); each value fills an equal-width column, and draggable dividers between columns let you resize them interactively (widths persist across sessions). Empty = no property columns. Missing properties are skipped silently.
 - **Deck progress indicator**: discrete clickable segments at the top of the slides bar — one segment per slide in the deck chain. Past segments use semi-transparent accent, current uses full accent, future uses track colour. Each segment is an independent hover/click target to jump to that slide. Toggle under Settings → Show progress bar (default on).
 - **Escape exits Slides mode**: press Escape to leave Slides mode and return to the previous view. Toggle under Settings → Escape exits Slides mode (default on).
 
+### Fixed
+
+- **Create Next Slide on new overview**: the command now works on overview notes created by "New Slides Deck" even when the placeholder link points to a non-existent note (previously failed because deck computation required bidirectional links). When the overview's deck link points to a missing note, Create Next Slide creates that exact note as the first slide.
+
 ### Changed
 
+- **Command names**: all command names updated to sentence case for better command palette display (e.g., "Create next slide" instead of "Create Next Slide").
 - **Page number format**: now shows `N / Total` instead of "Overview" / "Page N". Overview is page 0; content pages start from 1; total excludes the overview page.
 - **Settings defaults**: `pageNumberStyle` now defaults to "none" (progress segments alone give enough context); new `showSlidesBar` master toggle (default on) can hide the entire bar. Page number is now a dropdown: "N / Total", "N", or "None".
 
