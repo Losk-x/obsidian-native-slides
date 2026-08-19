@@ -499,7 +499,7 @@ export async function dumpTypography(plugin: NativeSlidesPlugin): Promise<void> 
 export function registerDebugCommand(plugin: NativeSlidesPlugin): void {
   plugin.addCommand({
     id: "ns-debug-styles",
-    name: "Debug: Dump Typography Styles",
+    name: "Debug: dump typography styles",
     callback: () => void dumpTypography(plugin),
   });
 }

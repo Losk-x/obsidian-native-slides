@@ -68,8 +68,27 @@ export class DeckService {
       });
     }
 
-    // Off-chain note: still create its declared missing next note when the
-    // overview link resolves (the ⚠ broken-link warning disappears).
+    // Off-chain note: check if this could be an overview with a broken link
+    // to the first slide (e.g., from "New Slides Deck" command).
+    if (raw.length === 1) {
+      const firstSlideName = extractLinks(raw[0])[0];
+      if (
+        firstSlideName &&
+        !this.app.metadataCache.getFirstLinkpathDest(firstSlideName, file.path)
+      ) {
+        // This is an overview with a broken link to the first slide — create it
+        return plan({
+          currentName: file.basename,
+          currentLinks: raw,
+          isOverview: true,
+          overviewBackLink: `[[${file.basename}]]`,
+          existingNames,
+        });
+      }
+    }
+
+    // Off-chain slide: still create its declared missing next note when the
+    // overview link resolves (the  broken-link warning disappears).
     const overviewName = raw.length >= 2 ? extractLinks(raw[0])[0] : null;
     if (overviewName && this.app.metadataCache.getFirstLinkpathDest(overviewName, file.path)) {
       return plan({

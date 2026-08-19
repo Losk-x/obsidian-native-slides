@@ -77,11 +77,18 @@ export function planCreateNext(input: CreateNextInput): CreateNextResult | null 
   if (isOverview) {
     const oldFirst = currentLinks[0];
     if (!oldFirst) return null;
-    const newName = uniqueName(`${currentName}-next`, input.existingNames);
+    const oldFirstName = extractLinkText(oldFirst);
+    const firstPageExists = oldFirstName && input.existingNames.has(oldFirstName);
+    // When the declared first-page note does not exist yet, create exactly
+    // that note (honours the placeholder link from "New Slides Deck").
+    const newName =
+      oldFirstName && !firstPageExists
+        ? oldFirstName
+        : uniqueName(`${currentName}-next`, input.existingNames);
     const back = input.overviewBackLink ?? `[[${currentName}]]`;
     return {
       newName,
-      newDeckLinks: [back, oldFirst],
+      newDeckLinks: firstPageExists ? [back, oldFirst] : [back],
       rewrites: [{ name: currentName, deck: [`[[${newName}]]`] }],
     };
   }
