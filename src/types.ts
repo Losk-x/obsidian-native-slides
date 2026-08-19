@@ -34,6 +34,10 @@ export interface NativeSlidesSettings {
   slidesTitle: string;
   /** Style template id from SLIDES_THEMES (card + bar appearance) */
   slidesTheme: string;
+  /** Comma-separated frontmatter property names for the slides bar (empty = none) */
+  barProperties: string;
+  /** JSON array of column width percentages for bar properties (draggable dividers) */
+  barPropertyWidths: string;
 }
 
 export const DEFAULT_SETTINGS: NativeSlidesSettings = {
@@ -46,6 +50,8 @@ export const DEFAULT_SETTINGS: NativeSlidesSettings = {
   escExitsSlides: true,
   slidesTitle: "",
   slidesTheme: "jyy",
+  barProperties: "",
+  barPropertyWidths: "",
 };
 
 /** Reserved frontmatter key driving deck navigation (never rendered as a chip) */

@@ -306,6 +306,29 @@ export default class NativeSlidesPlugin extends Plugin {
 
   // ── Bar rendering ─────────────────────────────────────────────────────
 
+  /**
+   * Get column width percentages for the bar properties. Returns an array of
+   * percentages (summing to 100) for each property. Loads from settings or
+   * defaults to equal distribution.
+   */
+  private getBarPropertyWidths(count: number): number[] {
+    try {
+      const stored = JSON.parse(this.settings.barPropertyWidths || "[]");
+      if (Array.isArray(stored) && stored.length === count && stored.every((n) => typeof n === "number")) {
+        return stored;
+      }
+    } catch {
+      // ignore
+    }
+    return Array(count).fill(100 / count);
+  }
+
+  /** Save column width percentages to settings */
+  private async saveBarPropertyWidths(widths: number[]): Promise<void> {
+    this.settings.barPropertyWidths = JSON.stringify(widths);
+    await this.saveSettings();
+  }
+
   /** Decide what the slides bar shows, then re-render it */
   refresh(): void {
     if (!this.bar) return;
@@ -364,19 +387,73 @@ export default class NativeSlidesPlugin extends Plugin {
       this.bar.appendChild(nav);
     }
 
-    // ── Middle: chips for the remaining properties (no placeholder) ──
-    const visible = fm
-      ? Object.entries(fm).filter(([key]) => key !== DECK_KEY && key !== "position")
-      : [];
+    // ── Middle: configured property columns with draggable dividers ──
+    const propNames = this.settings.barProperties
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
-    for (const [key, value] of visible) {
-      const span = document.createElement("span");
-      span.className = "native-slides-item";
-      const k = document.createElement("strong");
-      k.textContent = key;
-      span.appendChild(k);
-      span.appendChild(document.createTextNode(": " + formatValue(value)));
-      this.bar.appendChild(span);
+    if (propNames.length > 0 && fm) {
+      const entries: [string, string][] = [];
+      for (const name of propNames) {
+        if (name in fm) {
+          const val = fm[name];
+          if (val != null) entries.push([name, formatValue(val)]);
+        }
+      }
+
+      if (entries.length > 0) {
+        const container = document.createElement("div");
+        container.className = "native-slides-bar-properties";
+
+        const widths = this.getBarPropertyWidths(entries.length);
+
+        for (let i = 0; i < entries.length; i++) {
+          const [, value] = entries[i];
+          const item = document.createElement("span");
+          item.className = "native-slides-bar-prop-item";
+          item.style.flexBasis = `calc(${widths[i]}% - ${((entries.length - 1) * 4) / entries.length}px)`;
+          item.textContent = value;
+          container.appendChild(item);
+
+          if (i < entries.length - 1) {
+            const divider = document.createElement("div");
+            divider.className = "native-slides-bar-divider";
+            divider.addEventListener("mousedown", (e) => {
+              e.preventDefault();
+              const startX = e.clientX;
+              const containerWidth = container.clientWidth;
+              const initialWidths = [...widths];
+              const onMove = (ev: MouseEvent) => {
+                const delta = ((ev.clientX - startX) / containerWidth) * 100;
+                const newLeft = Math.max(5, initialWidths[i] + delta);
+                const newRight = Math.max(5, initialWidths[i + 1] - delta);
+                widths[i] = newLeft;
+                widths[i + 1] = newRight;
+                const items = container.querySelectorAll<HTMLElement>(
+                  ".native-slides-bar-prop-item",
+                );
+                items[i].style.flexBasis = `calc(${newLeft}% - ${((entries.length - 1) * 4) / entries.length}px)`;
+                items[i + 1].style.flexBasis = `calc(${newRight}% - ${((entries.length - 1) * 4) / entries.length}px)`;
+              };
+              const onUp = () => {
+                document.removeEventListener("mousemove", onMove);
+                document.removeEventListener("mouseup", onUp);
+                document.body.style.cursor = "";
+                document.body.style.userSelect = "";
+                void this.saveBarPropertyWidths(widths);
+              };
+              document.addEventListener("mousemove", onMove);
+              document.addEventListener("mouseup", onUp);
+              document.body.style.cursor = "col-resize";
+              document.body.style.userSelect = "none";
+            });
+            container.appendChild(divider);
+          }
+        }
+
+        this.bar.appendChild(container);
+      }
     }
 
     // Broken deck links → warning chip so deck authors spot typos

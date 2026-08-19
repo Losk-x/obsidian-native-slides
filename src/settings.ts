@@ -124,6 +124,22 @@ export class NativeSlidesSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Bar properties")
+      .setDesc(
+        "Comma-separated frontmatter property names to show in the slides bar (e.g. `university, short-title, date`). Each value fills an equal-width column; drag dividers to resize. Leave empty to show nothing.",
+      )
+      .addText((text) =>
+        text
+          .setPlaceholder("e.g. university, date")
+          .setValue(this.plugin.settings.barProperties)
+          .onChange(async (value) => {
+            this.plugin.settings.barProperties = value;
+            await this.plugin.saveSettings();
+            this.plugin.refresh();
+          }),
+      );
+
+    new Setting(containerEl)
       .setName("Navigation hotkeys")
       .setDesc(
         "Default: Previous Page Mod+Shift+←, Next Page Mod+Shift+→. Rebind under Settings → Hotkeys.",
