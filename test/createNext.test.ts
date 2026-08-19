@@ -108,13 +108,26 @@ describe("planCreateNext", () => {
 
   // ── overview → insert a new first page ─────────────────────────────────
 
-  it("inserts a new first page after the overview", () => {
+  it("creates the missing first-page note when the overview link points to a non-existent note", () => {
     const plan = planCreateNext({
       currentName: "overview",
       currentLinks: ["[[welcome]]"],
       isOverview: true,
       overviewBackLink: "[[overview]]",
       existingNames: noNames,
+    })!;
+    expect(plan.newName).toBe("welcome");
+    expect(plan.newDeckLinks).toEqual(["[[overview]]"]);
+    expect(plan.rewrites).toEqual([{ name: "overview", deck: ["[[welcome]]"] }]);
+  });
+
+  it("inserts a new first page when the old first page already exists", () => {
+    const plan = planCreateNext({
+      currentName: "overview",
+      currentLinks: ["[[welcome]]"],
+      isOverview: true,
+      overviewBackLink: "[[overview]]",
+      existingNames: new Set(["welcome"]),
     })!;
     expect(plan.newName).toBe("overview-next");
     expect(plan.newDeckLinks).toEqual(["[[overview]]", "[[welcome]]"]);
@@ -126,7 +139,7 @@ describe("planCreateNext", () => {
       currentName: "overview",
       currentLinks: ["[[welcome]]"],
       isOverview: true,
-      existingNames: noNames,
+      existingNames: new Set(["welcome"]),
     })!;
     expect(plan.newDeckLinks).toEqual(["[[overview]]", "[[welcome]]"]);
   });
