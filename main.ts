@@ -314,7 +314,11 @@ export default class NativeSlidesPlugin extends Plugin {
   private getBarPropertyWidths(count: number): number[] {
     try {
       const stored = JSON.parse(this.settings.barPropertyWidths || "[]");
-      if (Array.isArray(stored) && stored.length === count && stored.every((n) => typeof n === "number")) {
+      if (
+        Array.isArray(stored) &&
+        stored.length === count &&
+        stored.every((n) => typeof n === "number")
+      ) {
         return stored;
       }
     } catch {
@@ -433,8 +437,10 @@ export default class NativeSlidesPlugin extends Plugin {
                 const items = container.querySelectorAll<HTMLElement>(
                   ".native-slides-bar-prop-item",
                 );
-                items[i].style.flexBasis = `calc(${newLeft}% - ${((entries.length - 1) * 4) / entries.length}px)`;
-                items[i + 1].style.flexBasis = `calc(${newRight}% - ${((entries.length - 1) * 4) / entries.length}px)`;
+                items[i].style.flexBasis =
+                  `calc(${newLeft}% - ${((entries.length - 1) * 4) / entries.length}px)`;
+                items[i + 1].style.flexBasis =
+                  `calc(${newRight}% - ${((entries.length - 1) * 4) / entries.length}px)`;
               };
               const onUp = () => {
                 document.removeEventListener("mousemove", onMove);
