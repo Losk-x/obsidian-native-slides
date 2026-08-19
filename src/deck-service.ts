@@ -72,7 +72,10 @@ export class DeckService {
     // to the first slide (e.g., from "New Slides Deck" command).
     if (raw.length === 1) {
       const firstSlideName = extractLinks(raw[0])[0];
-      if (firstSlideName && !this.app.metadataCache.getFirstLinkpathDest(firstSlideName, file.path)) {
+      if (
+        firstSlideName &&
+        !this.app.metadataCache.getFirstLinkpathDest(firstSlideName, file.path)
+      ) {
         // This is an overview with a broken link to the first slide — create it
         return plan({
           currentName: file.basename,
