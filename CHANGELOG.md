@@ -10,6 +10,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security. Omit any categ
 
 ### Added
 
+- **Configurable bar properties**: choose which frontmatter properties appear in the slides bar and in what order. Settings → Bar properties accepts a comma-separated list (e.g. `university, short-title, date`); each value fills an equal-width column, and draggable dividers between columns let you resize them interactively (widths persist across sessions). Empty = no property columns. Missing properties are skipped silently.
 - **Deck progress indicator**: discrete clickable segments at the top of the slides bar — one segment per slide in the deck chain. Past segments use semi-transparent accent, current uses full accent, future uses track colour. Each segment is an independent hover/click target to jump to that slide. Toggle under Settings → Show progress bar (default on).
 - **Escape exits Slides mode**: press Escape to leave Slides mode and return to the previous view. Toggle under Settings → Escape exits Slides mode (default on).
 
